@@ -3,19 +3,30 @@
 </script>
 
 <script lang="ts">
-import PixelGrid from '$lib/PixelGrid.svelte'
-import { generateGrid } from '$lib/generateGrid'
+import PixelArt from '../PixelArt.svelte'
+import { createRoomId } from '$lib/createRoomId'
+import { onMount } from 'svelte'
+import { createClient } from '@liveblocks/client'
+import LiveblocksProvider from '../lib-liveblocks/LiveblocksProvider.svelte'
+import RoomProvider from '../lib-liveblocks/RoomProvider.svelte'
 
-const grid = generateGrid(8, 8, { color: 'skyblue' })
+let id
+let loaded = false
+let client
 
-function handlePixelChange ({ detail }) {
-  console.log(detail.row, detail.col)
-  grid[detail.row][detail.col] = { color: 'red' }
-}
+onMount(() => {
+  id = createRoomId()
+  client = createClient({
+    authEndpoint: '/api/auth'
+  })
+  loaded = true
+})
 </script>
 
-<div class="max-w-xl">
-  <div class="relative w-full pt-[100%]">
-    <PixelGrid grid={grid} borders={true} on:pixelChange={handlePixelChange} />
-  </div>
-</div>
+{#if loaded}
+  <LiveblocksProvider {client}>
+    <RoomProvider id={'sveltekit-pixel-art-' + id}>
+      <PixelArt />
+    </RoomProvider>
+  </LiveblocksProvider>
+{/if}
