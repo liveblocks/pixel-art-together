@@ -7,12 +7,8 @@
 	<title>Home</title>
 </svelte:head>
 
-
-
-<!-- LiveblocksProvider here -->
 <Header />
 
-
-<main>
+<main class="w-full h-full">
 	<slot />
 </main>

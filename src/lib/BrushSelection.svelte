@@ -11,6 +11,9 @@
 
   $: dispatch('brushChange', brush)
   onMount(() => dispatch('brushChange', brush))
+
+  // https://efeskucuk.github.io/svelte-color-picker/
+  // https://sseemayer.github.io/svelte-colorpick/
 </script>
 
 <div>

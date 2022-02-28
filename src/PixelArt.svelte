@@ -26,14 +26,27 @@ function handlePixelChange ({ detail }) {
 }
 </script>
 
-<div class="max-w-xl">
-  <div class="relative w-full pt-[100%]">
-    <PixelGrid grid={grid} borders={true} on:pixelChange={handlePixelChange} />
+<div class="flex min-h-full">
+  <div class="w-[300px]">
+
   </div>
-  <div>
-    <BrushSelection on:brushChange={handleBrushChange} />
+
+  <div class="flex-grow flex justify-center items-center bg-white">
+    <div class="max-w-xl">
+      <div class="relative w-full pt-[100%]">
+        <PixelGrid grid={grid} borders={true} on:pixelChange={handlePixelChange} />
+      </div>
+
+    </div>
+  </div>
+
+  <div class="w-[300px]">
+    <div>
+      <BrushSelection on:brushChange={handleBrushChange} />
+    </div>
   </div>
 </div>
+
 
 <!--
   Include undo button

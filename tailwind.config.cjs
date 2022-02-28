@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        karla: 'Karla, Inter, sans-serif'
+        sans: 'Karla, Inter, sans-serif'
       },
       colors: {
         gray: {
