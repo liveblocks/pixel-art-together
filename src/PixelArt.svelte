@@ -40,7 +40,7 @@ function handlePixelChange ({ detail }) {
     </div>
   </div>
 
-  <div class="w-[300px]">
+  <div class="w-auto flex-grow-0 flex-shrink-0">
     <div>
       <BrushSelection on:brushChange={handleBrushChange} />
     </div>
