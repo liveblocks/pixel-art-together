@@ -10,7 +10,7 @@ import { setContext } from 'svelte'
 export let client: Client
 
 if (!client) {
-  console.error('LiveblocksProvider requires a client')
+  throw new Error('LiveblocksProvider requires a client')
 }
 
 setContext<Client>(clientSymbol, client)

@@ -22,3 +22,13 @@ html, body {
     rgba(82, 0, 255, 0.1) 91.4%
   );
 }
+
+.transparent-bg {
+  background-image: linear-gradient(45deg, var(--sl-color-neutral-300) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--sl-color-neutral-300) 75%), linear-gradient(45deg, transparent 75%, var(--sl-color-neutral-300) 75%), linear-gradient(45deg, var(--sl-color-neutral-300) 25%, transparent 25%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 0, -5px -5px, 5px 5px;
+}
+
+.inner-border {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}

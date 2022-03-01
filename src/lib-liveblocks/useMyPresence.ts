@@ -1,6 +1,5 @@
 import type { Presence } from '@liveblocks/client'
 import { onDestroy } from 'svelte'
-import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
 import { useRoom } from './useRoom'
 
@@ -8,31 +7,41 @@ import { useRoom } from './useRoom'
  * Works similarly to `liveblocks-react` useMyPresence
  * https://liveblocks.io/docs/api-reference/liveblocks-react#useMyPresence
  *
- * The main difference is that it returns a Svelte store:
+ * The main difference is that it returns a custom Svelte store:
  * const presence = useMyPresence()
- * $presence.set({ name: 'Chris })
+ * presence.update({ name: 'Chris })
  * console.log($presence.name)
+ * <div>{$presence.count}</div>
  *
  * USAGE NOTE:
- * Changing the value of `presence` will not SET your presence, but UPDATE it.
- * This is slightly inconsistent with general Svelte store usage, where
- * presence.update(oldVal => ({ ...oldVal, newProp: 'hi' })) would be used to
- * update, but it is consistent with `liveblocks-react`
+ * This is a custom Svelte store, `set` does nothing, only `update`.
+ * `update` does NOT take a function like regular Svelte stores,
+ * it takes an object and works like `useUpdateMyPresence` in Liveblocks
  */
-export function useMyPresence (): Writable<Presence> | null {
+
+export function useMyPresence (): any {
   const room = useRoom()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
-  const presence = writable<Presence>()
-  const unsubscribeStore = presence.subscribe(newPresence => {
+  const { subscribe, set } = writable<Presence>()
+
+  function update (newPresence) {
     room.updatePresence(newPresence)
+  }
+
+  const unsubscribePresence = room.subscribe('my-presence', presence => {
+    set(presence)
   })
 
-  onDestroy(unsubscribeStore)
+  onDestroy(() => {
+    unsubscribePresence()
+  })
 
-  return presence
+  return {
+    subscribe,
+    update
+  }
 }

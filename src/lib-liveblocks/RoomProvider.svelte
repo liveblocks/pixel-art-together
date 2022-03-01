@@ -11,7 +11,7 @@
   export let defaultPresence = () => ({})
 
   if (!id) {
-    console.error('RoomProvider requires an id')
+    throw new Error('RoomProvider requires an id')
   }
 
   const client = getContext<Client>(clientSymbol)

@@ -8,3 +8,9 @@ export type Pixel = {
 export type PixelGrid = Pixel[][]
 
 export type PixelGridCoords = [number, number]
+
+export type Layer = {
+  grid: PixelGrid
+  opacity: number
+  blendMode: string
+}

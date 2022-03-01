@@ -14,12 +14,11 @@ import { useRoom } from './useRoom'
  * $list.push([{ item: 1 }])
  * console.log([...$list])
  */
-export function useList<T> (name: string, initial?: any[]): Writable<LiveList<T>> | null {
+export function useList<T> (name: string, initial?: any[]): Writable<LiveList<T>> {
   const room = useRoom()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
   const rootStore = useStorage()

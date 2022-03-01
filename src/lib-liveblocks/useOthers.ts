@@ -12,12 +12,11 @@ import { useRoom } from './useRoom'
  * const others = useOthers()
  * console.log(others.value)
  */
-export function useOthers (): Writable<Others> | null {
+export function useOthers (): Writable<Others> {
   const room = useRoom()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
   const others = writable<Others>()

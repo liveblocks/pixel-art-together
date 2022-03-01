@@ -6,13 +6,12 @@ import { useRoom } from './useRoom'
 /**
  * No `liveblocks-react` public API equivalent, but useStorage is used internally
  */
-export function useStorage (): Writable<LiveObject> | null {
+export function useStorage (): Writable<LiveObject> {
   const room = useRoom()
   const rootStore = writable<LiveObject>()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
   async function fetchStorage () {

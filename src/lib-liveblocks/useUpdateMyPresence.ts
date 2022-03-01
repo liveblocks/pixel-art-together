@@ -1,14 +1,20 @@
+import { useMyPresence } from './useMyPresence'
+
 /**
- * NOT NECESSARY
- * Import usePresence instead and use in one of two ways
- * This will have the exact same effect
+ * Works similarly to `liveblocks-react` useUpdateMyPresence
+ * https://liveblocks.io/docs/api-reference/liveblocks-react#useUpdateMyPresence
  *
- * const presence = usePresence()
- * // 1.
- * $presence = { name: 'Chris' }
+ * const updateMyPresence = useUpdateMyPresence()
+ * updateMyPresence({ name: 'Chris' })
  *
- * // 2.
- * presence.set({ name: 'Chris' })
+ *
+ * Can also import useMyPresence instead and use .update() instead:
+ *
+ * const myPresence = useMyPresence()
+ * myPresence.update({ name: 'Chris' })
  */
 
-export {}
+export function useUpdateMyPresence (): (val: any) => void {
+  const presence = useMyPresence()
+  return updatedPresence => presence.update(updatedPresence)
+}

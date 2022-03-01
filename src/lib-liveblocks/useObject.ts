@@ -14,18 +14,16 @@ import { useRoom } from './useRoom'
  * $obj.set('name', 'Chris')
  * console.log($obj.get('name'))
  */
-export function useObject (name: string, initial?: any): Writable<LiveObject> | null {
+export function useObject (name: string, initial?: any): Writable<LiveObject> {
   const room = useRoom()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
   const rootStore = useStorage()
   const list = writable<LiveObject>()
-  let unsubscribe = () => {
-  }
+  let unsubscribe = () => {}
 
   const unsubscribeRoot = rootStore.subscribe(root => {
     if (!root) {

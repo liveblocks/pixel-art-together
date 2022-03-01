@@ -3,12 +3,11 @@ import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
 import { useRoom } from './useRoom'
 
-export function useSelf (): Writable<any> | null {
+export function useSelf (): Writable<any> {
   const room = useRoom()
 
   if (!room) {
-    console.error('Use RoomProvider as parent with id prop')
-    return null
+    throw new Error('Use RoomProvider as parent with id prop')
   }
 
   const self = writable()
