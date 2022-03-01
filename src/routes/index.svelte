@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import PixelArt from '../PixelArt.svelte'
-import { createRoomId } from '$lib/createRoomId'
+import { createRoomId } from '$lib/utils/createRoomId'
 import { onMount } from 'svelte'
 import { createClient } from '@liveblocks/client'
 import LiveblocksProvider from '../lib-liveblocks/LiveblocksProvider.svelte'

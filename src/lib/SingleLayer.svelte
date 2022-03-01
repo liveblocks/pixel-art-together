@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { blendModes } from '$lib/blendModes'
+  import { blendModes } from '$lib/utils/blendModes'
   import type { Layer } from '../types'
 
   export let layer: Layer

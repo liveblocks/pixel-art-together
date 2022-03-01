@@ -9,8 +9,7 @@
   let getColorName: (hex: string) => string = hex => hex
 
   onMount(async () => {
-    const { default: ntc } = await import('$lib/nameThatColor.js')
-    console.log(ntc)
+    const { default: ntc } = await import('$lib/utils/nameThatColor.js')
     getColorName = hex => ntc.name(hex)[1]
   })
 </script>

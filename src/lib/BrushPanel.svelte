@@ -58,5 +58,15 @@
   --sl-font-sans: Karla, Inter, sans-serif;
   --sl-panel-border-width: 0;
   --sl-font-size-medium: 14px;
+  /*
+  --sl-color-primary-50: ;
+  --sl-color-primary-100: ;
+  --sl-color-primary-200: ;
+  --sl-color-primary-300: ;
+  --sl-color-primary-400: ;
+  --sl-color-primary-500: ;
+  --sl-color-primary-600: ;
+  --sl-color-primary-700: ;
+   */
 }
 </style>

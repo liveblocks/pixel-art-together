@@ -1,5 +1,5 @@
 <script lang="ts">
-import { copyUrlToClipboard } from '$lib/copyText'
+import { copyUrlToClipboard } from '$lib/utils/copyText'
 
 let copied = false
 

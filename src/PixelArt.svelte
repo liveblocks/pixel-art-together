@@ -1,6 +1,6 @@
 <script lang="ts">
 import PixelGrid from '$lib/PixelGrid.svelte'
-import { generateGrid } from '$lib/generateGrid'
+import { generateGrid } from '$lib/utils/generateGrid'
 import BrushPanel from '$lib/BrushPanel.svelte'
 import { useMyPresence, useOthers, useSelf } from './lib-liveblocks'
 import LayersPanel from '$lib/LayersPanel.svelte'
@@ -8,7 +8,9 @@ import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
 import CopyLinkButton from '$lib/CopyLinkButton.svelte'
 
-let grid = generateGrid(12, 12, { color: 'skyblue' })
+// TODO add panzoom
+
+let grid = generateGrid(16, 16, { color: 'skyblue' })
 
 const myPresence = useMyPresence()
 const others = useOthers()
@@ -64,9 +66,9 @@ function handlePixelChange ({ detail }) {
     </div>
   </div>
 
-  <div class="flex-grow flex justify-center items-center bg-gray-100">
-    <div class="max-w-xl">
-      <div class="relative w-full pt-[100%]">
+  <div class="flex-grow flex justify-center items-center bg-gray-100 p-12">
+    <div class="w-full max-w-2xl">
+      <div class="relative w-full max-h-full">
         <PixelGrid grid={grid} borders={true} on:pixelChange={handlePixelChange} />
       </div>
 
