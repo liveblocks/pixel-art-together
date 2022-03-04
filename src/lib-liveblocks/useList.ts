@@ -16,15 +16,9 @@ import { useRoom } from './useRoom'
  */
 export function useList<T> (name: string, initial?: any[]): Writable<LiveList<T>> {
   const room = useRoom()
-
-  if (!room) {
-    throw new Error('Use RoomProvider as parent with id prop')
-  }
-
   const rootStore = useStorage()
   const list = writable<LiveList<T>>()
-  let unsubscribe = () => {
-  }
+  let unsubscribe = () => {}
 
   const unsubscribeRoot = rootStore.subscribe(root => {
     if (!root) {

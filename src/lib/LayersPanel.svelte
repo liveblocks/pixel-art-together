@@ -1,8 +1,18 @@
 <script lang="ts">
   import type { Layer } from '../types'
   import SingleLayer from '$lib/SingleLayer.svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
+  const dispatch = createEventDispatcher()
 
   export let layers: Layer[] = []
+
+  let selectedLayer
+
+  $: dispatch('layerChange', selectedLayer)
+  onMount(() => {
+    dispatch('layerChange', selectedLayer)
+  })
+
 </script>
 
 

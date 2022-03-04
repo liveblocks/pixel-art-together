@@ -49,7 +49,13 @@
 <div class="p-5 pb-2 border-b-2 border-gray-100">
   <div class="text-sm font-semibold pb-3 text-gray-500">Colour</div>
   <div>
-    <sl-color-picker on:sl-change={colorChange} bind:this={colorPicker} inline opacity swatches></sl-color-picker>
+    <sl-color-picker
+      on:sl-change={colorChange}
+      bind:this={colorPicker}
+      inline
+      opacity
+      swatches
+    ></sl-color-picker>
   </div>
 </div>
 

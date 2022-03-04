@@ -1,18 +1,19 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
-  import type { PixelGrid, PixelGridCoords } from '../types'
+  import type { Layer, PixelGrid } from '../types'
   import SinglePixel from '$lib/SinglePixel.svelte'
   const dispatch = createEventDispatcher()
 
+  export let layers: Layer[]
   export let grid: PixelGrid = [[]]
   export let borders: boolean = false
 
-  const cols = grid.length
-  const rows = grid[0].length
+  const cols = layers[0].grid.length
+  const rows = layers[0].grid[0].length
 
   let mouseIsDown = false
 
-  function pixelChange ([col, row]: PixelGridCoords) {
+  function pixelChange ({ col, row }) {
     dispatch('pixelChange', {
       col,
       row
@@ -29,7 +30,7 @@
 
   function handleMouseOver ({ detail }) {
     if (mouseIsDown) {
-      pixelChange([detail.col, detail.row])
+      pixelChange(detail)
     }
   }
 </script>
@@ -39,13 +40,13 @@
     class="grid select-none"
     style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0);"
   >
-    {#each grid as row, i}
+    {#each layers[0].grid as row, i}
       {#each row as pixel, j}
         <SinglePixel
           {pixel}
           row={i}
           col={j}
-          on:change={() => pixelChange([j, i])}
+          on:change={() => pixelChange({ col: j, row: i })}
           on:mousedown={handleMouseDown}
           on:mouseup={handleMouseUp}
           on:mouseover={handleMouseOver}

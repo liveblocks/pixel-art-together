@@ -2,38 +2,140 @@
 import PixelGrid from '$lib/PixelGrid.svelte'
 import { generateGrid } from '$lib/utils/generateGrid'
 import BrushPanel from '$lib/BrushPanel.svelte'
-import { useMyPresence, useOthers, useSelf } from './lib-liveblocks'
+import { useList, useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
 import LayersPanel from '$lib/LayersPanel.svelte'
 import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
 import CopyLinkButton from '$lib/CopyLinkButton.svelte'
 
 // TODO add panzoom
+// https://github.com/anvaka/panzoom
+// Can zoom from center when not holding space
 
-let grid = generateGrid(16, 16, { color: 'skyblue' })
+//let grid = generateGrid(16, 16, { color: 'skyblue' })
+
+// TODO generate instead
+const pixelStorage = useObject('pixelStorage', {
+  LAY0_COL0_ROW0: { color: 'red' },
+  LAY0_COL1_ROW0: { color: 'orange' },
+  LAY0_COL2_ROW0: { color: 'yellow' },
+  LAY0_COL0_ROW1: { color: 'green' },
+  LAY0_COL1_ROW1: { color: 'blue' },
+  LAY0_COL2_ROW1: { color: 'indigo' },
+  LAY0_COL0_ROW2: { color: 'violet' },
+  LAY0_COL1_ROW2: { color: 'red' },
+  LAY0_COL2_ROW2: { color: 'orange' }
+})
+
+// Holds information about each layer
+const layerStorage = useList('layerStorage', [{
+  id: 0,
+  opacity: 1,
+  blendMode: 'normal'
+}])
+
+// Convert a pixel object into a pixel key
+const pixelToKey = ({ layer = $myPresence.selectedLayer, col, row }) => `LAY${layer}_COL${col}_ROW${row}`
+
+// Convert a pixel key into a pixel object
+const keyToPixel = (key: string)  => {
+  const props = key.split('_').map(str => parseInt(str.slice(3)))
+  return { layer: props[0], col: props[1], row: props[2] }
+}
+
+// Get the current pixel, using a pixel object
+const getPixel = (pixelProps) => {
+  return $pixelStorage.get(pixelToKey(pixelProps))
+}
+
+// Update the current pixel, using a pixel object to access
+const updatePixel = (pixelProps, newObj) => {
+  return $pixelStorage.set(pixelToKey(pixelProps), newObj)
+}
+
+/**
+ * Returns an object containing all layers and pixel grids, for general use
+ */
+let formattedLayers = []
+$: {
+  if (pixelStorage && $layerStorage) {
+    const currentPixels = Object.keys($pixelStorage.toObject())
+      .map(key => ({ key, ...keyToPixel(key) }))
+
+    formattedLayers = $layerStorage.map(layer => {
+      const grid = []
+      currentPixels.forEach(pixel => {
+        if (layer.id ==! pixel.layer) {
+          return
+        }
+
+        if (!grid[pixel.row]) {
+          grid[pixel.row] = []
+        }
+
+        if (!grid[pixel.row][pixel.col]) {
+          grid[pixel.row][pixel.col] = []
+        }
+
+        grid[pixel.row][pixel.col] = getPixel(pixel)
+      })
+      return { grid, ...layer }
+    })
+  }
+}
+
+
+setTimeout(() => {
+
+  console.log(123, formattedLayers)
+  //console.log('PIXEP', getPixel({ col: 2, row: 1 }))
+
+  //console.log([...$layerStorage])
+  //console.log(new LiveList([1, 2, 3]).toArray())
+}, 2000)
+
+
+
+
+
+
+
+
 
 const myPresence = useMyPresence()
 const others = useOthers()
 const self = useSelf()
 
 myPresence.update({
-  selectedLayer: 'Layer 0'
+  selectedLayer: 0
 })
 
 $: $others ? console.log($others.toArray()?.[0]?.presence?.brush || 'no others') : null
 
-
-
 function handleBrushChange ({ detail }) {
-  console.log('brush', detail)
+  //console.log('brush', detail)
   myPresence.update({ brush: detail })
 }
 
 function handlePixelChange ({ detail }) {
   console.log(detail)
-  if ($myPresence) {
-    grid[detail.row][detail.col] = { color: $myPresence.brush.color || '#000' }
+  if (!$myPresence || !$pixelStorage) {
+    return
   }
+
+  updatePixel({
+    row: detail.row,
+    col: detail.col,
+    layer: $myPresence.selectedLayer
+    }, {
+      color: $myPresence.brush.color || '#000'
+    }
+  )
+
+
+  //$layerStorage[0]grid[detail.row][detail.col] = {
+  //  color: $myPresence.brush.color || '#000'
+ // }
 }
 </script>
 
@@ -66,12 +168,14 @@ function handlePixelChange ({ detail }) {
     </div>
   </div>
 
+
   <div class="flex-grow flex justify-center items-center bg-gray-100 p-12">
     <div class="w-full max-w-2xl">
       <div class="relative w-full max-h-full">
-        <PixelGrid grid={grid} borders={true} on:pixelChange={handlePixelChange} />
+        {#if formattedLayers?.length}
+          <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
+        {/if}
       </div>
-
     </div>
   </div>
 

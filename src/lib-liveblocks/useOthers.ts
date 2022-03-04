@@ -8,17 +8,14 @@ import { useRoom } from './useRoom'
  * Works similarly to `liveblocks-react` useOthers
  * https://liveblocks.io/docs/api-reference/liveblocks-react#useOthers
  *
- * This uses a vue ref so make sure to use .value
+ * The main difference is that it returns a Svelte store:
  * const others = useOthers()
- * console.log(others.value)
+ * console.log($others.value)
+ * {#each [...$others] as other}
+ *    ...
  */
 export function useOthers (): Writable<Others> {
   const room = useRoom()
-
-  if (!room) {
-    throw new Error('Use RoomProvider as parent with id prop')
-  }
-
   const others = writable<Others>()
 
   const unsubscribe = room.subscribe('others', newOthers => {

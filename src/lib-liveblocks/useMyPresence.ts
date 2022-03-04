@@ -21,11 +21,6 @@ import { useRoom } from './useRoom'
 
 export function useMyPresence (): any {
   const room = useRoom()
-
-  if (!room) {
-    throw new Error('Use RoomProvider as parent with id prop')
-  }
-
   const { subscribe, set } = writable<Presence>()
 
   function update (newPresence) {

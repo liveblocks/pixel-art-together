@@ -10,10 +10,6 @@ export function useStorage (): Writable<LiveObject> {
   const room = useRoom()
   const rootStore = writable<LiveObject>()
 
-  if (!room) {
-    throw new Error('Use RoomProvider as parent with id prop')
-  }
-
   async function fetchStorage () {
     const { root }: { root: LiveObject } = await room!.getStorage()
     rootStore.set(root)

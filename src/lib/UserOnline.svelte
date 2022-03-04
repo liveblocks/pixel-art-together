@@ -25,7 +25,7 @@
     <div class="pl-3 overflow-hidden">
       <div class="font-medium">{name}</div>
       <div class="text-sm text-gray-500 whitespace-nowrap overflow-hidden overflow-ellipsis mr-2">
-        <span class="font-semibold">{selectedLayer}</span>, {getColorName(color.slice(0, 7))}</div>
+        <span class="font-semibold">Layer {selectedLayer}</span>, {getColorName(color.slice(0, 7))}</div>
     </div>
   </div>
   <div class="transparent-bg w-[36px] h-[36px] relative">
