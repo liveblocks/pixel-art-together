@@ -2,7 +2,7 @@
   import logo from '../../static/liveblocks.svg'
 </script>
 
-<header class="flex justify-between py-5 px-8">
+<header class="flex justify-between py-5 px-8 border-b-2 border-gray-100">
   <h1 class="text-2xl">
     <span class="font-extrabold tracking-tighter text-black">Pixel art</span>
     <span class="font-medium text-gray-500 tracking-tight">together</span>
@@ -20,3 +20,9 @@
     </a>
   </div>
 </header>
+
+<style>
+  header {
+    height: var(--header-height);
+  }
+</style>

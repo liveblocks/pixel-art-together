@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
   import type { Layer, PixelGrid } from '../types'
   import SinglePixel from '$lib/SinglePixel.svelte'
+  import * as panzoom from 'panzoom'
   const dispatch = createEventDispatcher()
 
   export let layers: Layer[]
@@ -13,7 +14,41 @@
 
   let mouseIsDown = false
 
+  let panElement
+  let panInstance
+  let panning = false
+
+  $: {
+    if (panInstance) {
+      panInstance[panning ? 'resume' : 'pause']()
+    }
+  }
+
+  onMount(() => {
+    // @ts-ignore
+    panInstance = panzoom(panElement, {
+      transformOrigin: { x: 0.5, y: 0.5 },
+      smoothScroll: true
+    })
+    panning = false
+  })
+
+  function handleKeyDown ({ code }) {
+    if (panInstance && code === 'Space') {
+      panning = true
+    }
+  }
+
+  function handleKeyUp ({ code }) {
+    if (panInstance && code === 'Space') {
+      panning = false
+    }
+  }
+
   function pixelChange ({ col, row }) {
+    if (panning) {
+      return
+    }
     dispatch('pixelChange', {
       col,
       row
@@ -33,40 +68,48 @@
       pixelChange(detail)
     }
   }
+
+
 </script>
 
-<div class="relative">
-  <div
-    class="grid select-none"
-    style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"
-  >
+<svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
 
-    {#each layers[0].grid as row, i}
-      {#each row as pixel, j}
-        <SinglePixel
-          {pixel}
-          row={i}
-          col={j}
-          on:change={() => pixelChange({ col: j, row: i })}
-          on:mousedown={handleMouseDown}
-          on:mouseup={handleMouseUp}
-          on:mouseover={handleMouseOver}
-         />
-      {/each}
-    {/each}
-  </div>
+<div class="w-full max-w-2xl" bind:this={panElement} style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }">
+  <div class="relative w-full max-h-full">
+    <div class="relative">
+      <div
+        class="grid select-none"
+        style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"
+      >
 
-  {#if borders}
-    <div class="absolute inset-0 overflow-hidden select-none pointer-events-none opacity-100 mix-blend-difference">
-      <svg class="absolute inset-[-1px]" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="grid" width="{100 / rows}%" height="{100 / cols}%" patternUnits="userSpaceOnUse">
-            <path d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" class="" />
-      </svg>
+        {#each layers[0].grid as row, i}
+          {#each row as pixel, j}
+            <SinglePixel
+              {pixel}
+              row={i}
+              col={j}
+              on:change={() => pixelChange({ col: j, row: i })}
+              on:mousedown={handleMouseDown}
+              on:mouseup={handleMouseUp}
+              on:mouseover={handleMouseOver}
+             />
+          {/each}
+        {/each}
+      </div>
+
+      {#if borders}
+        <div class="absolute inset-0 overflow-hidden select-none pointer-events-none opacity-100 mix-blend-difference">
+          <svg class="absolute inset-[-1px]" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="{100 / rows}%" height="{100 / cols}%" patternUnits="userSpaceOnUse">
+                <path d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" class="" />
+          </svg>
+        </div>
+      {/if}
+
     </div>
-  {/if}
-
+  </div>
 </div>

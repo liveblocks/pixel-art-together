@@ -1,12 +1,12 @@
 <script lang="ts">
 import PixelGrid from '$lib/PixelGrid.svelte'
-import { generateGrid } from '$lib/utils/generateGrid'
 import BrushPanel from '$lib/BrushPanel.svelte'
 import { useList, useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
 import LayersPanel from '$lib/LayersPanel.svelte'
 import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
 import CopyLinkButton from '$lib/CopyLinkButton.svelte'
+import { generateLayer } from '$lib/utils/generateLayer'
 
 // TODO add panzoom
 // https://github.com/anvaka/panzoom
@@ -14,18 +14,14 @@ import CopyLinkButton from '$lib/CopyLinkButton.svelte'
 
 //let grid = generateGrid(16, 16, { color: 'skyblue' })
 
-// TODO generate instead
-const pixelStorage = useObject('pixelStorage', {
-  LAY0_COL0_ROW0: { color: 'red' },
-  LAY0_COL1_ROW0: { color: 'orange' },
-  LAY0_COL2_ROW0: { color: 'yellow' },
-  LAY0_COL0_ROW1: { color: 'green' },
-  LAY0_COL1_ROW1: { color: 'blue' },
-  LAY0_COL2_ROW1: { color: 'indigo' },
-  LAY0_COL0_ROW2: { color: 'violet' },
-  LAY0_COL1_ROW2: { color: 'red' },
-  LAY0_COL2_ROW2: { color: 'orange' }
+const defaultLayer = generateLayer({
+  layer: 0,
+  rows: 16,
+  cols: 16,
+  defaultObject: { color: 'purple' }
 })
+
+const pixelStorage = useObject('pixelStorage', defaultLayer)
 
 // Holds information about each layer
 const layerStorage = useList('layerStorage', [{
@@ -35,12 +31,12 @@ const layerStorage = useList('layerStorage', [{
 }])
 
 // Convert a pixel object into a pixel key
-const pixelToKey = ({ layer = $myPresence.selectedLayer, col, row }) => `LAY${layer}_COL${col}_ROW${row}`
+const pixelToKey = ({ layer = $myPresence.selectedLayer, row, col }) => `LAY${layer}_ROW${row}_COL${col}`
 
 // Convert a pixel key into a pixel object
 const keyToPixel = (key: string)  => {
-  const props = key.split('_').map(str => parseInt(str.slice(3)))
-  return { layer: props[0], col: props[1], row: props[2] }
+  const [layer, row, col] = key.split('_').map(str => parseInt(str.slice(3)))
+  return { layer, row, col }
 }
 
 // Get the current pixel, using a pixel object
@@ -55,6 +51,20 @@ const updatePixel = (pixelProps, newObj) => {
 
 /**
  * Returns an object containing all layers and pixel grids, for general use
+ *
+ * Layers [
+ *   Layer {
+ *     Grid [
+ *       Row [
+ *         Pixel {
+ *           Color
+ *         }
+ *       ]
+ *     ]
+ *     Opacity
+ *     BlendMode
+ *   }
+ * ]
  */
 let formattedLayers = []
 $: {
@@ -140,7 +150,7 @@ function handlePixelChange ({ detail }) {
 </script>
 
 <div class="flex min-h-full bg-white">
-  <div class="w-[300px] py-5">
+  <div class="side-panel w-[300px] py-5 overflow-y-auto">
     {#if $others}
       <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
       {#if $myPresence && $self}
@@ -165,21 +175,20 @@ function handlePixelChange ({ detail }) {
     <div class="px-5">
       <div class="border-t-2 border-gray-100 mt-3 pt-5 text-sm font-semibold pb-1 text-gray-500">Share with friends</div>
       <CopyLinkButton />
+      <p class="text-center mt-2 text-gray-600 text-sm">
+        Share link to play together
+      </p>
     </div>
   </div>
 
-
-  <div class="flex-grow flex justify-center items-center bg-gray-100 p-12">
-    <div class="w-full max-w-2xl">
-      <div class="relative w-full max-h-full">
-        {#if formattedLayers?.length}
-          <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
-        {/if}
-      </div>
-    </div>
+  <div class="main-panel flex-grow flex justify-center items-center bg-gray-100 p-12 overflow-hidden">
+    <div></div>
+    {#if formattedLayers?.length}
+      <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
+    {/if}
   </div>
 
-  <div class="w-auto flex-grow-0 flex-shrink-0 bg-white">
+  <div class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto">
     <BrushPanel on:brushChange={handleBrushChange} />
     <LayersPanel />
     <ExportsPanel />
@@ -192,3 +201,26 @@ function handlePixelChange ({ detail }) {
   Show other users brush state
   Brushes can have color/opacity/blend mode/size?/shape?
 -->
+
+<style>
+  .main-panel, .side-panel {
+    max-height: calc(100vh - var(--header-height));
+  }
+
+  .side-panel {
+    scrollbar-width: thin;
+  }
+
+  .side-panel::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .side-panel::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .side-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border: transparent;
+  }
+</style>

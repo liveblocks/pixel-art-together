@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --header-height: 72px;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -11,7 +15,7 @@ html, body {
   @apply fixed w-full h-full;
 }
 
-.custom-gradient, body {
+.custom-gradient {
   background: linear-gradient(232.7deg,
     rgba(105, 128, 252, 0.1) 4.3%,
     rgba(22, 72, 248, 0.1) 11.35%,
