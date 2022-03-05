@@ -7,12 +7,9 @@ import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
 import CopyLinkButton from '$lib/CopyLinkButton.svelte'
 import { generateLayer } from '$lib/utils/generateLayer'
-
-// TODO add panzoom
-// https://github.com/anvaka/panzoom
-// Can zoom from center when not holding space
-
-//let grid = generateGrid(16, 16, { color: 'skyblue' })
+import IconButton from '$lib/IconButton.svelte'
+import { useUndo } from './lib-liveblocks/useUndo'
+import { useRedo } from './lib-liveblocks/useRedo'
 
 const defaultLayer = generateLayer({
   layer: 0,
@@ -21,13 +18,15 @@ const defaultLayer = generateLayer({
   defaultObject: { color: 'purple' }
 })
 
+// Holds each pixel
 const pixelStorage = useObject('pixelStorage', defaultLayer)
 
 // Holds information about each layer
 const layerStorage = useList('layerStorage', [{
   id: 0,
   opacity: 1,
-  blendMode: 'normal'
+  blendMode: 'normal',
+  hidden: false
 }])
 
 // Convert a pixel object into a pixel key
@@ -110,11 +109,11 @@ setTimeout(() => {
 
 
 
-
-
 const myPresence = useMyPresence()
 const others = useOthers()
 const self = useSelf()
+
+
 
 myPresence.update({
   selectedLayer: 0
@@ -147,6 +146,9 @@ function handlePixelChange ({ detail }) {
   //  color: $myPresence.brush.color || '#000'
  // }
 }
+
+const undo = useUndo()
+const redo = useRedo()
 </script>
 
 <div class="flex min-h-full bg-white">
@@ -178,19 +180,43 @@ function handlePixelChange ({ detail }) {
       <p class="text-center mt-2 text-gray-600 text-sm">
         Share link to play together
       </p>
+      <div class="mx-auto mt-8 text-center">
+        <sl-qr-code value={window.location.href} label="Scan this code to visit Shoelace on the web!"></sl-qr-code>
+      </div>
     </div>
   </div>
 
-  <div class="main-panel flex-grow flex justify-center items-center bg-gray-100 p-12 overflow-hidden">
-    <div></div>
-    {#if formattedLayers?.length}
-      <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
-    {/if}
+  <div class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col">
+    <div class="flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
+      <div>
+        toolbar
+      </div>
+      <div class="flex gap-3">
+
+        <IconButton screenReader="Undo" on:click={() => undo()}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+          </svg>
+        </IconButton>
+
+        <IconButton screenReader="Redo" on:click={() => redo()}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </IconButton>
+
+      </div>
+    </div>
+    <div class="flex-grow relative">
+      {#if formattedLayers?.length}
+        <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
+      {/if}
+    </div>
   </div>
 
   <div class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto">
     <BrushPanel on:brushChange={handleBrushChange} />
-    <LayersPanel />
+    <LayersPanel layers={formattedLayers} />
     <ExportsPanel />
   </div>
 </div>

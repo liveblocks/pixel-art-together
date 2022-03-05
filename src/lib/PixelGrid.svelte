@@ -3,6 +3,7 @@
   import type { Layer, PixelGrid } from '../types'
   import SinglePixel from '$lib/SinglePixel.svelte'
   import * as panzoom from 'panzoom'
+  import { useHistory } from '../lib-liveblocks/useHistory'
   const dispatch = createEventDispatcher()
 
   export let layers: Layer[]
@@ -18,6 +19,8 @@
   let panInstance
   let panning = false
 
+  const history = useHistory()
+
   $: {
     if (panInstance) {
       panInstance[panning ? 'resume' : 'pause']()
@@ -27,8 +30,8 @@
   onMount(() => {
     // @ts-ignore
     panInstance = panzoom(panElement, {
-      transformOrigin: { x: 0.5, y: 0.5 },
-      smoothScroll: true
+      // transformOrigin: { x: 0.5, y: 0.5 },
+      // smoothScroll: true
     })
     panning = false
   })
@@ -57,10 +60,12 @@
 
   function handleMouseDown ({ detail }) {
     mouseIsDown = true
+    history.pause()
   }
 
   function handleMouseUp ({ detail }) {
     mouseIsDown = false
+    history.resume()
   }
 
   function handleMouseOver ({ detail }) {
@@ -74,9 +79,9 @@
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
 
-<div class="w-full max-w-2xl" bind:this={panElement} style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }">
-  <div class="relative w-full max-h-full">
-    <div class="relative">
+<div class="absolute inset-0 flex justify-center items-center p-12" bind:this={panElement} style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }">
+  <div class="relative w-full max-h-full max-w-2xl">
+    <div class="relative max-h-full" style="max-height: 100%; height: 100%;">
       <div
         class="grid select-none"
         style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"

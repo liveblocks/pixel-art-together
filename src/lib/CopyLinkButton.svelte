@@ -1,13 +1,20 @@
 <script lang="ts">
 import { copyUrlToClipboard } from '$lib/utils/copyText'
+import { onMount } from 'svelte'
 
-let copied = false
+let copied
+
+onMount(async () => {
+  await import('@shoelace-style/shoelace/dist/components/button/button.js')
+  copied = false
+})
 
 function copy () {
   copyUrlToClipboard()
   copied = true
   setTimeout(() => copied = false, 1000)
 }
+
 </script>
 
 <sl-button class="mt-2 w-full" on:click={copy} disabled={copied}>
