@@ -7,7 +7,6 @@ export function debounce (func, wait, immediate) {
 
     const later = function () {
       timeout = null
-      console.log(1)
       if (!immediate) {
         return func.apply(context, args)
       }

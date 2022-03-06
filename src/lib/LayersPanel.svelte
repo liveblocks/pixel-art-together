@@ -2,21 +2,54 @@
   import type { Layer } from '../types'
   import { createEventDispatcher, onMount } from 'svelte'
   import { blendModes } from '$lib/utils/blendModes'
-  import IconButton from '$lib/IconButton.svelte'
+  import { useList, useMyPresence, useRoom } from '../lib-liveblocks'
+  import { useBatch } from '../lib-liveblocks/useBatch'
+  import { debounce } from '$lib/utils/debounce'
 
   const dispatch = createEventDispatcher()
+  const myPresence = useMyPresence()
+  const layerStorage = useList('layerStorage')
+  const room = useRoom()
+  const batch = useBatch()
 
   export let layers: Layer[] = []
 
-  let selectedLayer = 0
-
-  $: dispatch('layerChange', selectedLayer)
+  $: dispatch('layerChange', $myPresence?.selectedLayer || 0)
   onMount(async () => {
-    dispatch('layerChange', selectedLayer)
-    await import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
-    await import('@shoelace-style/shoelace/dist/components/menu/menu.js')
-    await import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
+    dispatch('layerChange', $myPresence?.selectedLayer || 0)
+    import('@shoelace-style/shoelace/dist/components/range/range.js')
+    import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
+    import('@shoelace-style/shoelace/dist/components/menu/menu.js')
+    import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
   })
+
+  async function handleBlendModeChange ({ detail }) {
+    if (!$myPresence) {
+      return
+    }
+
+    const index = [...$layerStorage].findIndex(layer => layer.id === $myPresence.selectedLayer)
+    room.batch(() => {
+      const oldLayer = $layerStorage.get(index)
+      const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
+      $layerStorage.delete(index)
+      $layerStorage.insert(newLayer, index)
+    })
+  }
+
+  const handleOpacityChange = debounce(async function ({ target }) {
+    if (!$myPresence) {
+      return
+    }
+
+    const index = [...$layerStorage].findIndex(layer => layer.id === $myPresence.selectedLayer)
+    batch(() => {
+      const oldLayer = $layerStorage.get(index)
+      const newLayer = { ...oldLayer, opacity: target.__value / 100 }
+      $layerStorage.delete(index)
+      $layerStorage.insert(newLayer, index)
+    })
+  }, 100, false)
 
 </script>
 
@@ -31,24 +64,35 @@
         {/each}
       </select>
       -->
-        <div class="border-b">
-          <sl-dropdown>
+        {#if $layerStorage}
+        <div class="border-b flex justify-between items-middle">
+          <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
+          <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange} hoist>
             <sl-button variant="text" slot="trigger" caret>
               <span class="capitalize">
-                {layers[selectedLayer]?.blendMode || 'normal'}
+                {layers[$myPresence?.selectedLayer]?.blendMode || 'normal'}
               </span>
             </sl-button>
-            <sl-menu>
-              {#each blendModes as mode (mode.name)}
-              <sl-menu-item value={mode.name}>{mode.label}</sl-menu-item>
-            {/each}
+            <sl-menu class="relative z-10">
+              {#each blendModes as mode ('blendModes' + mode.name)}
+                <sl-menu-item data-value={mode.name}>
+                  <div class="text-sm">{mode.label}</div>
+                </sl-menu-item>
+              {/each}
             </sl-menu>
           </sl-dropdown>
+
+          <div class="flex justify-center items-center pr-4 max-w-[140px]">
+            <label for="opacity-changer" class="sr-only">Change opacity</label>
+            <sl-range id="opacity-changer" on:sl-change={handleOpacityChange}></sl-range>
+          </div>
         </div>
-        {#each layers as layer (layer.id)}
+        {/if}
+
+        {#each layers as layer ('layerId-' + layer.id)}
           <div
-            on:click={() => selectedLayer = layer.id}
-            class="flex py-0.5 gap-1 justify-between items-center {selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
+            on:click={() => myPresence?.update({ selectedLayer: layer.id })}
+            class="cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
           >
 
           <div class="flex items-center">
@@ -71,7 +115,7 @@
           </div>
 
           <div class="mr-3">
-            {layer.opacity * 100}%, {layer.blendMode}
+            {Math.round(layer.opacity * 100)}%, {layer.blendMode}
           </div>
 
         </div>

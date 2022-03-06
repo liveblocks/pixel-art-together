@@ -74,17 +74,9 @@ $: {
     formattedLayers = $layerStorage.map(layer => {
       const grid = []
       currentPixels.forEach(pixel => {
-        if (layer.id ==! pixel.layer) {
-          return
-        }
-
-        if (!grid[pixel.row]) {
-          grid[pixel.row] = []
-        }
-
-        if (!grid[pixel.row][pixel.col]) {
-          grid[pixel.row][pixel.col] = []
-        }
+        if (layer.id ==! pixel.layer) return
+        if (!grid[pixel.row]) grid[pixel.row] = []
+        if (!grid[pixel.row][pixel.col]) grid[pixel.row][pixel.col] = []
 
         grid[pixel.row][pixel.col] = getPixel(pixel)
       })
@@ -95,12 +87,7 @@ $: {
 
 
 setTimeout(() => {
-
   console.log(123, formattedLayers)
-  //console.log('PIXEP', getPixel({ col: 2, row: 1 }))
-
-  //console.log([...$layerStorage])
-  //console.log(new LiveList([1, 2, 3]).toArray())
 }, 2000)
 
 
@@ -140,11 +127,6 @@ function handlePixelChange ({ detail }) {
       color: $myPresence.brush.color || '#000'
     }
   )
-
-
-  //$layerStorage[0]grid[detail.row][detail.col] = {
-  //  color: $myPresence.brush.color || '#000'
- // }
 }
 
 const undo = useUndo()

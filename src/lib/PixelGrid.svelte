@@ -73,8 +73,6 @@
       pixelChange(detail)
     }
   }
-
-
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
