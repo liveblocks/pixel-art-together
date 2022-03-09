@@ -2,7 +2,7 @@
   import { createEventDispatcher, onMount } from 'svelte'
   import type { Layer, PixelGrid } from '../types'
   import SinglePixel from '$lib/SinglePixel.svelte'
-  import * as panzoom from 'panzoom'
+  import panzoom from 'panzoom'
   import { useHistory } from '../lib-liveblocks/useHistory'
   const dispatch = createEventDispatcher()
 
