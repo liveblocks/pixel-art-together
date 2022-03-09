@@ -60,6 +60,8 @@
       $layerStorage.delete(index)
       $layerStorage.insert(newLayer, index)
     })
+
+    blendText.innerText = detail.item.dataset.value
   }
 
   const handleOpacityChange = debounce(async function ({ target }) {
