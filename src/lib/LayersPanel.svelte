@@ -2,33 +2,58 @@
   import type { Layer } from '../types'
   import { createEventDispatcher, onMount } from 'svelte'
   import { blendModes } from '$lib/utils/blendModes'
-  import { useList, useMyPresence, useRoom } from '../lib-liveblocks'
+  import { useList, useMyPresence, useObject, useRoom } from '../lib-liveblocks'
   import { useBatch } from '../lib-liveblocks/useBatch'
   import { debounce } from '$lib/utils/debounce'
+  import { generateLayer } from '$lib/utils/generateLayer'
+
+  export let layers: Layer[] = []
+
+  $: layersReverse = [...layers].reverse()
 
   const dispatch = createEventDispatcher()
   const myPresence = useMyPresence()
-  const layerStorage = useList('layerStorage')
   const room = useRoom()
   const batch = useBatch()
 
-  export let layers: Layer[] = []
+  const layerStorage = useList('layerStorage')
+  const pixelStorage = useObject('pixelStorage')
+
+  function getLayerIndexFromId (id) {
+    return layers.findIndex(layer => layer.id === id)
+  }
+
+  function getLayerIndexFromSelected () {
+    return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
+  }
+
+  let rangeElement
+  let blendText
+
+  $: {
+    if (rangeElement) {
+      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100
+    }
+  }
 
   $: dispatch('layerChange', $myPresence?.selectedLayer || 0)
   onMount(async () => {
     dispatch('layerChange', $myPresence?.selectedLayer || 0)
+
     import('@shoelace-style/shoelace/dist/components/range/range.js')
     import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
     import('@shoelace-style/shoelace/dist/components/menu/menu.js')
     import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
   })
 
+
+
   async function handleBlendModeChange ({ detail }) {
     if (!$myPresence) {
       return
     }
 
-    const index = [...$layerStorage].findIndex(layer => layer.id === $myPresence.selectedLayer)
+    const index = getLayerIndexFromSelected()
     room.batch(() => {
       const oldLayer = $layerStorage.get(index)
       const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
@@ -42,14 +67,70 @@
       return
     }
 
-    const index = [...$layerStorage].findIndex(layer => layer.id === $myPresence.selectedLayer)
+    const firstIndex = getLayerIndexFromSelected()
+    let dupes = []
+    $layerStorage.map(layer => {
+      if (layer.id === firstIndex) {
+        dupes.push(firstIndex)
+      }
+    })
+    const oldLayer = $layerStorage.get(firstIndex)
+    const newLayer = { ...oldLayer, opacity: target.__value / 100 }
     batch(() => {
-      const oldLayer = $layerStorage.get(index)
-      const newLayer = { ...oldLayer, opacity: target.__value / 100 }
-      $layerStorage.delete(index)
-      $layerStorage.insert(newLayer, index)
+      dupes.forEach(dupe => $layerStorage.delete(dupe))
+      $layerStorage.insert(newLayer, firstIndex)
     })
   }, 100, false)
+
+  function toggleVisibility (layerId) {
+    const oldLayer = $layerStorage.get(layerId)
+    const newLayer = { ...oldLayer, hidden: !oldLayer.hidden }
+    batch(() => {
+      $layerStorage.delete(layerId)
+      $layerStorage.insert(newLayer, layerId)
+    })
+  }
+
+  function addLayer () {
+    let newId = 0
+    $layerStorage.map(layer => {
+      if (layer.id > newId) {
+        newId = layer.id
+      }
+    })
+    newId++
+
+    const generatedLayer = generateLayer({
+      layer: newId,
+      cols: layers[0].grid.length,
+      rows: layers[0].grid[0].length,
+      defaultObject: { color: 'red' }
+    })
+    $pixelStorage.update(generatedLayer)
+    $layerStorage.push({
+      id: newId,
+      opacity: 1,
+      blendMode: 'normal',
+      hidden: false
+    })
+  }
+
+  function deleteLayer (id) {
+    if ([...$layerStorage].length > 1) {
+      const layerIndex = getLayerIndexFromId(id)
+      $layerStorage.delete(layerIndex)
+    }
+  }
+
+  function changeLayer (id) {
+    myPresence?.update({ selectedLayer: id })
+    if (blendText) {
+      blendText.innerText = layers[getLayerIndexFromSelected()]?.blendMode || 'normal'
+    }
+    if (rangeElement) {
+      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100
+    }
+  }
 
 </script>
 
@@ -57,46 +138,51 @@
   <div class="font-semibold pb-3 text-gray-500">Layers</div>
     <div class="text-sm text-gray-700">
       <div class="border rounded-[4px] border-[#D4D4D8]">
-      <!--
-      <select class="bg-transparent hover:bg-gray-100 py-3 px-2 m-0 w-28">
-        {#each blendModes as mode (mode.name)}
-          <option value={mode.name}>{mode.label}</option>
-        {/each}
-      </select>
-      -->
-        {#if $layerStorage}
-        <div class="border-b flex justify-between items-middle">
-          <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
-          <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange} hoist>
-            <sl-button variant="text" slot="trigger" caret>
-              <span class="capitalize">
-                {layers[$myPresence?.selectedLayer]?.blendMode || 'normal'}
-              </span>
-            </sl-button>
-            <sl-menu class="relative z-10">
-              {#each blendModes as mode ('blendModes' + mode.name)}
-                <sl-menu-item data-value={mode.name}>
-                  <div class="text-sm">{mode.label}</div>
-                </sl-menu-item>
-              {/each}
-            </sl-menu>
-          </sl-dropdown>
 
-          <div class="flex justify-center items-center pr-4 max-w-[140px]">
-            <label for="opacity-changer" class="sr-only">Change opacity</label>
-            <sl-range id="opacity-changer" on:sl-change={handleOpacityChange}></sl-range>
+        {#if $layerStorage}
+          <div class="border-b flex justify-between items-middle">
+            <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
+            <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange} hoist>
+              <sl-button variant="text" slot="trigger" caret>
+                <span class="capitalize" bind:this={blendText}>
+                  {layers[getLayerIndexFromSelected()]?.blendMode || 'normal'}
+                </span>
+              </sl-button>
+              <sl-menu class="relative z-10">
+                {#each blendModes as mode ('blendModes' + mode.name)}
+                  <sl-menu-item data-value={mode.name}>
+                    <div class="text-sm">{mode.label}</div>
+                  </sl-menu-item>
+                {/each}
+              </sl-menu>
+            </sl-dropdown>
+
+            <div class="flex justify-center items-center pr-4 max-w-[140px]">
+              <label for="opacity-changer" class="sr-only">Change opacity</label>
+              <sl-range id="opacity-changer" on:sl-change={handleOpacityChange} bind:this={rangeElement}></sl-range>
+            </div>
           </div>
-        </div>
         {/if}
 
-        {#each layers as layer ('layerId-' + layer.id)}
+        <div on:click={addLayer} class="px-2 py-2.5 bg-gray-50 flex group cursor-pointer">
+          <span class="pr-2 text-gray-400 group-hover:text-gray-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">
+            Add new layer
+          </span>
+        </div>
+
+        {#each layersReverse as layer}
           <div
-            on:click={() => myPresence?.update({ selectedLayer: layer.id })}
-            class="cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
+            on:click={changeLayer(layer.id)}
+            class="border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
           >
 
           <div class="flex items-center">
-            <div on:click={() => layer.hidden = !layer.hidden} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <div on:click={toggleVisibility(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
               {#if layer.hidden}
                 <div class="sr-only">Hide</div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -113,10 +199,17 @@
             </div>
             Layer {layer.id}
           </div>
+            <div>
+              {Math.round(layer.opacity * 100)}%, {layer.blendMode}
+            </div>
 
-          <div class="mr-3">
-            {Math.round(layer.opacity * 100)}%, {layer.blendMode}
+
+          <div on:click={deleteLayer(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
           </div>
+
 
         </div>
       {/each}

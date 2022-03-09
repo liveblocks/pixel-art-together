@@ -5,7 +5,6 @@ export function generateLayer ({ layer, cols, rows, defaultObject }) {
       storage[`LAY${layer}_ROW${row}_COL${col}`] = { ...defaultObject }
     }
   }
-  console.log(storage)
   return storage
 }
 
