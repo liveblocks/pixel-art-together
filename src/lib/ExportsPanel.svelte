@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Canvg } from 'canvg'
+  import { onMount } from 'svelte'
 
   export let width = 2000
   export let ratio = 1
@@ -44,6 +45,10 @@
       link.parentNode.removeChild(link)
     }, 0)
   }
+
+  onMount(async () => {
+    await import('@shoelace-style/shoelace/dist/components/button-group/button-group.js')
+  })
 </script>
 
 <canvas id="export-canvas" class="hidden" width={width} height={width * ratio}></canvas>
@@ -51,7 +56,9 @@
 <div class="p-5 border-b-2 border-gray-100">
   <div class="text-sm font-semibold pb-3 text-gray-500">Exports</div>
   <div class="flex gap-3">
-    <sl-button on:click={handleSaveSvg}>Save as SVG</sl-button>
-    <sl-button on:click={handleSavePng}>Save as PNG</sl-button>
+    <sl-button-group  style="width: 100%;">
+      <sl-button style="width: 50%;" on:click={handleSaveSvg}>Download SVG</sl-button>
+      <sl-button style="width: 50%;" on:click={handleSavePng}>Download PNG</sl-button>
+    </sl-button-group>
   </div>
 </div>

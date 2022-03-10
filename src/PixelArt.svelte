@@ -5,19 +5,29 @@ import { useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
 import LayersPanel from '$lib/LayersPanel.svelte'
 import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
-import CopyLinkButton from '$lib/CopyLinkButton.svelte'
 import { generateLayer } from '$lib/utils/generateLayer'
 import IconButton from '$lib/IconButton.svelte'
 import { useUndo } from './lib-liveblocks/useUndo'
 import { useRedo } from './lib-liveblocks/useRedo'
+import SharePanel from '$lib/SharePanel.svelte'
 
-// TODO intro page, store state ie width height in new object, pass to exports panel
+/**
+ *  TODO
+ *  intro page
+ *  store state ie width height in new LiveObject, pass to exports panel
+ *  cursor for each user on canvas or highlight each pixel when changed
+ *  ? avatar appears in pixel for second
+ *  Save and fork button
+ *  Toggle grid switch
+ *  More brush sizes
+ *  When layer 0 doesn't exist, select a layer
+ */
 
 const defaultLayer = generateLayer({
   layer: 0,
   rows: 16,
   cols: 16,
-  defaultObject: { color: 'gray' }
+  defaultObject: { color: '#eccdf4' }
 })
 
 // Holds each pixel
@@ -93,6 +103,8 @@ const myPresence = useMyPresence()
 const others = useOthers()
 const self = useSelf()
 
+let showGrid = false
+
 myPresence.update({
   selectedLayer: 0
 })
@@ -122,45 +134,49 @@ const redo = useRedo()
 </script>
 
 <div class="flex min-h-full bg-white">
-  <div class="side-panel w-[300px] py-5 overflow-y-auto">
-    {#if $others}
-      <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
-      {#if $myPresence && $self}
-        <UserOnline
-          name={$self.info.name + ' (you)'}
-          picture={$self.info.picture}
-          color={$myPresence.brush.color}
-          selectedLayer={$myPresence.selectedLayer}
-        />
-      {/if}
-      {#each [...$others] as { connectionId, presence, info } (connectionId)}
-        {#if presence}
+  <div class="side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between">
+    <div>
+      {#if $others}
+        <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
+        {#if $myPresence && $self}
           <UserOnline
-            name={info.name}
-            picture={info.picture}
-            color={presence.brush.color}
-            selectedLayer={presence.selectedLayer}
+            name={$self.info.name + ' (you)'}
+            picture={$self.info.picture}
+            color={$myPresence.brush.color}
+            selectedLayer={$myPresence.selectedLayer}
           />
         {/if}
-      {/each}
-    {/if}
-    <div class="px-5">
-      <div class="border-t-2 border-gray-100 mt-3 pt-5 text-sm font-semibold pb-1 text-gray-500">Share with friends</div>
-      <CopyLinkButton />
-      <p class="text-center mt-2 text-gray-600 text-sm">
-        Share link to play together
-      </p>
-      <div class="mx-auto mt-8 text-center">
-        <sl-qr-code value={window.location.href} label="Scan this code to visit Shoelace on the web!"></sl-qr-code>
-      </div>
+        {#each [...$others] as { connectionId, presence, info } (connectionId)}
+          {#if presence}
+            <UserOnline
+              name={info.name}
+              picture={info.picture}
+              color={presence.brush.color}
+              selectedLayer={presence.selectedLayer}
+            />
+          {/if}
+        {/each}
+      {/if}
+      <SharePanel />
+    </div>
+    <div>
+      <!--<LinksPanel />-->
+      <!--<SwitchesPanel bind:showGrid={showGrid} />-->
     </div>
   </div>
 
   <div class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col">
-    <div class="flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
-      <div>
-        toolbar
+    <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
+      <div class="flex gap-3">
+
+        <IconButton screenReader="Toggle grid" toggled={showGrid} on:click={() => showGrid = !showGrid}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        </IconButton>
+
       </div>
+
       <div class="flex gap-3">
 
         <IconButton screenReader="Undo" on:click={() => undo()}>
@@ -179,7 +195,7 @@ const redo = useRedo()
     </div>
     <div class="flex-grow relative">
       {#if formattedLayers?.length}
-        <PixelGrid layers={formattedLayers} borders={true} on:pixelChange={handlePixelChange} />
+        <PixelGrid layers={formattedLayers} {showGrid} on:pixelChange={handlePixelChange} />
       {/if}
     </div>
   </div>

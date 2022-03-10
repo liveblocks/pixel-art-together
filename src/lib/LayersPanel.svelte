@@ -38,9 +38,7 @@
   }
 
   $: {
-    console.log(1)
     if ($myPresence && $myPresence.selectedLayer !== undefined) {
-      console.log(2)
       dispatch('layerChange', $myPresence.selectedLayer)
     }
   }
@@ -60,7 +58,7 @@
       return
     }
 
-    const index = getLayerIndexFromSelected()
+    const index = $myPresence.selectedLayer
     const oldLayer = $layerStorage.get('' + index)
     const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
     $layerStorage.set('' + $myPresence.selectedLayer, newLayer)
@@ -73,7 +71,7 @@
       return
     }
 
-    const firstIndex = getLayerIndexFromSelected()
+    const firstIndex = $myPresence.selectedLayer
     const oldLayer = $layerStorage.get('' + firstIndex)
     const newLayer = { ...oldLayer, opacity: target.__value / 100 }
     $layerStorage.set( '' + $myPresence.selectedLayer, newLayer)
@@ -193,7 +191,7 @@
           {#each layers as layer}
             <div
               on:click={() => changeLayer(layer.id)}
-              class="border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
+              class="group hover:bg-gray-50 transition-colors duration-100 border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100 font-semibold' : 'bg-white'}"
             >
 
             <div class="flex items-center">

@@ -9,7 +9,7 @@
   </h1>
   <div class="flex items-center gap-5">
     <a href="https://liveblocks.io" target="_blank">
-      <img src={logo} />
+      <img alt="Liveblocks logo" src={logo} />
     </a>
     <a href="https://github.com/CTNicholas/wordle-wars" target="_blank">
       <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
