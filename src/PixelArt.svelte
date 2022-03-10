@@ -1,7 +1,7 @@
 <script lang="ts">
 import PixelGrid from '$lib/PixelGrid.svelte'
 import BrushPanel from '$lib/BrushPanel.svelte'
-import { useList, useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
+import { useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
 import LayersPanel from '$lib/LayersPanel.svelte'
 import ExportsPanel from '$lib/ExportsPanel.svelte'
 import UserOnline from '$lib/UserOnline.svelte'
@@ -11,23 +11,27 @@ import IconButton from '$lib/IconButton.svelte'
 import { useUndo } from './lib-liveblocks/useUndo'
 import { useRedo } from './lib-liveblocks/useRedo'
 
+// TODO intro page, store state ie width height in new object, pass to exports panel
+
 const defaultLayer = generateLayer({
   layer: 0,
   rows: 16,
   cols: 16,
-  defaultObject: { color: 'purple' }
+  defaultObject: { color: 'gray' }
 })
 
 // Holds each pixel
 const pixelStorage = useObject('pixelStorage', defaultLayer)
 
 // Holds information about each layer
-const layerStorage = useList('layerStorage', [{
-  id: 0,
-  opacity: 1,
-  blendMode: 'normal',
-  hidden: false
-}])
+const layerStorage = useObject('layerStorage', {
+  0: {
+    id: 0,
+    opacity: 1,
+    blendMode: 'normal',
+    hidden: false
+  }
+})
 
 // Convert a pixel object into a pixel key
 const pixelToKey = ({ layer = $myPresence.selectedLayer, row, col }) => `LAY${layer}_ROW${row}_COL${col}`
@@ -71,36 +75,23 @@ $: {
     const currentPixels = Object.keys($pixelStorage.toObject())
       .map(key => ({ key, ...keyToPixel(key) }))
 
-    formattedLayers = $layerStorage.map(layer => {
+    formattedLayers = Object.values($layerStorage.toObject()).map(layer => {
       const grid = []
       currentPixels.forEach(pixel => {
-        if (layer.id ==! pixel.layer) return
+        if (layer.id !== pixel.layer) return
         if (!grid[pixel.row]) grid[pixel.row] = []
         if (!grid[pixel.row][pixel.col]) grid[pixel.row][pixel.col] = []
 
         grid[pixel.row][pixel.col] = getPixel(pixel)
       })
-      return { grid, ...layer }
+      return { ...layer, grid }
     })
   }
 }
 
-
-setTimeout(() => {
-  console.log(123, formattedLayers)
-}, 2000)
-
-
-
-
-
-
-
 const myPresence = useMyPresence()
 const others = useOthers()
 const self = useSelf()
-
-
 
 myPresence.update({
   selectedLayer: 0
@@ -109,12 +100,10 @@ myPresence.update({
 $: $others ? console.log($others.toArray()?.[0]?.presence?.brush || 'no others') : null
 
 function handleBrushChange ({ detail }) {
-  //console.log('brush', detail)
   myPresence.update({ brush: detail })
 }
 
 function handlePixelChange ({ detail }) {
-  console.log(detail)
   if (!$myPresence || !$pixelStorage) {
     return
   }
@@ -123,10 +112,9 @@ function handlePixelChange ({ detail }) {
     row: detail.row,
     col: detail.col,
     layer: $myPresence.selectedLayer
-    }, {
-      color: $myPresence.brush.color || '#000'
-    }
-  )
+  }, {
+    color: $myPresence.brush.color || '#000'
+  })
 }
 
 const undo = useUndo()
@@ -198,8 +186,10 @@ const redo = useRedo()
 
   <div class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto">
     <BrushPanel on:brushChange={handleBrushChange} />
-    <LayersPanel layers={formattedLayers} />
-    <ExportsPanel />
+    {#if formattedLayers}
+      <LayersPanel layers={formattedLayers} />
+      <ExportsPanel />
+    {/if}
   </div>
 </div>
 

@@ -26,5 +26,5 @@
   data-row={row}
   data-col={col}
   class="w-full h-full transition-colors duration-75 relative pt-[100%]"
-  style="background: {pixel.color}; transform: scale({$size}); z-index: {$size > 1 ? 10 : 0}"
 ></div>
+

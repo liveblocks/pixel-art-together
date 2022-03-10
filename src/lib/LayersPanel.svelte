@@ -2,21 +2,19 @@
   import type { Layer } from '../types'
   import { createEventDispatcher, onMount } from 'svelte'
   import { blendModes } from '$lib/utils/blendModes'
-  import { useList, useMyPresence, useObject, useRoom } from '../lib-liveblocks'
+  import { useMyPresence, useObject, useRoom } from '../lib-liveblocks'
   import { useBatch } from '../lib-liveblocks/useBatch'
   import { debounce } from '$lib/utils/debounce'
   import { generateLayer } from '$lib/utils/generateLayer'
 
   export let layers: Layer[] = []
 
-  $: layersReverse = [...layers].reverse()
-
   const dispatch = createEventDispatcher()
   const myPresence = useMyPresence()
   const room = useRoom()
   const batch = useBatch()
 
-  const layerStorage = useList('layerStorage')
+  const layerStorage = useObject('layerStorage')
   const pixelStorage = useObject('pixelStorage')
 
   function getLayerIndexFromId (id) {
@@ -24,7 +22,10 @@
   }
 
   function getLayerIndexFromSelected () {
-    return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
+    if ($myPresence) {
+      return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
+    }
+    return 0
   }
 
   let rangeElement
@@ -36,9 +37,15 @@
     }
   }
 
-  $: dispatch('layerChange', $myPresence?.selectedLayer || 0)
+  $: {
+    console.log(1)
+    if ($myPresence && $myPresence.selectedLayer !== undefined) {
+      console.log(2)
+      dispatch('layerChange', $myPresence.selectedLayer)
+    }
+  }
   onMount(async () => {
-    dispatch('layerChange', $myPresence?.selectedLayer || 0)
+    //dispatch('layerChange', $myPresence.selectedLayer || undefined)
 
     import('@shoelace-style/shoelace/dist/components/range/range.js')
     import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
@@ -54,12 +61,9 @@
     }
 
     const index = getLayerIndexFromSelected()
-    room.batch(() => {
-      const oldLayer = $layerStorage.get(index)
-      const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
-      $layerStorage.delete(index)
-      $layerStorage.insert(newLayer, index)
-    })
+    const oldLayer = $layerStorage.get('' + index)
+    const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
+    $layerStorage.set('' + $myPresence.selectedLayer, newLayer)
 
     blendText.innerText = detail.item.dataset.value
   }
@@ -70,32 +74,24 @@
     }
 
     const firstIndex = getLayerIndexFromSelected()
-    let dupes = []
-    $layerStorage.map(layer => {
-      if (layer.id === firstIndex) {
-        dupes.push(firstIndex)
-      }
-    })
-    const oldLayer = $layerStorage.get(firstIndex)
+    const oldLayer = $layerStorage.get('' + firstIndex)
     const newLayer = { ...oldLayer, opacity: target.__value / 100 }
-    batch(() => {
-      dupes.forEach(dupe => $layerStorage.delete(dupe))
-      $layerStorage.insert(newLayer, firstIndex)
-    })
+    $layerStorage.set( '' + $myPresence.selectedLayer, newLayer)
   }, 100, false)
 
-  function toggleVisibility (layerId) {
-    const oldLayer = $layerStorage.get(layerId)
+  function toggleVisibility (layerId, event) {
+    if (event) {
+      event.stopPropagation()
+    }
+
+    const oldLayer = $layerStorage.get('' + layerId)
     const newLayer = { ...oldLayer, hidden: !oldLayer.hidden }
-    batch(() => {
-      $layerStorage.delete(layerId)
-      $layerStorage.insert(newLayer, layerId)
-    })
+    $layerStorage.set(layerId, newLayer)
   }
 
   function addLayer () {
     let newId = 0
-    $layerStorage.map(layer => {
+    Object.values($layerStorage.toObject()).map(layer => {
       if (layer.id > newId) {
         newId = layer.id
       }
@@ -106,22 +102,30 @@
       layer: newId,
       cols: layers[0].grid.length,
       rows: layers[0].grid[0].length,
-      defaultObject: { color: 'red' }
+      defaultObject: { color: 'transparent' }
     })
 
-    $pixelStorage.update(generatedLayer)
-    $layerStorage.push({
-      id: newId,
-      opacity: 1,
-      blendMode: 'normal',
-      hidden: false
+    batch(() => {
+      $pixelStorage.update({ ...generatedLayer })
+      $layerStorage.set('' + newId, {
+        id: newId,
+        opacity: 1,
+        blendMode: 'normal',
+        hidden: false
+      })
+      myPresence?.update({ selectedLayer: newId })
     })
+
   }
 
-  function deleteLayer (id) {
-    if ([...$layerStorage].length > 1) {
-      const layerIndex = getLayerIndexFromId(id)
-      $layerStorage.delete(layerIndex)
+  function deleteLayer (id, event) {
+    if (event) {
+      event.stopPropagation()
+    }
+
+    if (Object.values($layerStorage.toObject()).length > 1) {
+      $layerStorage.delete('' + id)
+      selectTopLayer()
     }
   }
 
@@ -135,6 +139,13 @@
     }
   }
 
+  function selectTopLayer () {
+    if ($layerStorage && myPresence) {
+      const firstLayer = Object.values($layerStorage.toObject())[0].id
+      myPresence?.update({ selectedLayer: firstLayer })
+    }
+  }
+
 </script>
 
 <div class="p-5 border-b-2 border-gray-100 text-sm">
@@ -142,7 +153,7 @@
     <div class="text-sm text-gray-700">
       <div class="border rounded-[4px] border-[#D4D4D8]">
 
-        {#if $layerStorage}
+        {#if $layerStorage && $myPresence}
           <div class="border-b flex justify-between items-middle">
             <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
             <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange} hoist>
@@ -167,7 +178,7 @@
           </div>
         {/if}
 
-        <div on:click={addLayer} class="px-2 py-2.5 bg-gray-50 flex group cursor-pointer">
+        <div on:click={addLayer} class="select-none px-2 py-2.5 bg-gray-50 flex group cursor-pointer">
           <span class="pr-2 text-gray-400 group-hover:text-gray-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
@@ -178,42 +189,45 @@
           </span>
         </div>
 
-        {#each layersReverse as layer}
-          <div
-            on:click={changeLayer(layer.id)}
-            class="border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
-          >
+        <div class="flex flex-col-reverse">
+          {#each layers as layer}
+            <div
+              on:click={() => changeLayer(layer.id)}
+              class="border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100' : 'bg-white'}"
+            >
 
-          <div class="flex items-center">
-            <div on:click={toggleVisibility(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-              {#if layer.hidden}
-                <div class="sr-only">Hide</div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                </svg>
-              {:else}
-                <div class="sr-only">Show</div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
-                  <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-                </svg>
-              {/if}
+            <div class="flex items-center">
+              <div on:click={e => toggleVisibility(layer.id, e)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                {#if !layer.hidden}
+                  <div class="sr-only">Hide</div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                  </svg>
+                {:else}
+                  <div class="sr-only">Show</div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                  </svg>
+                {/if}
+              </div>
+              Layer {layer.id}
             </div>
-            Layer {layer.id}
-          </div>
-            <div>
-              {Math.round(layer.opacity * 100)}%, {layer.blendMode}
+              <div>
+                {Math.round(layer.opacity * 100)}%, {layer.blendMode}
+              </div>
+
+            <div on:click={() => deleteLayer(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
             </div>
 
-          <div on:click={deleteLayer(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
           </div>
+        {/each}
+      </div>
 
-        </div>
-      {/each}
     </div>
   </div>
 </div>

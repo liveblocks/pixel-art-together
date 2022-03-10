@@ -1,14 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
-  import type { Layer, PixelGrid } from '../types'
-  import SinglePixel from '$lib/SinglePixel.svelte'
+  import type { Layer } from '../types'
   import panzoom from 'panzoom'
   import { useHistory } from '../lib-liveblocks/useHistory'
   const dispatch = createEventDispatcher()
 
   export let layers: Layer[]
-  export let grid: PixelGrid = [[]]
   export let borders: boolean = false
+
+  let layersCache = layers
 
   const cols = layers[0].grid.length
   const rows = layers[0].grid[0].length
@@ -58,23 +58,23 @@
     })
   }
 
-  function handleMouseDown ({ detail }) {
+  function handleMouseDown () {
     mouseIsDown = true
     history.pause()
   }
 
-  function handleMouseUp ({ detail }) {
+  function handleMouseUp () {
     mouseIsDown = false
     history.resume()
   }
 
-  function handleMouseOver ({ detail }) {
+  function handleMouseOver ({ col, row }) {
     if (mouseIsDown) {
-      pixelChange(detail)
+      pixelChange({ col, row })
     }
   }
 </script>
-
+<!--<svelte:options immutable={true}/>-->
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
 
 <div class="absolute inset-0 flex justify-center items-center p-12" bind:this={panElement} style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }">
@@ -84,23 +84,44 @@
         class="grid select-none"
         style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"
       >
-
-        {#each layers[0].grid as row, i}
+        {#each layersCache[0].grid as row, i}
           {#each row as pixel, j}
-            <SinglePixel
-              {pixel}
-              row={i}
-              col={j}
-              on:change={() => pixelChange({ col: j, row: i })}
-              on:mousedown={handleMouseDown}
-              on:mouseup={handleMouseUp}
-              on:mouseover={handleMouseOver}
-             />
+            <div
+              data-row={i}
+              data-col={j}
+              on:click={() => pixelChange({ col: j, row: i })}
+              on:mousedown={() => handleMouseDown({ col: j, row: i })}
+              on:mouseup={() => handleMouseUp({ col: j, row: i })}
+              on:mouseover={() => handleMouseOver({ col: j, row: i })}
+              class="w-full h-full relative pt-[100%]"
+            ></div>
           {/each}
         {/each}
       </div>
 
-      {#if borders}
+      <div class="absolute inset-0 pointer-events-none">
+        <svg id="svg-image" viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          {#each layers as layer (layer.id)}
+            <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>
+              {#each layer.grid as row, rowIndex}
+                {#each row as pixel, colIndex}
+                  <rect
+                    shape-rendering="optimizeSpeed"
+                    x={colIndex * (100 / cols)}
+                    y={rowIndex * (100 / rows)}
+                    width={100 / cols}
+                    height={100 / rows}
+                    fill={pixel.color}
+                    class="transition-colors duration-75"
+                  />
+                {/each}
+              {/each}
+            </g>
+          {/each}
+        </svg>
+      </div>
+
+      {#if borders && false}
         <div class="absolute inset-0 overflow-hidden select-none pointer-events-none opacity-100 mix-blend-difference">
           <svg class="absolute inset-[-1px]" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>

@@ -7,11 +7,3 @@ export function generateLayer ({ layer, cols, rows, defaultObject }) {
   }
   return storage
 }
-
-export function generateLay (cols, rows, defaultObject) {
-  return Array.from({ length: rows }, () => {
-    return Array.from({ length: cols }, () => ({
-      ...defaultObject
-    }))
-  })
-}
