@@ -7,6 +7,7 @@
 
   export let layers: Layer[]
   export let showGrid: boolean = false
+  export let mainPanelElement
 
   let layersCache = layers
 
@@ -87,7 +88,7 @@
     class="absolute inset-0 flex justify-center items-center p-12"
     bind:this={panElement}
   >
-    <div class="relative w-full max-h-full max-w-2xl">
+    <div bind:this={mainPanelElement} class="relative w-full max-h-full max-w-2xl">
       <div class="relative max-h-full" style="max-height:  100%; height: 100%;">
         <div
           class="grid select-none"
@@ -109,7 +110,7 @@
         <div
           class="transparent-bg-large absolute inset-0 pointer-events-none"
         >
-          <svg id="svg-image" viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <svg id="svg-image" viewBox="0 0 {rows / cols * 100} 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             {#each layers as layer (layer.id)}
               <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>
                 {#each layer.grid as row, rowIndex}
@@ -117,10 +118,10 @@
                     <rect
                       shape-rendering="optimizeSpeed"
                       x={colIndex * (100 / cols)}
-                      y={rowIndex * (100 / rows)}
+                      y={rowIndex * (100 / cols)}
                       width={100 / cols}
-                      height={100 / rows}
-                      fill={pixel.color}
+                      height={100 / cols}
+                      fill={pixel?.color || ''}
                       class="transition-colors duration-75"
                     ></rect>
                   {/each}

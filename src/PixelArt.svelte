@@ -209,7 +209,7 @@ function handleMouseLeave () {
     id="multiplayer-panel"
     bind:this={panels.multiplayerPanel}
     on:mousemove={e => handleMouseMove(e, 'multiplayerPanel')} on:mouseleave={handleMouseLeave}
-    class="hidden xl:block side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between"
+    class="hidden lg:block side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between"
   >
     <div>
       {#if $others}
@@ -243,7 +243,6 @@ function handleMouseLeave () {
 
   <div
     id="main-panel"
-    bind:this={panels.mainPanel}
     on:mousemove={e => handleMouseMove(e, 'mainPanel')} on:mouseleave={handleMouseLeave}
     class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col"
   >
@@ -278,7 +277,7 @@ function handleMouseLeave () {
     </div>
     <div class="flex-grow relative">
       {#if formattedLayers?.length}
-        <PixelGrid layers={formattedLayers} {showGrid} on:pixelChange={handlePixelChange} />
+        <PixelGrid bind:mainPanelElement={panels.mainPanel} layers={formattedLayers} {showGrid} on:pixelChange={handlePixelChange} />
       {/if}
     </div>
   </div>
