@@ -41,7 +41,7 @@
       hue: parseInt(target.hue),
       saturation: parseInt(target.saturation),
       lightness: parseInt(target.lightness),
-      rgb: hexToRgb(col.slice(0, -2))
+      rgb: hexToRgb(col.slice(0, 7))
     }
   }
 

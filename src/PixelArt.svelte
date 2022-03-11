@@ -19,7 +19,6 @@ import Cursor from '$lib/Cursor.svelte'
  *  cursor for each user on canvas or highlight each pixel when changed
  *  ? avatar appears in pixel for second
  *  Save and fork button
- *  Toggle grid switch
  *  More brush sizes
  *  When layer 0 doesn't exist, select a layer
  */
@@ -137,14 +136,49 @@ function handlePixelChange ({ detail }) {
 const undo = useUndo()
 const redo = useRedo()
 
+const panels = {
+  multiplayerPanel: null,
+  mainPanel: null,
+  toolsPanel: null
+}
+
 // Update cursor presence to current mouse location
-function handleMouseMove (event) {
+function handleMouseMove (event, area) {
+  if (!panels[area]) {
+    return
+  }
+
+  const { top, left, width, height } = panels[area].getBoundingClientRect()
+
+  let x = Math.round(event.clientX - left)
+  let y = Math.round(event.clientY - top)
+
+  // Percentage across element
+  if (area === 'mainPanel') {
+    x = x / width
+    y = y / height
+  }
+
   myPresence.update({
-    cursor: {
-      x: Math.round(event.offsetX),
-      y: Math.round(event.offsetY),
-    },
+    cursor: { x, y, area },
   });
+  //console.log(event.clientX - left, event.clientY - top)
+}
+
+function calculateCursorPosition ({ x, y, area }) {
+  const { top, left, width, height } = panels[area].getBoundingClientRect()
+  let newX
+  let newY
+
+  if (area === 'mainPanel') {
+    newX = left + width * x
+    newY = top + height * y
+  } else {
+    newX = left + x
+    newY = top + y
+  }
+
+  return { x: newX, y: newY }
 }
 
 // When the mouse leaves the page, set cursor presence to null
@@ -155,10 +189,28 @@ function handleMouseLeave () {
 }
 </script>
 
+<div class="absolute inset-0 z-50 pointer-events-none">
+  {#if $others}
+    {#each [...$others] as { presence, info }}
+      {#if presence?.cursor && presence?.brush}
+        <Cursor
+          {...calculateCursorPosition(presence.cursor)}
+          color={presence.brush}
+          name={info.name}
+        />
+      {/if}
+    {/each}
+  {/if}
+</div>
 
+<div class="flex min-h-full bg-white">
 
-<div class="flex min-h-full bg-white" on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave}>
-  <div class="side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between">
+  <div
+    id="multiplayer-panel"
+    bind:this={panels.multiplayerPanel}
+    on:mousemove={e => handleMouseMove(e, 'multiplayerPanel')} on:mouseleave={handleMouseLeave}
+    class="hidden xl:block side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between"
+  >
     <div>
       {#if $others}
         <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
@@ -189,25 +241,12 @@ function handleMouseLeave () {
     </div>
   </div>
 
-  <div class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col">
-
-    <div class="absolute inset-0 z-50 pointer-events-none">
-      {#if $others}
-        {#each [...$others] as { presence, info }}
-          {#if presence?.cursor}
-            <Cursor
-              x={presence.cursor.x}
-              y={presence.cursor.y}
-              color={presence.brush}
-              name={info.name}
-            />
-          {/if}
-        {/each}
-      {/if}
-    </div>
-
-
-
+  <div
+    id="main-panel"
+    bind:this={panels.mainPanel}
+    on:mousemove={e => handleMouseMove(e, 'mainPanel')} on:mouseleave={handleMouseLeave}
+    class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col"
+  >
     <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
       <div class="flex gap-3">
 
@@ -244,7 +283,12 @@ function handleMouseLeave () {
     </div>
   </div>
 
-  <div class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto">
+  <div
+    id="tools-panel"
+    bind:this={panels.toolsPanel}
+    on:mousemove={e => handleMouseMove(e, 'toolsPanel')} on:mouseleave={handleMouseLeave}
+    class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
+  >
     <BrushPanel on:brushChange={handleBrushChange} />
     {#if formattedLayers}
       <LayersPanel layers={formattedLayers} />

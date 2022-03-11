@@ -135,7 +135,7 @@
             <svg class="absolute inset-0" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern x="-0.5" y="-0.5" id="grid" width="{100 / rows}%" height="{100 / cols}%" patternUnits="userSpaceOnUse">
-                  <path shape-rendering="crispEdges" d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="1"/>
+                  <path shape-rendering="crispEdges" d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="2"/>
                 </pattern>
               </defs>
               <rect shape-rendering="crispEdges" width="100%" height="100%" fill="url(#grid)" class="" />
