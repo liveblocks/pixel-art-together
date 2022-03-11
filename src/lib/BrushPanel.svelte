@@ -9,7 +9,8 @@
     hue: 0,
     saturation: 0,
     color: '#000',
-    lightness: 0
+    lightness: 0,
+    rgb: { r: 255, g: 255, b: 255 }
   }
 
   $: dispatch('brushChange', brush)
@@ -18,8 +19,6 @@
     await import('@shoelace-style/shoelace/dist/components/color-picker/color-picker.js')
     applyCustomStyles(colorPicker)
   })
-  // https://efeskucuk.github.io/svelte-color-picker/
-  // https://sseemayer.github.io/svelte-colorpick/
 
   function applyCustomStyles (host) {
     const style = document.createElement('style')
@@ -41,8 +40,18 @@
       opacity: parseInt(target.alpha),
       hue: parseInt(target.hue),
       saturation: parseInt(target.saturation),
-      lightness: parseInt(target.lightness)
+      lightness: parseInt(target.lightness),
+      rgb: hexToRgb(col.slice(0, -2))
     }
+  }
+
+  function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
   }
 </script>
 

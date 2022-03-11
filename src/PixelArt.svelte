@@ -10,6 +10,7 @@ import IconButton from '$lib/IconButton.svelte'
 import { useUndo } from './lib-liveblocks/useUndo'
 import { useRedo } from './lib-liveblocks/useRedo'
 import SharePanel from '$lib/SharePanel.svelte'
+import Cursor from '$lib/Cursor.svelte'
 
 /**
  *  TODO
@@ -23,6 +24,7 @@ import SharePanel from '$lib/SharePanel.svelte'
  *  When layer 0 doesn't exist, select a layer
  */
 
+// Generate a default layer
 const defaultLayer = generateLayer({
   layer: 0,
   rows: 16,
@@ -30,10 +32,10 @@ const defaultLayer = generateLayer({
   defaultObject: { color: '#eccdf4' }
 })
 
-// Holds each pixel
+// Holds each pixel, default layer used if none exist
 const pixelStorage = useObject('pixelStorage', defaultLayer)
 
-// Holds information about each layer
+// Holds information about each layer, default layer set if none set
 const layerStorage = useObject('layerStorage', {
   0: {
     id: 0,
@@ -105,12 +107,15 @@ const self = useSelf()
 
 let showGrid = false
 
+// Set default value for presence
 myPresence.update({
-  selectedLayer: 0
+  selectedLayer: 0,
+  cursor: null
 })
 
 $: $others ? console.log($others.toArray()?.[0]?.presence?.brush || 'no others') : null
 
+// On brush component change, update presence with new brush
 function handleBrushChange ({ detail }) {
   myPresence.update({ brush: detail })
 }
@@ -131,9 +136,28 @@ function handlePixelChange ({ detail }) {
 
 const undo = useUndo()
 const redo = useRedo()
+
+// Update cursor presence to current mouse location
+function handleMouseMove (event) {
+  myPresence.update({
+    cursor: {
+      x: Math.round(event.offsetX),
+      y: Math.round(event.offsetY),
+    },
+  });
+}
+
+// When the mouse leaves the page, set cursor presence to null
+function handleMouseLeave () {
+  myPresence.update({
+    cursor: null,
+  });
+}
 </script>
 
-<div class="flex min-h-full bg-white">
+
+
+<div class="flex min-h-full bg-white" on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave}>
   <div class="side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between">
     <div>
       {#if $others}
@@ -166,6 +190,24 @@ const redo = useRedo()
   </div>
 
   <div class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col">
+
+    <div class="absolute inset-0 z-50 pointer-events-none">
+      {#if $others}
+        {#each [...$others] as { presence, info }}
+          {#if presence?.cursor}
+            <Cursor
+              x={presence.cursor.x}
+              y={presence.cursor.y}
+              color={presence.brush}
+              name={info.name}
+            />
+          {/if}
+        {/each}
+      {/if}
+    </div>
+
+
+
     <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
       <div class="flex gap-3">
 
@@ -179,17 +221,19 @@ const redo = useRedo()
 
       <div class="flex gap-3">
 
-        <IconButton screenReader="Undo" on:click={() => undo()}>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-          </svg>
-        </IconButton>
+        <sl-button-group>
+          <IconButton screenReader="Undo" on:click={() => undo()}>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+          </IconButton>
 
-        <IconButton screenReader="Redo" on:click={() => redo()}>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </IconButton>
+          <IconButton screenReader="Redo" on:click={() => redo()}>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </IconButton>
+        </sl-button-group>
 
       </div>
     </div>

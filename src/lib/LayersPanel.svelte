@@ -17,10 +17,6 @@
   const layerStorage = useObject('layerStorage')
   const pixelStorage = useObject('pixelStorage')
 
-  function getLayerIndexFromId (id) {
-    return layers.findIndex(layer => layer.id === id)
-  }
-
   function getLayerIndexFromSelected () {
     if ($myPresence) {
       return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
