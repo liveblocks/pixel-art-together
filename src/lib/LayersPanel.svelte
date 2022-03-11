@@ -191,11 +191,15 @@
           {#each layers as layer}
             <div
               on:click={() => changeLayer(layer.id)}
-              class="group hover:bg-gray-50 transition-colors duration-100 border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100 font-semibold' : 'bg-white'}"
+              style={$myPresence?.selectedLayer === layer.id ? 'background-color: var(--sl-color-primary-600); color: #fff;' : ''}
+              class="group hover:bg-[color:var(--sl-color-primary-50)] border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100 font-semibold' : 'bg-white'}"
             >
 
             <div class="flex items-center">
-              <div on:click={e => toggleVisibility(layer.id, e)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              <div
+                on:click={e => toggleVisibility(layer.id, e)}
+                class="{$myPresence?.selectedLayer === layer.id ? 'hover:text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
                 {#if !layer.hidden}
                   <div class="sr-only">Hide</div>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -210,13 +214,16 @@
                   </svg>
                 {/if}
               </div>
-              Layer {layer.id}
+              <span class="font-medium {$myPresence?.selectedLayer === layer.id ? 'font-bold' : ''}">Layer {layer.id}</span>
             </div>
               <div>
                 {Math.round(layer.opacity * 100)}%, {layer.blendMode}
               </div>
 
-            <div on:click={() => deleteLayer(layer.id)} class="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <div
+              on:click={() => deleteLayer(layer.id)}
+              class="{$myPresence?.selectedLayer === layer.id ? 'hover:text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
