@@ -15,12 +15,13 @@
     getColorName = hex => ntc.name(hex)[1]
   })
 
-  let blackText = false
   $: {
-    if (brush.opacity < 35) {
-      blackText = true
-    } else {
-      blackText = contrastingTextColour(brush.rgb)
+    if (brush?.opacity) {
+      if (brush.opacity < 35) {
+        blackText = true
+      } else {
+        blackText = contrastingTextColour(brush.rgb)
+      }
     }
   }
 </script>
@@ -42,7 +43,7 @@
   </div>
   <div class="transparent-bg w-[36px] h-[36px] relative">
     <div class="inner-border absolute inset-0 rounded-[4px] flex justify-center items-center mix" style="background: {brush.color};">
-      <div class="{blackText ? 'text-black' : 'text-white'}">
+      <div class="mix-blend-luminosity {blackText ? 'text-gray-500' : 'text-gray-300'}">
         {#if tool === 'brush'}
           <svg class="w-5 h-5" viewBox="0 0 24 24">
             <path fill="currentColor" d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z" />

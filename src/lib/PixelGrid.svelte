@@ -1,8 +1,12 @@
 <script lang="ts">
+  import brushSvg from '../../static/assets/cursors/brush.svg'
+  import eraserSvg from '../../static/assets/cursors/eraser.svg'
+  import fillSvg from '../../static/assets/cursors/fill.svg'
   import { createEventDispatcher, onMount } from 'svelte'
   import type { Layer } from '../types'
   import panzoom from 'panzoom'
   import { useHistory } from '../lib-liveblocks/useHistory'
+  import { useMyPresence } from '../lib-liveblocks'
   const dispatch = createEventDispatcher()
 
   export let layers: Layer[]
@@ -74,6 +78,25 @@
       pixelChange({ col, row })
     }
   }
+
+  let cursorUrl = 'crosshair'
+
+  /*
+  const myPresence = useMyPresence()
+
+  let cursorIcons = {
+    brush: brushSvg,
+    eraser: eraserSvg,
+    fill: fillSvg
+  }
+
+  $: {
+    if ($myPresence?.tool) {
+      cursorUrl = `url(${cursorIcons[$myPresence.tool]}), crosshair`
+    }
+  }
+  */
+
 </script>
 <!--<svelte:options immutable={true}/>-->
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
@@ -82,7 +105,7 @@
   class="absolute inset-0"
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
-  style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }"
+  style="cursor: {!panning ? cursorUrl : mouseIsDown ? 'grabbing' : 'grab' }"
 >
   <div
     class="absolute inset-0 flex justify-center items-center p-12"

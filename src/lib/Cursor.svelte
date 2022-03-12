@@ -17,7 +17,6 @@
     coords.set({ x, y })
   }
 
-  let blackText = false
   $: blackText = contrastingTextColour(color.rgb)
 </script>
 
@@ -28,8 +27,8 @@
 
   <div class="font-medium text-sm inner-border drop-shadow-sm absolute top-7 left-7 whitespace-nowrap rounded-full overflow-hidden">
     <div
-      style="background-color: {color.color.slice(0, 7)}; color: {blackText ? 'black' : 'white'}"
-      class="flex px-2.5 py-1.5"
+      style="background-color: {color.color.slice(0, 7)};"
+      class="flex px-2.5 py-1.5 mix-blend-luminosity {blackText ? 'text-gray-800' : 'text-gray-200'}"
     >
       <div class="w-3 mr-2">
         <div class="absolute top-2">

@@ -19,8 +19,6 @@ import { getFillPixels } from '$lib/utils/getFillPixels'
  *  store state ie width height in new LiveObject, pass to exports panel
  *  Save and fork button
  *  More brush sizes
- *  Changer users cursor according to tool selection
- *  Finish fill tool
  */
 
 // Generate a default layer
@@ -63,6 +61,13 @@ const updatePixel = (pixelProps, newObj) => {
   return $pixelStorage.set(pixelToKey(pixelProps), newObj)
 }
 
+// Update an array of pixels, with the same object
+const updatePixels = (pixelArray, newObj) => {
+  const updatedPixels = {}
+  pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = newObj)
+  return $pixelStorage.update(updatedPixels)
+}
+
 /**
  * Returns an object containing all layers and pixel grids, for general use
  *
@@ -80,13 +85,13 @@ const updatePixel = (pixelProps, newObj) => {
  *   }
  * ]
  */
-let formattedLayers = []
+let layers = []
 $: {
   if (pixelStorage && $layerStorage) {
     const currentPixels = Object.keys($pixelStorage.toObject())
       .map(key => ({ key, ...keyToPixel(key) }))
 
-    formattedLayers = Object.values($layerStorage.toObject()).map(layer => {
+    layers = Object.values($layerStorage.toObject()).map(layer => {
       const grid = []
       currentPixels.forEach(pixel => {
         if (layer.id !== pixel.layer) return
@@ -113,8 +118,6 @@ myPresence.update({
   tool: 'brush'
 })
 
-$: $others ? console.log($others.toArray()?.[0]?.presence?.brush || 'no others') : null
-
 // On brush component change, update presence with new brush
 function handleBrushChange ({ detail }) {
   myPresence.update({ brush: detail })
@@ -136,15 +139,18 @@ function handlePixelChange ({ detail }) {
   // Current pixel
   let pixelsToChange = [currentPixel]
 
+  // If fill tool, find neighbour pixels
   if (tool === 'fill') {
-    const currentLayer = formattedLayers.find(layer => layer.id === selected)
-    console.log(currentLayer.grid)
-    pixelsToChange = [...pixelsToChange, ...getFillPixels(currentPixel, formattedLayers)]
+    const currentLayer = layers.find(layer => layer.id === selected)
+    pixelsToChange = [
+      ...pixelsToChange,
+      ...getFillPixels(currentPixel, currentLayer.grid)
+    ]
   }
 
-  pixelsToChange.forEach(pixel => updatePixel(pixel, {
+  updatePixels(pixelsToChange, {
     color: tool === 'eraser' ? 'transparent' : $myPresence.brush.color
-  }))
+  })
 }
 
 const undo = useUndo()
@@ -180,6 +186,10 @@ function handleMouseMove (event, area) {
 }
 
 function calculateCursorPosition ({ x, y, area }) {
+  if (!panels?.[area]) {
+    return
+  }
+
   const { top, left, width, height } = panels[area].getBoundingClientRect()
   let newX
   let newY
@@ -313,8 +323,8 @@ function handleMouseLeave () {
       </div>
     </div>
     <div class="flex-grow relative">
-      {#if formattedLayers?.length}
-        <PixelGrid bind:mainPanelElement={panels.mainPanel} layers={formattedLayers} {showGrid} on:pixelChange={handlePixelChange} />
+      {#if layers?.length}
+        <PixelGrid bind:mainPanelElement={panels.mainPanel} layers={layers} {showGrid} on:pixelChange={handlePixelChange} />
       {/if}
     </div>
   </div>
@@ -326,8 +336,8 @@ function handleMouseLeave () {
     class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
     <BrushPanel on:brushChange={handleBrushChange} />
-    {#if formattedLayers}
-      <LayersPanel layers={formattedLayers} />
+    {#if layers}
+      <LayersPanel layers={layers} />
       <ExportsPanel />
     {/if}
   </div>
