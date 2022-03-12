@@ -16,11 +16,8 @@ import Cursor from '$lib/Cursor.svelte'
  *  TODO
  *  intro page
  *  store state ie width height in new LiveObject, pass to exports panel
- *  cursor for each user on canvas or highlight each pixel when changed
- *  ? avatar appears in pixel for second
  *  Save and fork button
  *  More brush sizes
- *  When layer 0 doesn't exist, select a layer
  */
 
 // Generate a default layer
@@ -109,7 +106,8 @@ let showGrid = false
 // Set default value for presence
 myPresence.update({
   selectedLayer: 0,
-  cursor: null
+  cursor: null,
+  tool: 'brush'
 })
 
 $: $others ? console.log($others.toArray()?.[0]?.presence?.brush || 'no others') : null
@@ -120,16 +118,18 @@ function handleBrushChange ({ detail }) {
 }
 
 function handlePixelChange ({ detail }) {
-  if (!$myPresence || !$pixelStorage) {
+  if (!$myPresence?.brush?.color || !$pixelStorage) {
     return
   }
+
+  const pixelsToChange = []
 
   updatePixel({
     row: detail.row,
     col: detail.col,
     layer: $myPresence.selectedLayer
   }, {
-    color: $myPresence.brush.color || '#000'
+    color: $myPresence.tool === 'eraser' ? 'transparent' : $myPresence.brush.color
   })
 }
 
@@ -248,6 +248,20 @@ function handleMouseLeave () {
   >
     <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
       <div class="flex gap-3">
+
+        <sl-button-group>
+          <IconButton screenReader="Brush tool" toggled={$myPresence.tool === 'brush'} on:click={() => myPresence.update({ tool: 'brush' })}>
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z" />
+            </svg>
+          </IconButton>
+
+          <IconButton screenReader="Eraser tool" toggled={$myPresence.tool === 'eraser'} on:click={() => myPresence.update({ tool: 'eraser' })}>
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z" />
+            </svg>
+          </IconButton>
+        </sl-button-group>
 
         <IconButton screenReader="Toggle grid" toggled={showGrid} on:click={() => showGrid = !showGrid}>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

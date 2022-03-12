@@ -1,6 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
+  import { useMyPresence } from '../lib-liveblocks'
   const dispatch = createEventDispatcher()
+
+  const myPresence = useMyPresence()
 
   let colorPicker
 
@@ -43,6 +46,7 @@
       lightness: parseInt(target.lightness),
       rgb: hexToRgb(col.slice(0, 7))
     }
+    myPresence.update({ tool: 'brush' })
   }
 
   function hexToRgb(hex) {

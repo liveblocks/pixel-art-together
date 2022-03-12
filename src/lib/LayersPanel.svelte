@@ -17,6 +17,13 @@
   const layerStorage = useObject('layerStorage')
   const pixelStorage = useObject('pixelStorage')
 
+  onMount(async () => {
+    import('@shoelace-style/shoelace/dist/components/range/range.js')
+    import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
+    import('@shoelace-style/shoelace/dist/components/menu/menu.js')
+    import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
+  })
+
   function getLayerIndexFromSelected () {
     if ($myPresence) {
       return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
@@ -35,19 +42,16 @@
 
   $: {
     if ($myPresence && $myPresence.selectedLayer !== undefined) {
+
+      // If no layer 0, but layer 0 is set as current
+      if ($myPresence.selectedLayer === 0 && $layerStorage && !$layerStorage.get(0)) {
+        const newLayer = Object.values($layerStorage.toObject())[0].id
+        myPresence.update({ selectedLayer: newLayer })
+      }
+
       dispatch('layerChange', $myPresence.selectedLayer)
     }
   }
-  onMount(async () => {
-    //dispatch('layerChange', $myPresence.selectedLayer || undefined)
-
-    import('@shoelace-style/shoelace/dist/components/range/range.js')
-    import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
-    import('@shoelace-style/shoelace/dist/components/menu/menu.js')
-    import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
-  })
-
-
 
   async function handleBlendModeChange ({ detail }) {
     if (!$myPresence) {
