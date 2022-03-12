@@ -26,7 +26,7 @@
   function applyCustomStyles (host) {
     const style = document.createElement('style')
     style.innerHTML = `
-      .color-picker__controls, .color-picker__user-input { padding-left: 0; padding-right: 0; }
+      .color-picker__controls, .color-picker__user-input { padding-left: 0 !important; padding-right: 0 !important; }
       .color-picker__grid { border-radius: 4px !important; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2); }
     `
     host.shadowRoot.appendChild(style)
