@@ -19,6 +19,8 @@ import { getFillPixels } from '$lib/utils/getFillPixels'
  *  store state ie width height in new LiveObject, pass to exports panel
  *  Save and fork button
  *  More brush sizes
+ *  Changer users cursor according to tool selection
+ *  Finish fill tool
  */
 
 // Generate a default layer
@@ -208,6 +210,7 @@ function handleMouseLeave () {
         <Cursor
           {...calculateCursorPosition(presence.cursor)}
           color={presence.brush}
+          tool={presence.tool}
           name={info.name}
         />
       {/if}
@@ -230,8 +233,9 @@ function handleMouseLeave () {
           <UserOnline
             name={$self.info.name + ' (you)'}
             picture={$self.info.picture}
-            color={$myPresence.brush.color}
+            brush={$myPresence.brush}
             selectedLayer={$myPresence.selectedLayer}
+            tool={$myPresence.tool}
           />
         {/if}
         {#each [...$others] as { connectionId, presence, info } (connectionId)}
@@ -239,8 +243,9 @@ function handleMouseLeave () {
             <UserOnline
               name={info.name}
               picture={info.picture}
-              color={presence.brush.color}
+              brush={presence.brush}
               selectedLayer={presence.selectedLayer}
+              tool={presence.tool}
             />
           {/if}
         {/each}
@@ -275,7 +280,7 @@ function handleMouseLeave () {
           </IconButton>
 
           <IconButton screenReader="Fill tool" toggled={$myPresence.tool === 'fill'} on:click={() => myPresence.update({ tool: 'fill' })}>
-            <svg class="w-6 h-6 mt-[6px]" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 mt-[6px] scale-x-[-1]" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19,11.5C19,11.5 17,13.67 17,15A2,2 0 0,0 19,17A2,2 0 0,0 21,15C21,13.67 19,11.5 19,11.5M5.21,10L10,5.21L14.79,10M16.56,8.94L7.62,0L6.21,1.41L8.59,3.79L3.44,8.94C2.85,9.5 2.85,10.47 3.44,11.06L8.94,16.56C9.23,16.85 9.62,17 10,17C10.38,17 10.77,16.85 11.06,16.56L16.56,11.06C17.15,10.47 17.15,9.5 16.56,8.94Z" />
             </svg>
           </IconButton>

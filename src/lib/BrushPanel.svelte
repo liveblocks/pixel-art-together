@@ -46,7 +46,9 @@
       lightness: parseInt(target.lightness),
       rgb: hexToRgb(col.slice(0, 7))
     }
-    myPresence.update({ tool: 'brush' })
+    if ($myPresence.tool === 'eraser') {
+      myPresence.update({ tool: 'brush' })
+    }
   }
 
   function hexToRgb(hex) {
