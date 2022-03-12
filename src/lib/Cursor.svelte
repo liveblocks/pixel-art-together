@@ -17,6 +17,7 @@
     coords.set({ x, y })
   }
 
+  let blackText = true
   $: blackText = contrastingTextColour(color.rgb)
 </script>
 

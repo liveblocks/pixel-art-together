@@ -15,6 +15,7 @@
     getColorName = hex => ntc.name(hex)[1]
   })
 
+  let blackText
   $: {
     if (brush?.opacity) {
       if (brush.opacity < 35) {
