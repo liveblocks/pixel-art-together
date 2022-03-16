@@ -6,6 +6,8 @@ export * from './useObject'
 export * from './useList'
 export * from './useSelf'
 export * from './useRoom'
+export * from './useUndo'
+export * from './useRedo'
 
 /**
  * These components were built to (mostly) match the

@@ -1,24 +1,28 @@
 <script lang="ts">
-import PixelGrid from '$lib/PixelGrid.svelte'
-import BrushPanel from '$lib/BrushPanel.svelte'
-import { useMyPresence, useObject, useOthers, useSelf } from './lib-liveblocks'
-import LayersPanel from '$lib/LayersPanel.svelte'
-import ExportsPanel from '$lib/ExportsPanel.svelte'
-import UserOnline from '$lib/UserOnline.svelte'
+import { useMyPresence, useObject, useOthers, useSelf, useUndo, useRedo } from './lib-liveblocks'
 import { generateLayer } from '$lib/utils/generateLayer'
-import IconButton from '$lib/IconButton.svelte'
-import { useUndo } from './lib-liveblocks/useUndo'
-import { useRedo } from './lib-liveblocks/useRedo'
-import SharePanel from '$lib/SharePanel.svelte'
-import Cursor from '$lib/Cursor.svelte'
 import { getFillPixels } from '$lib/utils/getFillPixels'
+import ExportsPanel from '$lib/ExportsPanel.svelte'
+import LayersPanel from '$lib/LayersPanel.svelte'
+import BrushPanel from '$lib/BrushPanel.svelte'
+import UserOnline from '$lib/UserOnline.svelte'
+import IconButton from '$lib/IconButton.svelte'
+import SharePanel from '$lib/SharePanel.svelte'
+import LinksPanel from '$lib/LinksPanel.svelte'
+import PixelGrid from '$lib/PixelGrid.svelte'
+import Cursor from '$lib/Cursor.svelte'
+import { formatLayers } from '$lib/utils/formatLayers'
 
 /**
  *  TODO
  *  intro page
  *  store state ie width height in new LiveObject, pass to exports panel
  *  Save and fork button
- *  More brush sizes
+ *  make pill stand out more over it's own colour
+ *  name selector
+ *  save button above colour picker
+ *  mobile
+ *  new layer should be above current selected layer
  */
 
 // Generate a default layer
@@ -56,11 +60,6 @@ const getPixel = (pixelProps) => {
   return $pixelStorage.get(pixelToKey(pixelProps))
 }
 
-// Update the current pixel, using a pixel object to access
-const updatePixel = (pixelProps, newObj) => {
-  return $pixelStorage.set(pixelToKey(pixelProps), newObj)
-}
-
 // Update an array of pixels, with the same object
 const updatePixels = (pixelArray, newObj) => {
   const updatedPixels = {}
@@ -86,24 +85,12 @@ const updatePixels = (pixelArray, newObj) => {
  * ]
  */
 let layers = []
-$: {
-  if (pixelStorage && $layerStorage) {
-    const currentPixels = Object.keys($pixelStorage.toObject())
-      .map(key => ({ key, ...keyToPixel(key) }))
-
-    layers = Object.values($layerStorage.toObject()).map(layer => {
-      const grid = []
-      currentPixels.forEach(pixel => {
-        if (layer.id !== pixel.layer) return
-        if (!grid[pixel.row]) grid[pixel.row] = []
-        if (!grid[pixel.row][pixel.col]) grid[pixel.row][pixel.col] = []
-
-        grid[pixel.row][pixel.col] = getPixel(pixel)
-      })
-      return { ...layer, grid }
-    })
-  }
-}
+$: layers = formatLayers({
+  pixelStorage: $pixelStorage?.toObject(),
+  layerStorage: $layerStorage?.toObject(),
+  keyToPixel,
+  getPixel
+})
 
 const myPresence = useMyPresence()
 const others = useOthers()
@@ -231,42 +218,19 @@ function handleMouseLeave () {
 <div class="flex min-h-full bg-white">
 
   <div
-    id="multiplayer-panel"
-    bind:this={panels.multiplayerPanel}
-    on:mousemove={e => handleMouseMove(e, 'multiplayerPanel')} on:mouseleave={handleMouseLeave}
-    class="hidden lg:block side-panel w-[300px] py-5 overflow-y-auto flex flex-col justify-between"
+    id="tools-panel"
+    bind:this={panels.toolsPanel}
+    on:mousemove={e => handleMouseMove(e, 'toolsPanel')} on:mouseleave={handleMouseLeave}
+    class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
-    <div>
-      {#if $others}
-        <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
-        {#if $myPresence && $self}
-          <UserOnline
-            name={$self.info.name + ' (you)'}
-            picture={$self.info.picture}
-            brush={$myPresence.brush}
-            selectedLayer={$myPresence.selectedLayer}
-            tool={$myPresence.tool}
-          />
-        {/if}
-        {#each [...$others] as { connectionId, presence, info } (connectionId)}
-          {#if presence?.brush?.color}
-            <UserOnline
-              name={info.name}
-              picture={info.picture}
-              brush={presence.brush}
-              selectedLayer={presence.selectedLayer}
-              tool={presence.tool}
-            />
-          {/if}
-        {/each}
-      {/if}
-      <SharePanel />
-    </div>
-    <div>
-      <!--<LinksPanel />-->
-      <!--<SwitchesPanel bind:showGrid={showGrid} />-->
-    </div>
+    <BrushPanel on:brushChange={handleBrushChange} />
+    {#if layers}
+      <LayersPanel layers={layers} />
+      <ExportsPanel />
+    {/if}
   </div>
+
+
 
   <div
     id="main-panel"
@@ -330,16 +294,41 @@ function handleMouseLeave () {
   </div>
 
   <div
-    id="tools-panel"
-    bind:this={panels.toolsPanel}
-    on:mousemove={e => handleMouseMove(e, 'toolsPanel')} on:mouseleave={handleMouseLeave}
-    class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
+    id="multiplayer-panel"
+    bind:this={panels.multiplayerPanel}
+    on:mousemove={e => handleMouseMove(e, 'multiplayerPanel')} on:mouseleave={handleMouseLeave}
+    class="side-panel relative left-full lg:left-auto w-0 lg:w-[300px] flex py-5 overflow-y-auto flex-col"
   >
-    <BrushPanel on:brushChange={handleBrushChange} />
-    {#if layers}
-      <LayersPanel layers={layers} />
-      <ExportsPanel />
-    {/if}
+    <div>
+      {#if $others}
+        <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
+        {#if $myPresence && $self}
+          <UserOnline
+            name={$self.info.name + ' (you)'}
+            picture={$self.info.picture}
+            brush={$myPresence.brush}
+            selectedLayer={$myPresence.selectedLayer}
+            tool={$myPresence.tool}
+          />
+        {/if}
+        {#each [...$others] as { connectionId, presence, info } (connectionId)}
+          {#if presence?.brush?.color}
+            <UserOnline
+              name={info.name}
+              picture={info.picture}
+              brush={presence.brush}
+              selectedLayer={presence.selectedLayer}
+              tool={presence.tool}
+            />
+          {/if}
+        {/each}
+      {/if}
+      <SharePanel />
+    </div>
+    <div>
+      <LinksPanel />
+      <!--<SwitchesPanel bind:showGrid={showGrid} />-->
+    </div>
   </div>
 </div>
 

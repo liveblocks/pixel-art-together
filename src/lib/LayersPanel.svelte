@@ -40,12 +40,18 @@
     }
   }
 
-  $: {
-    if ($myPresence && $myPresence.selectedLayer !== undefined) {
+  let addingNewLayer = false
 
-      // If no layer 0, but layer 0 is set as current
-      if ($myPresence.selectedLayer === 0 && $layerStorage && !$layerStorage.get(0)) {
-        const newLayer = Object.values($layerStorage.toObject())[0].id
+  // When layers update, make sure a layer is still selected
+  $: whenLayersUpdate($layerStorage)
+
+  function whenLayersUpdate (storage) {
+    if ($myPresence && $myPresence.selectedLayer !== undefined) {
+      const currentLayer = $myPresence.selectedLayer
+
+      if (!$layerStorage.get(currentLayer + '') && !addingNewLayer) {
+        const tempLayers = Object.values($layerStorage.toObject())
+        const newLayer = tempLayers[tempLayers.length > 0 ? tempLayers.length - 1 : 0].id
         myPresence.update({ selectedLayer: newLayer })
       }
 
@@ -111,9 +117,10 @@
         blendMode: 'normal',
         hidden: false
       })
+      addingNewLayer = true
       myPresence?.update({ selectedLayer: newId })
     })
-
+    setTimeout(() => addingNewLayer = false)
   }
 
   function deleteLayer (id, event) {
@@ -146,9 +153,9 @@
 
 </script>
 
-<div class="p-5 border-b-2 border-gray-100 text-sm">
+<div class="p-5 border-t-2 border-gray-100 text-sm">
   <div class="font-semibold pb-3 text-gray-500">Layers</div>
-    <div class="text-sm text-gray-700">
+    <div class="text-sm text-gray-700 select-none">
       <div class="border rounded-[4px] border-[#D4D4D8]">
 
         {#if $layerStorage && $myPresence}

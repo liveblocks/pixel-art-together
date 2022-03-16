@@ -1,6 +1,3 @@
-<script lang="ts">
-  import logo from '../../static/liveblocks.svg'
-</script>
 
 <header class="flex justify-between py-5 pl-8 pr-4 border-b-2 border-gray-100 bg-white">
   <h1 class="text-2xl">
@@ -8,9 +5,6 @@
     <span class="font-medium text-gray-500 tracking-tight">together</span>
   </h1>
   <div class="flex items-center text-black">
-    <a href="https://liveblocks.io" class="mr-2.5" target="_blank">
-      <img alt="Liveblocks logo" src={logo} />
-    </a>
     <a href="https://twitter.com/liveblocks" target="_blank">
       <svg class="m-4 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
         <path
