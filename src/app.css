@@ -50,3 +50,9 @@ html, body {
 .inner-border {
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
+
+.focus-visible-style:focus-visible {
+  outline: none;
+  border-color: var(--sl-input-border-color-focus);
+  box-shadow: var(--sl-focus-ring);
+}

@@ -12,6 +12,7 @@ import LinksPanel from '$lib/LinksPanel.svelte'
 import PixelGrid from '$lib/PixelGrid.svelte'
 import Cursor from '$lib/Cursor.svelte'
 import { formatLayers } from '$lib/utils/formatLayers'
+import IntroDialog from '$lib/IntroDialog.svelte'
 
 /**
  *  TODO
@@ -25,33 +26,32 @@ import { formatLayers } from '$lib/utils/formatLayers'
  *  new layer should be above current selected layer
  */
 
-// Generate a default layer
-const defaultLayer = generateLayer({
-  layer: 0,
-  rows: 16,
-  cols: 16,
-  defaultObject: { color: '#eccdf4' }
+const myPresence = useMyPresence()
+const others = useOthers()
+const self = useSelf()
+
+// Set default value for presence
+myPresence.update({
+  name: localStorage.getItem('name') || '',
+  selectedLayer: 0,
+  cursor: null,
+  tool: 'brush',
+  mouseDown: false
 })
 
-// Holds each pixel, default layer used if none exist
-const pixelStorage = useObject('pixelStorage', defaultLayer)
 
 // Holds information about each layer, default layer set if none set
-const layerStorage = useObject('layerStorage', {
-  0: {
-    id: 0,
-    opacity: 1,
-    blendMode: 'normal',
-    hidden: false
-  }
-})
+const layerStorage = useObject('layerStorage')
+
+// Holds each pixel
+const pixelStorage = useObject('pixelStorage')
 
 // Convert a pixel object into a pixel key
-const pixelToKey = ({ layer = $myPresence.selectedLayer, row, col }) => `LAY${layer}_ROW${row}_COL${col}`
+const pixelToKey = ({ layer = $myPresence.selectedLayer, row, col }) => `${layer}_${row}_${col}`
 
 // Convert a pixel key into a pixel object
 const keyToPixel = (key: string)  => {
-  const [layer, row, col] = key.split('_').map(str => parseInt(str.slice(3)))
+  const [layer, row, col] = key.split('_').map(num => parseInt(num))
   return { layer, row, col }
 }
 
@@ -65,6 +65,35 @@ const updatePixels = (pixelArray, newObj) => {
   const updatedPixels = {}
   pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = newObj)
   return $pixelStorage.update(updatedPixels)
+}
+
+let layers = []
+$: layers = formatLayers({
+  pixelStorage: $pixelStorage?.toObject(),
+  layerStorage: $layerStorage?.toObject(),
+  keyToPixel,
+  getPixel
+})
+
+
+$: canvasReady = $pixelStorage ? Object.keys($pixelStorage.toObject()).length > 0 : false
+
+function createCanvas ({ detail }) {
+  if ($pixelStorage?.update) {
+    const defaultLayer = generateLayer({
+      layer: 0,
+      rows: detail.height,
+      cols: detail.width,
+      defaultObject: { color: '#eccdf4' }
+    })
+    $pixelStorage.update(defaultLayer)
+    $layerStorage.set(0, {
+      id: 0,
+      opacity: 1,
+      blendMode: 'normal',
+      hidden: false
+    })
+  }
 }
 
 /**
@@ -84,26 +113,10 @@ const updatePixels = (pixelArray, newObj) => {
  *   }
  * ]
  */
-let layers = []
-$: layers = formatLayers({
-  pixelStorage: $pixelStorage?.toObject(),
-  layerStorage: $layerStorage?.toObject(),
-  keyToPixel,
-  getPixel
-})
 
-const myPresence = useMyPresence()
-const others = useOthers()
-const self = useSelf()
 
 let showGrid = false
 
-// Set default value for presence
-myPresence.update({
-  selectedLayer: 0,
-  cursor: null,
-  tool: 'brush'
-})
 
 // On brush component change, update presence with new brush
 function handleBrushChange ({ detail }) {
@@ -199,6 +212,7 @@ function handleMouseLeave () {
   });
 }
 </script>
+<svelte:window on:mousedown={() => myPresence.update({ mouseDown: true })} on:mouseup={() => myPresence.update({ mouseDown: false })}/>
 
 <div class="absolute inset-0 z-50 pointer-events-none">
   {#if $others}
@@ -206,14 +220,21 @@ function handleMouseLeave () {
       {#if presence?.cursor && presence?.brush}
         <Cursor
           {...calculateCursorPosition(presence.cursor)}
+          shrink={presence.mouseDown}
           color={presence.brush}
           tool={presence.tool}
-          name={info.name}
+          name={presence.name || info.name}
         />
       {/if}
     {/each}
   {/if}
 </div>
+
+{#if !canvasReady}
+  <div class="absolute inset-0 z-50 flex justify-center items-center">
+    <IntroDialog on:createCanvas={createCanvas} />
+  </div>
+{/if}
 
 <div class="flex min-h-full bg-white">
 
@@ -224,12 +245,11 @@ function handleMouseLeave () {
     class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
     <BrushPanel on:brushChange={handleBrushChange} />
-    {#if layers}
+    {#if layers && canvasReady}
       <LayersPanel layers={layers} />
       <ExportsPanel />
     {/if}
   </div>
-
 
 
   <div
@@ -287,7 +307,7 @@ function handleMouseLeave () {
       </div>
     </div>
     <div class="flex-grow relative">
-      {#if layers?.length}
+      {#if canvasReady && layers?.[0].grid.length}
         <PixelGrid bind:mainPanelElement={panels.mainPanel} layers={layers} {showGrid} on:pixelChange={handlePixelChange} />
       {/if}
     </div>
@@ -304,8 +324,8 @@ function handleMouseLeave () {
         <div class="border-gray-200 text-sm font-semibold pb-1 text-gray-500 px-5">Currently online</div>
         {#if $myPresence && $self}
           <UserOnline
-            name={$self.info.name + ' (you)'}
             picture={$self.info.picture}
+            name={($myPresence.name || $self.info.name) + ' (you)'}
             brush={$myPresence.brush}
             selectedLayer={$myPresence.selectedLayer}
             tool={$myPresence.tool}
@@ -314,8 +334,8 @@ function handleMouseLeave () {
         {#each [...$others] as { connectionId, presence, info } (connectionId)}
           {#if presence?.brush?.color}
             <UserOnline
-              name={info.name}
               picture={info.picture}
+              name={presence.name || info.name}
               brush={presence.brush}
               selectedLayer={presence.selectedLayer}
               tool={presence.tool}

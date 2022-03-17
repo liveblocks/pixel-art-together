@@ -7,6 +7,7 @@
   export let color = {}
   export let tool = ''
   export let name = ''
+  export let shrink = false
 
   let coords = spring({ x, y }, {
     stiffness: 0.07,
@@ -26,7 +27,7 @@
   class="absolute -top-4 -left-4"
 >
 
-  <div class="font-medium text-sm inner-border drop-shadow-sm absolute top-7 left-7 whitespace-nowrap rounded-full overflow-hidden">
+  <div class="font-medium text-sm inner-border drop-shadow-sm absolute top-7 left-7 whitespace-nowrap rounded-full overflow-hidden origin-top-left transition-transform duration-150 {shrink ? 'scale-95' : ''}">
     <div
       style="background-color: {color.color.slice(0, 7)};"
       class="flex px-2.5 py-1.5 mix-blend-luminosity {blackText ? 'text-gray-800' : 'text-gray-200'}"
