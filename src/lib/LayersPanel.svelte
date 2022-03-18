@@ -1,11 +1,10 @@
 <script lang="ts">
-  import type { Layer } from '../types'
+  import { useMyPresence, useObject, useRoom, useBatch } from '../lib-liveblocks'
   import { createEventDispatcher, onMount } from 'svelte'
-  import { blendModes } from '$lib/utils/blendModes'
-  import { useMyPresence, useObject, useRoom } from '../lib-liveblocks'
-  import { useBatch } from '../lib-liveblocks/useBatch'
-  import { debounce } from '$lib/utils/debounce'
   import { generateLayer } from '$lib/utils/generateLayer'
+  import { blendModes } from '$lib/utils/blendModes'
+  import { debounce } from '$lib/utils/debounce'
+  import type { Layer } from '../types'
 
   export let layers: Layer[] = []
 
@@ -43,10 +42,9 @@
   let addingNewLayer = false
 
   // When layers update, make sure a layer is still selected
-  $: whenLayersUpdate($layerStorage)
-
-  function whenLayersUpdate (storage) {
-    if (storage && $myPresence && $myPresence.selectedLayer !== undefined) {
+  $: whenLayersUpdate($layerStorage, $myPresence?.selectedLayer)
+  function whenLayersUpdate (_, __) {
+    if ($layerStorage && $myPresence && $myPresence.selectedLayer !== undefined) {
       const currentLayer = $myPresence.selectedLayer
 
       if (!$layerStorage.get(currentLayer + '') && !addingNewLayer) {
@@ -59,6 +57,7 @@
     }
   }
 
+  // Update current layer blend mode on change
   async function handleBlendModeChange ({ detail }) {
     if (!$myPresence) {
       return
@@ -72,6 +71,7 @@
     blendText.innerText = detail.item.dataset.value
   }
 
+  // Update current layer opacity on change
   const handleOpacityChange = debounce(async function ({ target }) {
     if (!$myPresence) {
       return
@@ -83,6 +83,7 @@
     $layerStorage.set( '' + $myPresence.selectedLayer, newLayer)
   }, 100, false)
 
+  // Toggle visibility of current layer
   function toggleVisibility (layerId, event) {
     if (event) {
       event.stopPropagation()
@@ -93,6 +94,7 @@
     $layerStorage.set(layerId, newLayer)
   }
 
+  // Adds new layer to top of stack
   function addLayer () {
     let newId = 0
     Object.values($layerStorage.toObject()).map(layer => {
@@ -109,6 +111,7 @@
       defaultObject: { color: 'transparent' }
     })
 
+    // Batching changes means one undo click will reverse all
     batch(() => {
       $pixelStorage.update({ ...generatedLayer })
       $layerStorage.set('' + newId, {
@@ -123,6 +126,7 @@
     setTimeout(() => addingNewLayer = false)
   }
 
+  // Deletes layer using `id`
   function deleteLayer (id, event) {
     if (event) {
       event.stopPropagation()
@@ -134,6 +138,7 @@
     }
   }
 
+  // Changes to layer using `id`
   function changeLayer (id) {
     myPresence?.update({ selectedLayer: id })
     if (blendText) {
@@ -144,6 +149,7 @@
     }
   }
 
+  // Selects the top layer
   function selectTopLayer () {
     if ($layerStorage && myPresence) {
       const firstLayer = Object.values($layerStorage.toObject())[0].id
@@ -158,6 +164,7 @@
     <div class="text-sm text-gray-700 select-none">
       <div class="border rounded-[4px] border-[#D4D4D8]">
 
+        <!-- Blend/opacity bar -->
         {#if $layerStorage && $myPresence}
           <div class="border-b flex justify-between items-middle">
             <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
@@ -183,6 +190,7 @@
           </div>
         {/if}
 
+        <!-- New layer bar -->
         <button on:click={addLayer} class="focus-visible-style focus-visible:z-10 relative select-none px-2 py-2.5 bg-gray-50 flex group cursor-pointer block w-full">
           <span class="pr-2 text-gray-400 group-hover:text-gray-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -194,10 +202,10 @@
           </span>
         </button>
 
+        <!-- All layers -->
         <div class="flex flex-col-reverse">
           {#each layers as layer}
             <div
-              on:click={() => changeLayer(layer.id)}
               style={$myPresence?.selectedLayer === layer.id ? 'background-color: var(--sl-color-primary-600); color: #fff;' : ''}
               class="group hover:bg-[color:var(--sl-color-primary-50)] relative border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100 font-semibold' : 'bg-white'}"
             >
@@ -224,7 +232,9 @@
                     </svg>
                   {/if}
                 </button>
+
                 <span class="font-medium {$myPresence?.selectedLayer === layer.id ? 'font-bold' : ''}">Layer {layer.id}</span>
+
               </div>
               <div>
                 {Math.round(layer.opacity * 100)}%, {layer.blendMode}

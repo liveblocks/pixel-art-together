@@ -1,7 +1,8 @@
 <script lang="ts">
-import { useMyPresence, useObject, useOthers, useSelf, useUndo, useRedo } from './lib-liveblocks'
+import { useMyPresence, useObject, useOthers, useRedo, useSelf, useUndo } from './lib-liveblocks'
 import { generateLayer } from '$lib/utils/generateLayer'
 import { getFillPixels } from '$lib/utils/getFillPixels'
+import { formatLayers } from '$lib/utils/formatLayers'
 import ExportsPanel from '$lib/ExportsPanel.svelte'
 import LayersPanel from '$lib/LayersPanel.svelte'
 import BrushPanel from '$lib/BrushPanel.svelte'
@@ -11,16 +12,15 @@ import SharePanel from '$lib/SharePanel.svelte'
 import LinksPanel from '$lib/LinksPanel.svelte'
 import PixelGrid from '$lib/PixelGrid.svelte'
 import Cursor from '$lib/Cursor.svelte'
-import { formatLayers } from '$lib/utils/formatLayers'
 import IntroDialog from '$lib/IntroDialog.svelte'
+import { Tool } from './types'
 
 /**
  *  TODO
- *  intro page
+ *  tidy up this file
  *  store state ie width height in new LiveObject, pass to exports panel
  *  Save and fork button
  *  make pill stand out more over it's own colour
- *  name selector
  *  save button above colour picker
  *  mobile
  *  new layer should be above current selected layer
@@ -32,13 +32,12 @@ const self = useSelf()
 
 // Set default value for presence
 myPresence.update({
-  name: localStorage.getItem('name') || '',
+  name: '',
   selectedLayer: 0,
   cursor: null,
   tool: 'brush',
   mouseDown: false
 })
-
 
 // Holds information about each layer, default layer set if none set
 const layerStorage = useObject('layerStorage')
@@ -76,6 +75,13 @@ $: layers = formatLayers({
 })
 
 
+let nameSet = false
+
+function setName ({ detail }) {
+  myPresence.update({ name: detail.name })
+  nameSet = true
+}
+
 $: canvasReady = $pixelStorage ? Object.keys($pixelStorage.toObject()).length > 0 : false
 
 function createCanvas ({ detail }) {
@@ -93,30 +99,13 @@ function createCanvas ({ detail }) {
       blendMode: 'normal',
       hidden: false
     })
+    setName({ detail })
   }
 }
 
-/**
- * Returns an object containing all layers and pixel grids, for general use
- *
- * Layers [
- *   Layer {
- *     Grid [
- *       Row [
- *         Pixel {
- *           Color
- *         }
- *       ]
- *     ]
- *     Opacity
- *     BlendMode
- *   }
- * ]
- */
-
-
 let showGrid = false
 
+let updateBrushColor
 
 // On brush component change, update presence with new brush
 function handleBrushChange ({ detail }) {
@@ -128,7 +117,7 @@ function handlePixelChange ({ detail }) {
     return
   }
 
-  let tool = $myPresence.tool
+  let tool: Tool = $myPresence.tool
   let selected = $myPresence.selectedLayer
   let currentPixel = {
     row: detail.row,
@@ -140,7 +129,7 @@ function handlePixelChange ({ detail }) {
   let pixelsToChange = [currentPixel]
 
   // If fill tool, find neighbour pixels
-  if (tool === 'fill') {
+  if (tool === Tool.Fill) {
     const currentLayer = layers.find(layer => layer.id === selected)
     pixelsToChange = [
       ...pixelsToChange,
@@ -149,7 +138,7 @@ function handlePixelChange ({ detail }) {
   }
 
   updatePixels(pixelsToChange, {
-    color: tool === 'eraser' ? 'transparent' : $myPresence.brush.color
+    color: tool === Tool.Eraser ? 'transparent' : $myPresence.brush.color
   })
 }
 
@@ -181,8 +170,7 @@ function handleMouseMove (event, area) {
 
   myPresence.update({
     cursor: { x, y, area },
-  });
-  //console.log(event.clientX - left, event.clientY - top)
+  })
 }
 
 function calculateCursorPosition ({ x, y, area }) {
@@ -212,7 +200,11 @@ function handleMouseLeave () {
   });
 }
 </script>
-<svelte:window on:mousedown={() => myPresence.update({ mouseDown: true })} on:mouseup={() => myPresence.update({ mouseDown: false })}/>
+
+<svelte:window
+  on:mousedown={() => myPresence.update({ mouseDown: true })}
+  on:mouseup={() => myPresence.update({ mouseDown: false })}
+/>
 
 <div class="absolute inset-0 z-50 pointer-events-none">
   {#if $others}
@@ -230,9 +222,14 @@ function handleMouseLeave () {
   {/if}
 </div>
 
-{#if !canvasReady}
+{#if !nameSet}
   <div class="absolute inset-0 z-50 flex justify-center items-center">
-    <IntroDialog on:createCanvas={createCanvas} />
+    <IntroDialog
+      loading={!$pixelStorage}
+      shouldCreateCanvas={!canvasReady}
+      on:createCanvas={createCanvas}
+      on:setName={setName}
+    />
   </div>
 {/if}
 
@@ -244,7 +241,7 @@ function handleMouseLeave () {
     on:mousemove={e => handleMouseMove(e, 'toolsPanel')} on:mouseleave={handleMouseLeave}
     class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
-    <BrushPanel on:brushChange={handleBrushChange} />
+    <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
     {#if layers && canvasReady}
       <LayersPanel layers={layers} />
       <ExportsPanel />
@@ -261,19 +258,19 @@ function handleMouseLeave () {
       <div class="flex gap-3">
 
         <sl-button-group>
-          <IconButton screenReader="Brush tool" toggled={$myPresence.tool === 'brush'} on:click={() => myPresence.update({ tool: 'brush' })}>
+          <IconButton screenReader="Brush tool" toggled={$myPresence.tool === Tool.Brush} on:click={() => myPresence.update({ tool: 'brush' })}>
             <svg class="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z" />
             </svg>
           </IconButton>
 
-          <IconButton screenReader="Eraser tool" toggled={$myPresence.tool === 'eraser'} on:click={() => myPresence.update({ tool: 'eraser' })}>
+          <IconButton screenReader="Eraser tool" toggled={$myPresence.tool === Tool.Eraser} on:click={() => myPresence.update({ tool: 'eraser' })}>
             <svg class="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z" />
             </svg>
           </IconButton>
 
-          <IconButton screenReader="Fill tool" toggled={$myPresence.tool === 'fill'} on:click={() => myPresence.update({ tool: 'fill' })}>
+          <IconButton screenReader="Fill tool" toggled={$myPresence.tool === Tool.Fill} on:click={() => myPresence.update({ tool: 'fill' })}>
             <svg class="w-6 h-6 mt-[6px] scale-x-[-1]" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19,11.5C19,11.5 17,13.67 17,15A2,2 0 0,0 19,17A2,2 0 0,0 21,15C21,13.67 19,11.5 19,11.5M5.21,10L10,5.21L14.79,10M16.56,8.94L7.62,0L6.21,1.41L8.59,3.79L3.44,8.94C2.85,9.5 2.85,10.47 3.44,11.06L8.94,16.56C9.23,16.85 9.62,17 10,17C10.38,17 10.77,16.85 11.06,16.56L16.56,11.06C17.15,10.47 17.15,9.5 16.56,8.94Z" />
             </svg>
@@ -329,6 +326,7 @@ function handleMouseLeave () {
             brush={$myPresence.brush}
             selectedLayer={$myPresence.selectedLayer}
             tool={$myPresence.tool}
+            isYou={true}
           />
         {/if}
         {#each [...$others] as { connectionId, presence, info } (connectionId)}
@@ -339,6 +337,8 @@ function handleMouseLeave () {
               brush={presence.brush}
               selectedLayer={presence.selectedLayer}
               tool={presence.tool}
+              on:selectColor={({ detail }) => updateBrushColor(detail.color)}
+              isYou={false}
             />
           {/if}
         {/each}

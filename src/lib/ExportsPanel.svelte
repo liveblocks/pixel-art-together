@@ -2,11 +2,21 @@
   import { Canvg } from 'canvg'
   import { onMount } from 'svelte'
 
-  export let width = 2000
-  export let ratio = 1
+  export let width: number = 2000
+  export let ratio: number = 1
 
   let renderer
 
+  // Creates file from SVG and starts download
+  function handleSaveSvg () {
+    const svgContent = document.querySelector('#svg-image').outerHTML
+    var file = new File([svgContent], 'pixelart.svg', {
+      type: 'image/svg+xml'
+    })
+    downloadFile(file)
+  }
+
+  // Creates file by adding SVG to canvas, converts to base64 png, and starts download
   async function handleSavePng () {
     const svgContent = document.querySelector('#svg-image').outerHTML
     const canvas: HTMLCanvasElement = document.querySelector('#export-canvas')
@@ -23,14 +33,7 @@
     })
   }
 
-  function handleSaveSvg () {
-    const svgContent = document.querySelector('#svg-image').outerHTML
-    var file = new File([svgContent], 'pixelart.svg', {
-      type: 'image/svg+xml'
-    })
-    downloadFile(file)
-  }
-
+  // Downloads a file object
   function downloadFile (file) {
     const link = document.createElement('a')
     link.style.display = 'none'

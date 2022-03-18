@@ -2,7 +2,7 @@
 import { copyUrlToClipboard } from '$lib/utils/copyText'
 import { onMount } from 'svelte'
 
-let copied
+let copied: boolean
 
 onMount(async () => {
   await import('@shoelace-style/shoelace/dist/components/button/button.js')

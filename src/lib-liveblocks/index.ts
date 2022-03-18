@@ -8,6 +8,8 @@ export * from './useSelf'
 export * from './useRoom'
 export * from './useUndo'
 export * from './useRedo'
+export * from './useBatch'
+export * from './useHistory'
 
 /**
  * These components were built to (mostly) match the

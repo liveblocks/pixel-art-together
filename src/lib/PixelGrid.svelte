@@ -1,20 +1,17 @@
 <script lang="ts">
-  import brushSvg from '../../static/assets/cursors/brush.svg'
-  import eraserSvg from '../../static/assets/cursors/eraser.svg'
-  import fillSvg from '../../static/assets/cursors/fill.svg'
   import { createEventDispatcher, onMount } from 'svelte'
+  import { useHistory } from '../lib-liveblocks'
   import type { Layer } from '../types'
   import panzoom from 'panzoom'
-  import { useHistory } from '../lib-liveblocks/useHistory'
-  import { useMyPresence } from '../lib-liveblocks'
-  const dispatch = createEventDispatcher()
 
   export let layers: Layer[]
   export let showGrid: boolean = false
   export let mainPanelElement
 
+  const dispatch = createEventDispatcher()
   let layersCache = layers
 
+  // Width and height
   const cols = layers[0].grid.length
   const rows = layers[0].grid[0].length
 
@@ -33,11 +30,7 @@
   }
 
   onMount(() => {
-    // @ts-ignore
-    panInstance = panzoom(panElement, {
-      // transformOrigin: { x: 0.5, y: 0.5 },
-      // smoothScroll: true
-    })
+    panInstance = panzoom(panElement)
     panning = false
   })
 
@@ -53,13 +46,14 @@
     }
   }
 
-  function pixelChange ({ col, row }) {
+  function pixelChange ({ col, row, hex }) {
     if (panning) {
       return
     }
     dispatch('pixelChange', {
       col,
-      row
+      row,
+      hex
     })
   }
 
@@ -73,45 +67,28 @@
     history.resume()
   }
 
-  function handleMouseOver ({ col, row }) {
+  function handleMouseOver ({ col, row, hex }) {
     if (mouseIsDown) {
-      pixelChange({ col, row })
+      pixelChange({ col, row, hex })
     }
   }
-
-  let cursorUrl = 'crosshair'
-
-  /*
-  const myPresence = useMyPresence()
-
-  let cursorIcons = {
-    brush: brushSvg,
-    eraser: eraserSvg,
-    fill: fillSvg
-  }
-
-  $: {
-    if ($myPresence?.tool) {
-      cursorUrl = `url(${cursorIcons[$myPresence.tool]}), crosshair`
-    }
-  }
-  */
-
 </script>
-<!--<svelte:options immutable={true}/>-->
+
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
 
 <div
   class="absolute inset-0"
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
-  style="cursor: {!panning ? cursorUrl : mouseIsDown ? 'grabbing' : 'grab' }"
+  style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }"
 >
   <div
     class="absolute inset-0 flex justify-center items-center p-12"
     bind:this={panElement}
   >
     <div bind:this={mainPanelElement} class="relative w-full max-h-full max-w-2xl">
+
+      <!-- Handle all events on canvas using CSS grid and HTML elements -->
       <div class="relative max-h-full" style="max-height:  100%; height: 100%;">
         <div
           class="grid select-none"
@@ -122,7 +99,7 @@
               <div
                 data-row={i}
                 data-col={j}
-                on:click={() => pixelChange({ col: j, row: i })}
+                on:click={() => pixelChange({ col: j, row: i, hex: pixel.color })}
                 on:mouseover={() => handleMouseOver({ col: j, row: i })}
                 class="w-full h-full relative pt-[100%]"
               ></div>
@@ -130,9 +107,8 @@
           {/each}
         </div>
 
-        <div
-          class="transparent-bg-large absolute inset-0 pointer-events-none"
-        >
+        <!-- Updatable SVG display of canvas -->
+        <div class="transparent-bg-large absolute inset-0 pointer-events-none">
           <svg id="svg-image" viewBox="0 0 {rows / cols * 100} 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             {#each layers as layer (layer.id)}
               <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>
@@ -154,6 +130,7 @@
           </svg>
         </div>
 
+        <!-- Grid overlay -->
         {#if showGrid}
           <div class="absolute inset-0 select-none pointer-events-none opacity-50 mix-blend-difference">
             <svg class="absolute inset-0" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

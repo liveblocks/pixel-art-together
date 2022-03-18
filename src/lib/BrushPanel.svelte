@@ -1,13 +1,19 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
   import { useMyPresence } from '../lib-liveblocks'
-  const dispatch = createEventDispatcher()
+  import type { Brush } from '../types'
 
+  const dispatch = createEventDispatcher()
   const myPresence = useMyPresence()
 
-  let colorPicker
+  let colorPicker: { getFormattedValue }
 
-  let brush = {
+  // Allows changing color value outside of component
+  let colorValue: string = ''
+  export const updateColor = (hex: string) => colorValue = hex
+
+  // Default brush
+  let brush: Brush = {
     opacity: 100,
     hue: 0,
     saturation: 0,
@@ -16,6 +22,7 @@
     rgb: { r: 255, g: 255, b: 255 }
   }
 
+  // Change brush event on any brush changes
   $: dispatch('brushChange', brush)
   onMount(async () => {
     dispatch('brushChange', brush)
@@ -23,6 +30,7 @@
     applyCustomStyles(colorPicker)
   })
 
+  // Workaround for custom elements
   function applyCustomStyles (host) {
     const style = document.createElement('style')
     style.innerHTML = `
@@ -33,6 +41,7 @@
     host.swatches = []
   }
 
+  // When color changes, update presence
   function colorChange ({ target }) {
     let col = target.value
     if (col[0] !== '#') {
@@ -51,7 +60,7 @@
     }
   }
 
-  function hexToRgb(hex) {
+  function hexToRgb (hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
       r: parseInt(result[1], 16),
@@ -61,16 +70,15 @@
   }
 </script>
 
-<!-- script tag for color picker is in app.html -->
-
 <div class="p-5 pb-2">
   <div class="text-sm font-semibold pb-3 text-gray-500">Colour</div>
   <div>
     <sl-color-picker
-      on:sl-change={colorChange}
-      bind:this={colorPicker}
       inline
       opacity
+      value={colorValue}
+      bind:this={colorPicker}
+      on:sl-change={colorChange}
     ></sl-color-picker>
   </div>
 </div>
