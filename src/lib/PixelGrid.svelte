@@ -34,6 +34,8 @@
     panning = false
   })
 
+  let previousHoveredPixel = null
+
   function handleKeyDown ({ code }) {
     if (panInstance && code === 'Space') {
       panning = true
@@ -50,6 +52,7 @@
     if (panning) {
       return
     }
+
     dispatch('pixelChange', {
       col,
       row,
@@ -67,19 +70,34 @@
     history.resume()
   }
 
-  function handleMouseOver ({ col, row, hex }) {
-    if (mouseIsDown) {
-      pixelChange({ col, row, hex })
+  function handleMouseMove ({ target, col, row, hex }) {
+    if (!mouseIsDown || previousHoveredPixel === target) {
+      return
+    }
+
+    previousHoveredPixel = target
+    pixelChange({ col, row, hex })
+  }
+
+  function handleTouchMove (event, { hex }) {
+    const location = event?.touches?.[0] ||event?.changedTouches?.[0] || event?.targetTouches?.[0]
+    const target = document.elementFromPoint(location.clientX, location.clientY)
+
+    if (target?.dataset?.length) {
+      const { col, row } = target.dataset
+      handleMouseMove({ target, hex, col, row })
     }
   }
 </script>
 
-<svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}/>
+<svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
 <div
-  class="absolute inset-0"
+  class="absolute inset-0 touch-pinch-zoom"
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
+  on:touchstart={handleMouseDown}
+  on:touchend={handleMouseUp}
   style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }"
 >
   <div
@@ -100,7 +118,8 @@
                 data-row={i}
                 data-col={j}
                 on:click={() => pixelChange({ col: j, row: i, hex: pixel.color })}
-                on:mouseover={() => handleMouseOver({ col: j, row: i })}
+                on:mousemove={({ target }) => handleMouseMove({ target, col: j, row: i, hex: pixel.color })}
+                on:touchmove={(event) => handleTouchMove(event, { col: j, row: i, hex: pixel.color })}
                 class="w-full h-full relative pt-[100%]"
               ></div>
             {/each}
@@ -136,7 +155,7 @@
             <svg class="absolute inset-0" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern x="-0.5" y="-0.5" id="grid" width="{100 / rows}%" height="{100 / cols}%" patternUnits="userSpaceOnUse">
-                  <path shape-rendering="crispEdges" d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="2"/>
+                  <path shape-rendering="crispEdges" d="M 1000 0 L 0 0 0 1000" fill="none" stroke-dasharray="3,3" stroke="white" stroke-width="2" />
                 </pattern>
               </defs>
               <rect shape-rendering="crispEdges" width="100%" height="100%" fill="url(#grid)" class="" />

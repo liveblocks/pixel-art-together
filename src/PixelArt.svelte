@@ -158,7 +158,7 @@ function handleMouseMove (event, area) {
   const { top, left, width, height } = panels[area].getBoundingClientRect()
 
   let x = Math.round(event.clientX - left)
-  let y = Math.round(event.clientY - top)
+  let y = Math.round(event.clientY - top + panels[area].scrollTop)
 
   // Percentage across element
   if (area === 'mainPanel') {
@@ -236,7 +236,7 @@ function handleMouseLeave () {
   <div
     id="tools-panel"
     bind:this={panels.toolsPanel}
-    on:mousemove={e => handleMouseMove(e, 'toolsPanel')} on:mouseleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'toolsPanel')} on:pointerleave={handleMouseLeave}
     class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
     <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
@@ -249,7 +249,7 @@ function handleMouseLeave () {
 
   <div
     id="main-panel"
-    on:mousemove={e => handleMouseMove(e, 'mainPanel')} on:mouseleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'mainPanel')} on:pointerleave={handleMouseLeave}
     class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col"
   >
     <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
@@ -311,7 +311,7 @@ function handleMouseLeave () {
   <div
     id="multiplayer-panel"
     bind:this={panels.multiplayerPanel}
-    on:mousemove={e => handleMouseMove(e, 'multiplayerPanel')} on:mouseleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')} on:pointerleave={handleMouseLeave}
     class="side-panel relative left-full lg:left-auto w-0 lg:w-[300px] flex py-5 overflow-y-auto flex-col"
   >
     <div>

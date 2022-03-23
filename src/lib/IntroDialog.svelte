@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher, onDestroy } from 'svelte'
+  import logo from '../../static/logo.svg'
 
   export let shouldCreateCanvas: boolean = false
   export let loading: boolean = true
@@ -58,9 +59,8 @@
 
 <sl-dialog style="--width: 300px;" bind:this={dialog} label="Create a pixel canvas" open no-header>
   <div class="flex flex-col gap-5">
-    <h1 class="text-2xl mt-1">
-      <span class="font-extrabold tracking-tighter text-black">Pixel art</span>
-      <span class="font-medium text-gray-500 tracking-tight">together</span>
+    <h1 class="text-2xl mt-2.5">
+      <img class="max-w-full block mx-auto" src={logo} alt="Pixel art together" />
     </h1>
 
     <sl-input
@@ -75,7 +75,7 @@
     {#if shouldCreateCanvas && !loading}
       <div class="flex gap-4 items-end">
         <div class="flex-grow flex-shrink">
-          <sl-range {pixelSizeMin} {pixelSizeMax} value={height} on:sl-change={e => height = e.target.__value}>
+          <sl-range min={pixelSizeMin} max={pixelSizeMax} value={height} on:sl-change={e => height = e.target.__value}>
             <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Height</div>
           </sl-range>
         </div>
@@ -84,7 +84,7 @@
 
       <div class="flex gap-4 items-end mb-2">
         <div class="flex-grow flex-shrink">
-          <sl-range {pixelSizeMin} {pixelSizeMax} value={width} on:sl-change={e => width = e.target.__value}>
+          <sl-range min={pixelSizeMin} max={pixelSizeMax} value={width} on:sl-change={e => width = e.target.__value}>
             <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Width</div>
           </sl-range>
         </div>
