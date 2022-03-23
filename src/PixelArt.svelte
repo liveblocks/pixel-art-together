@@ -18,12 +18,10 @@ import { Tool } from './types'
 /**
  *  TODO
  *  tidy up this file
- *  store state ie width height in new LiveObject, pass to exports panel
  *  Save and fork button
  *  make pill stand out more over it's own colour
  *  save button above colour picker
  *  mobile
- *  new layer should be above current selected layer
  */
 
 const myPresence = useMyPresence()
@@ -90,7 +88,7 @@ function createCanvas ({ detail }) {
       layer: 0,
       rows: detail.height,
       cols: detail.width,
-      defaultObject: { color: '#eccdf4' }
+      defaultObject: { color: 'transparent' }
     })
     $pixelStorage.update(defaultLayer)
     $layerStorage.set(0, {
@@ -345,7 +343,7 @@ function handleMouseLeave () {
       {/if}
       <SharePanel />
     </div>
-    <div>
+    <div class="flex-grow flex items-end">
       <LinksPanel />
       <!--<SwitchesPanel bind:showGrid={showGrid} />-->
     </div>
