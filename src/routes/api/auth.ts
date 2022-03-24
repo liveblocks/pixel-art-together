@@ -18,7 +18,7 @@ export async function post ({ request }) {
     room: room,
     secret: API_KEY,
     userInfo: {
-      name: NAMES[Math.floor(Math.random() * NAMES.length)],
+      name: 'Guest',
       picture: `/assets/avatars/${Math.floor(Math.random() * 10)}.png`
     }
   })
@@ -28,14 +28,3 @@ export async function post ({ request }) {
     body: response.body
   }
 }
-
-const NAMES = [
-  'Charlie Layne',
-  'Mislav Abha',
-  'Tatum Paolo',
-  'Anjali Wanda',
-  'Jody Hekla',
-  'Emil Joyce',
-  'Jory Quispe',
-  'Quinn Elton'
-]

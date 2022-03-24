@@ -22,6 +22,8 @@ import { Tool } from './types'
  *  make pill stand out more over it's own colour
  *  save button above colour picker
  *  mobile
+ *  add z index to blend mode dropdown on focus
+ *  fix canvas going off screen
  */
 
 const myPresence = useMyPresence()
@@ -197,11 +199,29 @@ function handleMouseLeave () {
     cursor: null,
   });
 }
+
+// Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
+function handleKeyDown (event) {
+  if (!event.ctrlKey) {
+    return
+  }
+
+  if (event.key.toLowerCase() === 'z') {
+    if (event.shiftKey) {
+      redo()
+    } else {
+      undo()
+    }
+  } else if (event.key === 'y') {
+    redo()
+  }
+}
 </script>
 
 <svelte:window
-  on:mousedown={() => myPresence.update({ mouseDown: true })}
-  on:mouseup={() => myPresence.update({ mouseDown: false })}
+  on:pointerdown={() => myPresence.update({ mouseDown: true })}
+  on:pointerup={() => myPresence.update({ mouseDown: false })}
+  on:keydown={handleKeyDown}
 />
 
 <div class="absolute inset-0 z-50 pointer-events-none">
@@ -237,7 +257,7 @@ function handleMouseLeave () {
     id="tools-panel"
     bind:this={panels.toolsPanel}
     on:pointermove={e => handleMouseMove(e, 'toolsPanel')} on:pointerleave={handleMouseLeave}
-    class="side-panel w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
+    class="side-panel relative right-full w-0 md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
     <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
     {#if layers && canvasReady}
@@ -283,7 +303,7 @@ function handleMouseLeave () {
 
       </div>
 
-      <div class="flex gap-3">
+      <div class="flex gap-3 ml-3">
 
         <sl-button-group>
           <IconButton screenReader="Undo" on:click={() => undo()}>
@@ -312,7 +332,7 @@ function handleMouseLeave () {
     id="multiplayer-panel"
     bind:this={panels.multiplayerPanel}
     on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')} on:pointerleave={handleMouseLeave}
-    class="side-panel relative left-full lg:left-auto w-0 lg:w-[300px] flex py-5 overflow-y-auto flex-col"
+    class="side-panel relative left-full w-0  xl:left-auto xl:w-[300px] flex py-5 overflow-y-auto flex-col"
   >
     <div>
       {#if $others}
@@ -345,17 +365,10 @@ function handleMouseLeave () {
     </div>
     <div class="flex-grow flex items-end">
       <LinksPanel />
-      <!--<SwitchesPanel bind:showGrid={showGrid} />-->
     </div>
   </div>
 </div>
 
-
-<!--
-  Include undo button
-  Show other users brush state
-  Brushes can have color/opacity/blend mode/size?/shape?
--->
 
 <style>
   .main-panel, .side-panel {
