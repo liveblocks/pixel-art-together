@@ -39,8 +39,8 @@
 
 <div class="h-16 flex items-center justify-between px-5">
 
-  <!-- Avatar -->
   <div class="flex items-center overflow-hidden">
+    <!-- Avatar -->
     <div class="transparent-bg w-10 h-10 relative">
       <img
         alt="{name}'s avatar"

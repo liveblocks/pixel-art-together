@@ -226,7 +226,7 @@ function handleKeyDown (event) {
 
 <div class="absolute inset-0 z-50 pointer-events-none">
   {#if $others}
-    {#each [...$others] as { presence, info }}
+    {#each [...$others] as { presence, info, connectionId } (connectionId)}
       {#if presence?.cursor && presence?.brush}
         <Cursor
           {...calculateCursorPosition(presence.cursor)}
@@ -256,23 +256,28 @@ function handleKeyDown (event) {
   <div
     id="tools-panel"
     bind:this={panels.toolsPanel}
-    on:pointermove={e => handleMouseMove(e, 'toolsPanel')} on:pointerleave={handleMouseLeave}
-    class="side-panel relative right-full w-0 md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
+    on:pointermove={e => handleMouseMove(e, 'toolsPanel')}
+    on:pointerleave={handleMouseLeave}
+    class="side-panel relative right-full w-0 md:right-auto md:w-auto flex flex-col flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
   >
     <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
     {#if layers && canvasReady}
       <LayersPanel layers={layers} />
       <ExportsPanel />
     {/if}
-  </div>
 
+    <div class="flex-grow flex items-end justify-end md:hidden">
+      <LinksPanel />
+    </div>
+  </div>
 
   <div
     id="main-panel"
-    on:pointermove={e => handleMouseMove(e, 'mainPanel')} on:pointerleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'mainPanel')}
+    on:pointerleave={handleMouseLeave}
     class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col"
   >
-    <div class="relative z-10  flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
+    <div class="relative z-10 flex-shrink-0 flex-grow-0 flex justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 p-4">
       <div class="flex gap-3">
 
         <sl-button-group>
@@ -321,17 +326,39 @@ function handleKeyDown (event) {
 
       </div>
     </div>
+
     <div class="flex-grow relative">
       {#if canvasReady && layers?.[0].grid.length}
         <PixelGrid bind:mainPanelElement={panels.mainPanel} layers={layers} {showGrid} on:pixelChange={handlePixelChange} />
       {/if}
+    </div>
+
+    <div class="flex xl:hidden flex-shrink-0 flex-grow-0 relative z-10 justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 px-4 py-3">
+      <div>
+        menu, picker
+      </div>
+      <div class="flex">
+        {#if $others}
+          {#each [...$others] as { presence, info, connectionId } (connectionId)}
+            {#if presence}
+              <div class="transparent-bg w-10 h-10 relative ring-4 ring-white rounded-full -ml-2">
+                <img
+                  alt="{presence?.name || info.name}'s avatar"
+                  src={info.picture}
+                />
+              </div>
+            {/if}
+          {/each}
+        {/if}
+      </div>
     </div>
   </div>
 
   <div
     id="multiplayer-panel"
     bind:this={panels.multiplayerPanel}
-    on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')} on:pointerleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')}
+    on:pointerleave={handleMouseLeave}
     class="side-panel relative left-full w-0  xl:left-auto xl:w-[300px] flex py-5 overflow-y-auto flex-col"
   >
     <div>
@@ -347,7 +374,7 @@ function handleKeyDown (event) {
             isYou={true}
           />
         {/if}
-        {#each [...$others] as { connectionId, presence, info } (connectionId)}
+        {#each [...$others] as { presence, info, connectionId } (connectionId)}
           {#if presence?.brush?.color}
             <UserOnline
               picture={info.picture}
