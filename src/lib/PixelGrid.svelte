@@ -93,7 +93,7 @@
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
 <div
-  class="absolute inset-0 touch-pinch-zoom"
+  class="absolute inset-0 touch-none"
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
   on:touchstart={handleMouseDown}

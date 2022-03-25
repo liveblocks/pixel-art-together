@@ -217,6 +217,8 @@ function handleKeyDown (event) {
     redo()
   }
 }
+
+let mobileMenuOpen = false
 </script>
 
 <svelte:window
@@ -252,14 +254,15 @@ function handleKeyDown (event) {
   </div>
 {/if}
 
-<div class="flex min-h-full bg-white">
+<div class="flex min-h-full bg-white relative">
 
   <div
     id="tools-panel"
     bind:this={panels.toolsPanel}
     on:pointermove={e => handleMouseMove(e, 'toolsPanel')}
     on:pointerleave={handleMouseLeave}
-    class="side-panel relative right-full w-0 md:right-auto md:w-auto flex flex-col flex-grow-0 flex-shrink-0 bg-white overflow-y-auto"
+    class="side-panel relative md:!relative md:!translate-x-0 md:!w-auto right-full w-0 md:right-auto md:w-auto flex flex-col flex-grow-0 flex-shrink-0 bg-white overflow-y-auto border-gray-100 {mobileMenuOpen ? 'border-r-2' : ''}"
+    style={mobileMenuOpen ? 'position: fixed; width: auto; transform: translateX(100%); height: 100%; background: #fff; z-index: 20;' : ''}
   >
     <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
     {#if layers && canvasReady}
@@ -267,7 +270,7 @@ function handleKeyDown (event) {
       <ExportsPanel />
     {/if}
 
-    <div class="flex-grow flex items-end justify-end md:hidden">
+    <div class="flex-grow flex items-end justify-end xl:hidden pb-5">
       <LinksPanel />
     </div>
   </div>
@@ -334,16 +337,16 @@ function handleKeyDown (event) {
       {/if}
     </div>
 
-    <div class="flex xl:hidden flex-shrink-0 flex-grow-0 relative z-10 justify-between md:justify-end items-center w-full bg-white border-2 border-t-0 border-gray-100 px-4 py-3">
+    <div class="z-30 flex xl:hidden flex-shrink-0 flex-grow-0 relative z-10 justify-between items-center w-full bg-white border-2 border-gray-100 px-4 py-3">
       <div class="flex md:hidden">
-        <button class="mr-4">
+        <button on:click={() => mobileMenuOpen = !mobileMenuOpen} class="mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
 
-      <div class="flex flex-row-reverse">
+      <div class="flex flex-row-reverse flex-grow items-center justify-center -mr-3 md:mr-0">
         {#if $others}
           {#each [...$others] as { presence, info, connectionId } (connectionId)}
             {#if presence}
@@ -357,7 +360,22 @@ function handleKeyDown (event) {
           {/each}
         {/if}
         {#if $self && $myPresence}
-          <div class="transparent-bg w-10 h-10 relative ring-4 ring-white rounded-full -ml-2">
+          <div class="hidden md:block -my-2 -ml-4 mr-2 flex-grow flex">
+            <div class="flex-grow-0">
+              <UserOnline
+                picture={$self.info.picture}
+                name={$myPresence.name || $self.info.name}
+                brush={$myPresence.brush}
+                selectedLayer={$myPresence.selectedLayer}
+                tool={$myPresence.tool}
+                on:selectColor={({ detail }) => updateBrushColor(detail.color)}
+                isYou={true}
+                short={true}
+              />
+            </div>
+            <div class="flex-grow w-full"></div>
+          </div>
+          <div class="block md:hidden transparent-bg w-10 h-10 relative ring-4 ring-white rounded-full -ml-2">
             <img
               alt="{$myPresence?.name || $self.info.name}'s avatar"
               src={$self.info.picture}
@@ -369,7 +387,6 @@ function handleKeyDown (event) {
       <div class="flex md:hidden">
         <MobileColorPicker on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
       </div>
-
 
     </div>
   </div>
@@ -387,7 +404,7 @@ function handleKeyDown (event) {
         {#if $myPresence && $self}
           <UserOnline
             picture={$self.info.picture}
-            name={($myPresence.name || $self.info.name) + ' (you)'}
+            name={($myPresence.name || $self.info.name)}
             brush={$myPresence.brush}
             selectedLayer={$myPresence.selectedLayer}
             tool={$myPresence.tool}
