@@ -14,6 +14,7 @@ import PixelGrid from '$lib/PixelGrid.svelte'
 import Cursor from '$lib/Cursor.svelte'
 import IntroDialog from '$lib/IntroDialog.svelte'
 import { Tool } from './types'
+import MobileColorPicker from '$lib/MobileColorPicker.svelte'
 
 /**
  *  TODO
@@ -333,11 +334,16 @@ function handleKeyDown (event) {
       {/if}
     </div>
 
-    <div class="flex xl:hidden flex-shrink-0 flex-grow-0 relative z-10 justify-between items-center w-full bg-white border-2 border-t-0 border-gray-100 px-4 py-3">
-      <div>
-        menu, picker
+    <div class="flex xl:hidden flex-shrink-0 flex-grow-0 relative z-10 justify-between md:justify-end items-center w-full bg-white border-2 border-t-0 border-gray-100 px-4 py-3">
+      <div class="flex md:hidden">
+        <button class="mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
-      <div class="flex">
+
+      <div class="flex flex-row-reverse">
         {#if $others}
           {#each [...$others] as { presence, info, connectionId } (connectionId)}
             {#if presence}
@@ -350,7 +356,21 @@ function handleKeyDown (event) {
             {/if}
           {/each}
         {/if}
+        {#if $self && $myPresence}
+          <div class="transparent-bg w-10 h-10 relative ring-4 ring-white rounded-full -ml-2">
+            <img
+              alt="{$myPresence?.name || $self.info.name}'s avatar"
+              src={$self.info.picture}
+            />
+          </div>
+        {/if}
       </div>
+
+      <div class="flex md:hidden">
+        <MobileColorPicker on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
+      </div>
+
+
     </div>
   </div>
 
