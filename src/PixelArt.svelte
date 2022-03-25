@@ -23,7 +23,7 @@ import MobileColorPicker from '$lib/MobileColorPicker.svelte'
  *  make pill stand out more over it's own colour
  *  save button above colour picker
  *  mobile
- *  add z index to blend mode dropdown on focus
+ *  sync colour pickers
  *  fix canvas going off screen
  */
 

@@ -80,6 +80,7 @@
   }
 
   function handleTouchMove (event, { hex }) {
+    event.preventDefault()
     const location = event?.touches?.[0] ||event?.changedTouches?.[0] || event?.targetTouches?.[0]
     const target = document.elementFromPoint(location.clientX, location.clientY)
 
