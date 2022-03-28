@@ -94,7 +94,7 @@
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
 <div
-  class="absolute inset-0 touch-none"
+  class="absolute inset-0 touch-none "
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
   on:touchstart={handleMouseDown}
@@ -105,12 +105,16 @@
     class="absolute inset-0 flex justify-center items-center p-12"
     bind:this={panElement}
   >
-    <div bind:this={mainPanelElement} class="relative w-full max-h-full max-w-2xl">
+    <div class="relative w-full h-full max-h-full max-w-2xl flex justify-center items-middle">
 
       <!-- Handle all events on canvas using CSS grid and HTML elements -->
-      <div class="relative max-h-full" style="max-height:  100%; height: 100%;">
+      <div
+        bind:this={mainPanelElement}
+        style="aspect-ratio: {rows} / {cols};"
+        class="absolute inset-0 max-w-full max-h-full m-auto overflow-hidden"
+      >
         <div
-          class="grid select-none"
+          class="transparent-bg-large grid absolute inset-0 select-none"
           style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"
         >
           {#each layersCache[0].grid as row, i}
@@ -128,8 +132,8 @@
         </div>
 
         <!-- Updatable SVG display of canvas -->
-        <div class="transparent-bg-large absolute inset-0 pointer-events-none">
-          <svg id="svg-image" viewBox="0 0 {rows / cols * 100} 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <div class="absolute inset-0 pointer-events-none">
+          <svg id="svg-image" viewBox="0 0 {rows / cols * 100} 100" class="max-w-full mx-auto h-full" xmlns="http://www.w3.org/2000/svg">
             {#each layers as layer (layer.id)}
               <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>
                 {#each layer.grid as row, rowIndex}

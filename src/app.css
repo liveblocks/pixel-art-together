@@ -11,8 +11,10 @@
 }
 
 html, body {
-  @apply fixed w-full h-full;
+  @apply fixed w-full;
+  height: var(--full-height);
 }
+
 
 .custom-gradient {
   background:

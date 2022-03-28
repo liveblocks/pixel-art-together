@@ -1,5 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
+  import { quintInOut, quintOut } from 'svelte/easing'
+  import { slide } from 'svelte/transition'
   import { contrastingTextColour } from '$lib/utils/contrastingTextColour'
   import type { Brush } from '../types'
 
@@ -38,7 +40,7 @@
   }
 </script>
 
-<div class="h-16 flex items-center justify-between px-5">
+<div class="h-16 flex items-center justify-between px-5" in:slide={{ duration: isYou ? 0 : 500, easing: quintInOut }} out:slide={{ duration: isYou ? 0 : 500, easing: quintOut }}>
 
   <div class="flex items-center overflow-hidden">
     <!-- Avatar -->

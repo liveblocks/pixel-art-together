@@ -5,9 +5,16 @@
   import ImportCustomElements from '$lib/ImportCustomElements.svelte'
   import { onMount } from 'svelte'
 
+  // Get and update correct vh unit
   onMount(() => {
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
+    function onResize () {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
+
+    onResize()
+    window.addEventListener('resize', onResize)
+    window.addEventListener('orientationchange', onResize)
   })
 </script>
 

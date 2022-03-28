@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition'
   import { useMyPresence, useObject, useRoom, useBatch } from '../lib-liveblocks'
   import { createEventDispatcher, onMount } from 'svelte'
   import { generateLayer } from '$lib/utils/generateLayer'
@@ -206,6 +207,7 @@
         <div class="flex flex-col-reverse">
           {#each layers as layer}
             <div
+              transition:slide
               style={$myPresence?.selectedLayer === layer.id ? 'background-color: var(--sl-color-primary-600); color: #fff;' : ''}
               class="group hover:bg-[color:var(--sl-color-primary-50)] relative border-t cursor-pointer flex py-0.5 gap-1 justify-between items-center {$myPresence?.selectedLayer === layer.id ? 'bg-gray-100 font-semibold' : 'bg-white'}"
             >
