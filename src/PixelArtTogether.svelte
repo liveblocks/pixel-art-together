@@ -339,7 +339,7 @@
   <!-- Left panel, containing layers etc -->
   <div
     id="tools-panel"
-    class="side-panel fixed md:relative bg-white z-20 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto w-0 md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
+    class="side-panel fixed md:relative bg-white z-20 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
     style="
       transform: translateX({$mobileMenuTransform}%);
   ">
