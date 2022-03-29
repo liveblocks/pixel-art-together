@@ -29,6 +29,9 @@
    *  make pill stand out more over it's own colour
    *  save button above colour picker
    *  new art button?
+   *  better avatars (diversity avatars)
+   *
+   *  https://pixelart.liveblocks.app/?room=be2b80ad5e83bc444f95b
    */
 
   /**
@@ -334,7 +337,7 @@
 {/if}
 
 <!-- App -->
-<div class="flex min-h-full bg-white relative">
+<div class="flex h-full min-h-full bg-white relative">
 
   <!-- Left panel, containing layers etc -->
   <div

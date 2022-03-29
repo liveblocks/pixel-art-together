@@ -2,7 +2,7 @@
   import logo from '../../static/logo.svg'
 </script>
 
-<header class="flex justify-between py-5 pl-4 border-b-2 border-gray-100 bg-white">
+<header class="flex justify-between py-5 pl-4 border-b-2 border-gray-100 bg-white -z-10">
   <h1 class="pt-0.5 pl-[1px] flex items-center">
     <img src={logo} alt="Pixel art together" />
   </h1>

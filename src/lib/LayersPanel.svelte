@@ -169,7 +169,7 @@
         {#if $layerStorage && $myPresence}
           <div class="border-b flex justify-between items-middle relative z-10">
             <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
-            <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange} hoist>
+            <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange}>
               <sl-button class="focus-visible:z-10" variant="text" slot="trigger" caret >
                 <span class="capitalize" bind:this={blendText}>
                   {layers[getLayerIndexFromSelected()]?.blendMode || 'normal'}
