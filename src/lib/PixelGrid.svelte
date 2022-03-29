@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
-  import { useHistory } from '../lib-liveblocks'
+  import { useHistory, useMyPresence } from '../lib-liveblocks'
   import type { Layer } from '../types'
   import panzoom from 'panzoom'
 
@@ -89,6 +89,8 @@
       handleMouseMove({ target, hex, col, row })
     }
   }
+
+  const myPresence = useMyPresence()
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
@@ -111,7 +113,7 @@
       <div
         bind:this={mainPanelElement}
         style="aspect-ratio: {rows} / {cols};"
-        class="absolute inset-0 max-w-full max-h-full m-auto overflow-hidden"
+        class="absolute inset-0 max-w-full max-h-full m-auto"
       >
         <div
           class="transparent-bg-large grid absolute inset-0 select-none"
@@ -165,6 +167,12 @@
               </defs>
               <rect shape-rendering="crispEdges" width="100%" height="100%" fill="url(#grid)" class="" />
             </svg>
+          </div>
+        {/if}
+
+        {#if $myPresence}
+          <div class="md:hidden absolute bottom-full left-0 mb-1.5 font-bold uppercase text-sm text-gray-500 tracking-wider">
+            Layer {$myPresence.selectedLayer}
           </div>
         {/if}
 

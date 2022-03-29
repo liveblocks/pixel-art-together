@@ -60,8 +60,16 @@
 </script>
 
 <sl-color-picker
+  class="mobile-color-picker"
   opacity
   value={colorValue}
   bind:this={colorPicker}
   on:sl-change={colorChange}
 ></sl-color-picker>
+
+<style>
+  .mobile-color-picker::part(base) {
+    margin-bottom: 20px;
+    margin-right: -10px;
+  }
+</style>
