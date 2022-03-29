@@ -20,15 +20,15 @@
 
   /**
    *  TODO
-   *  tidy up this file
+   *  tidy up other files
+   *  move layer u p l r buttons
+   *  come up with aspect ratio solution for iOS
+   *
+   *  MAYBE
    *  Save and fork button
    *  make pill stand out more over it's own colour
    *  save button above colour picker
    *  new art button?
-   *
-   *  MOBILE MAYBE:
-   *  add menu button to right side for multiplayer
-   *  put brush at bottom middle and maybe also write current layer state
    */
 
   /**
@@ -339,7 +339,7 @@
   <!-- Left panel, containing layers etc -->
   <div
     id="tools-panel"
-    class="side-panel fixed md:relative bg-white z-20 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
+    class="side-panel fixed md:relative bg-white z-20 md:z-0 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
     style="
       transform: translateX({$mobileMenuTransform}%);
   ">

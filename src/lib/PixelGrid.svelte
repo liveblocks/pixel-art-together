@@ -96,7 +96,7 @@
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
 
 <div
-  class="absolute inset-0 touch-none "
+  class="absolute inset-0 touch-none focus-visible-style"
   on:mousedown={handleMouseDown}
   on:mouseup={handleMouseUp}
   on:touchstart={handleMouseDown}
@@ -116,7 +116,7 @@
         class="absolute inset-0 max-w-full max-h-full m-auto"
       >
         <div
-          class="transparent-bg-large grid absolute inset-0 select-none"
+          class="grid absolute inset-0 select-none"
           style="grid-template-columns: repeat({rows}, minmax(0, 1fr)); grid-template-rows: repeat({cols}, minmax(0, 1fr)); transform: translateZ(0); gap: 0;"
         >
           {#each layersCache[0].grid as row, i}
@@ -127,7 +127,7 @@
                 on:click={() => pixelChange({ col: j, row: i, hex: pixel.color })}
                 on:mousemove={({ target }) => handleMouseMove({ target, col: j, row: i, hex: pixel.color })}
                 on:touchmove={(event) => handleTouchMove(event, { col: j, row: i, hex: pixel.color })}
-                class="w-full h-full relative pt-[100%]"
+                class="transparent-bg-pixel w-full h-full relative pt-[100%]"
               ></div>
             {/each}
           {/each}

@@ -29,6 +29,28 @@ html, body {
     );
 }
 
+.transparent-bg-pixel {
+  background: #fff;
+}
+
+.transparent-bg-pixel::before, .transparent-bg-pixel::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  @apply bg-gray-200;
+}
+
+.transparent-bg-pixel::before {
+  top: 0;
+  left: 0;
+}
+
+.transparent-bg-pixel::after {
+  bottom: 0;
+  right: 0;
+}
+
 .transparent-bg {
   background-image:
     linear-gradient(45deg, var(--sl-color-neutral-300) 25%, transparent 25%),
