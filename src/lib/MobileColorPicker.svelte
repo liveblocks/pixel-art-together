@@ -7,10 +7,7 @@
   const myPresence = useMyPresence()
 
   let colorPicker: { getFormattedValue }
-
-  // Allows changing color value outside of component
   let colorValue: string = ''
-  export const updateColor = (hex: string) => colorValue = hex
 
   // Default brush
   let brush: Brush = {

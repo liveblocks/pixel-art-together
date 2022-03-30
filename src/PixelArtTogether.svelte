@@ -358,9 +358,13 @@
         <LayersPanel layers={layers} />
         <ExportsPanel />
 
-        <div class="flex-grow flex items-end justify-end xl:hidden pb-5">
-          <LinksPanel />
+        <div class="flex-grow flex md:items-end justify-end xl:hidden pb-5 border-t-2 md:border-0 border-gray-100">
+          <div class="w-full overflow-hidden">
+            <div class="md:hidden font-semibold pb-3 text-gray-500 text-sm p-5">Technology</div>
+            <LinksPanel />
+          </div>
         </div>
+
       </div>
     {/if}
   </div>
@@ -490,7 +494,7 @@
 
         <!-- Mobile color picker -->
         <div class="flex md:hidden">
-          <MobileColorPicker on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
+          <MobileColorPicker on:brushChange={handleBrushChange} />
         </div>
 
       </div>

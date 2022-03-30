@@ -23,7 +23,7 @@
 <Header />
 
 <main class="w-full h-full">
-	<slot />
+  <slot></slot>
 </main>
 
 <style global>
