@@ -58,12 +58,13 @@
 </script>
 
 <sl-dialog style="--width: 300px;" bind:this={dialog} label="Create a pixel canvas" open no-header>
-  <div class="flex flex-col gap-5">
+  <div class="flex flex-col">
     <h1 class="text-2xl mt-2.5">
       <img class="max-w-full block mx-auto" src={logo} alt="Pixel art together" />
     </h1>
 
     <sl-input
+      class="mt-5"
       value={name}
       placeholder="Enter your name"
       on:sl-input={e => name = e.target.value}
@@ -73,7 +74,7 @@
     </sl-input>
 
     {#if shouldCreateCanvas && !loading}
-      <div class="flex gap-4 items-end">
+      <div class="flex gap-4 items-end mt-5">
         <div class="flex-grow flex-shrink">
           <sl-range min={pixelSizeMin} max={pixelSizeMax} value={height} on:sl-change={e => height = e.target.__value}>
             <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Height</div>
@@ -82,7 +83,7 @@
         <div class="w-6 text-right text-lg font-medium text-gray-600">{height}</div>
       </div>
 
-      <div class="flex gap-4 items-end mb-2">
+      <div class="flex gap-4 items-end mb-2 mt-5">
         <div class="flex-grow flex-shrink">
           <sl-range min={pixelSizeMin} max={pixelSizeMax} value={width} on:sl-change={e => width = e.target.__value}>
             <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Width</div>
@@ -92,7 +93,7 @@
       </div>
     {/if}
 
-    <sl-button {loading} on:click={submitDialog} variant="primary">
+    <sl-button class="mt-5" {loading} on:click={submitDialog} variant="primary">
       {shouldCreateCanvas ? 'Create canvas' : 'Set name'}
     </sl-button>
 

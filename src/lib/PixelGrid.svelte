@@ -8,7 +8,9 @@
   export let showGrid: boolean = false
   export let mainPanelElement
 
+
   const dispatch = createEventDispatcher()
+  let mainPanelWrapper
   let layersCache = layers
 
   // Width and height
@@ -32,6 +34,10 @@
   onMount(() => {
     panInstance = panzoom(panElement)
     panning = false
+
+    fixAspectRatioSupport()
+    window.addEventListener('resize', fixAspectRatioSupport)
+    window.addEventListener('orientationchange',fixAspectRatioSupport)
   })
 
   let previousHoveredPixel = null
@@ -90,6 +96,52 @@
     }
   }
 
+  function fixAspectRatioSupport () {
+    if (CSS.supports('aspect-ratio', `${rows} / ${cols}`)) {
+      return
+    }
+
+    console.warn('Aspect ratio not supported, using fallback')
+
+    const wrapperStyles = getComputedStyle(mainPanelWrapper)
+    const maxWidth = parseInt(wrapperStyles.maxWidth)
+    const currentWidth = mainPanelWrapper.offsetWidth
+
+    const { paddingTop, paddingRight, paddingBottom, paddingLeft } = getComputedStyle(panElement)
+    const { offsetHeight, offsetWidth } = panElement
+
+    const wrapperWidth = offsetWidth - parseFloat(paddingRight) - parseFloat(paddingLeft)
+    const wrapperHeight = offsetHeight - parseFloat(paddingTop) - parseFloat(paddingBottom)
+    const wrapperRatio = wrapperWidth / wrapperHeight
+
+    const artRatio = rows / cols
+
+    let width
+    let height
+
+    if (wrapperRatio > artRatio) {
+      if (wrapperHeight * artRatio > maxWidth) {
+        width = '100%'
+        height = maxWidth * artRatio + 'px'
+      } else {
+        height = '100%'
+        width = wrapperHeight * artRatio + 'px'
+      }
+    } else {
+      if (wrapperWidth * artRatio > maxWidth) {
+        height = currentWidth / artRatio + 'px'
+        width = '100%'
+      }
+      else {
+        height = wrapperWidth / artRatio + 'px'
+        width = '100%'
+      }
+    }
+
+    mainPanelWrapper.style.height = height
+    mainPanelWrapper.style.width = width
+  }
+
   const myPresence = useMyPresence()
 </script>
 
@@ -104,10 +156,13 @@
   style="cursor: {!panning ? 'crosshair' : mouseIsDown ? 'grabbing' : 'grab' }"
 >
   <div
-    class="absolute inset-0 flex justify-center items-center p-12"
     bind:this={panElement}
+    class="absolute inset-0 flex justify-center items-center p-12"
   >
-    <div class="relative w-full h-full max-h-full max-w-2xl flex justify-center items-middle">
+    <div
+      bind:this={mainPanelWrapper}
+      class="relative w-full h-full max-h-full max-w-2xl flex justify-center items-middle"
+    >
 
       <!-- Handle all events on canvas using CSS grid and HTML elements -->
       <div
