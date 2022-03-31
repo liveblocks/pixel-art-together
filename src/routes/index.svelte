@@ -1,26 +1,26 @@
 <script context="module" lang="ts">
-	export const prerender = true
+	export const prerender = true;
 </script>
 
 <script lang="ts">
-  import PixelArtTogether from '../PixelArtTogether.svelte'
-  import { createRoomId } from '$lib/utils/createRoomId'
-  import { onMount } from 'svelte'
-  import { createClient } from '@liveblocks/client'
-  import LiveblocksProvider from '../lib-liveblocks/LiveblocksProvider.svelte'
-  import RoomProvider from '../lib-liveblocks/RoomProvider.svelte'
+  import PixelArtTogether from "../PixelArtTogether.svelte";
+  import { createRoomId } from "$lib/utils/createRoomId";
+  import { onMount } from "svelte";
+  import { createClient } from "@liveblocks/client";
+  import LiveblocksProvider from "../lib-liveblocks/LiveblocksProvider.svelte";
+  import RoomProvider from "../lib-liveblocks/RoomProvider.svelte";
 
-  let id
-  let loaded = false
-  let client
+  let id;
+  let loaded = false;
+  let client;
 
   onMount(() => {
-    id = createRoomId()
+    id = createRoomId();
     client = createClient({
-      authEndpoint: '/api/auth'
-    })
-    loaded = true
-  })
+      authEndpoint: "/api/auth",
+    });
+    loaded = true;
+  });
 </script>
 
 {#if loaded}

@@ -5,8 +5,8 @@
  * const undo = useUndo()
  * undo()
  */
-import { useRoom } from './useRoom'
+import { useRoom } from "./useRoom";
 
-export function useUndo() {
-  return useRoom().history.undo
+export function useUndo () {
+  return useRoom().history.undo;
 }

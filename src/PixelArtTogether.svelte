@@ -1,22 +1,22 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition'
-  import { spring } from 'svelte/motion'
-  import { useMyPresence, useObject, useOthers, useRedo, useSelf, useUndo } from './lib-liveblocks'
-  import { generateLayer } from '$lib/utils/generateLayer'
-  import { getFillPixels } from '$lib/utils/getFillPixels'
-  import { formatLayers } from '$lib/utils/formatLayers'
-  import MobileColorPicker from '$lib/MobileColorPicker.svelte'
-  import ExportsPanel from '$lib/ExportsPanel.svelte'
-  import IntroDialog from '$lib/IntroDialog.svelte'
-  import LayersPanel from '$lib/LayersPanel.svelte'
-  import BrushPanel from '$lib/BrushPanel.svelte'
-  import UserOnline from '$lib/UserOnline.svelte'
-  import IconButton from '$lib/IconButton.svelte'
-  import SharePanel from '$lib/SharePanel.svelte'
-  import LinksPanel from '$lib/LinksPanel.svelte'
-  import PixelGrid from '$lib/PixelGrid.svelte'
-  import Cursor from '$lib/Cursor.svelte'
-  import { Tool } from './types'
+  import { fade } from "svelte/transition";
+  import { spring } from "svelte/motion";
+  import { useMyPresence, useObject, useOthers, useRedo, useSelf, useUndo } from "./lib-liveblocks";
+  import { generateLayer } from "$lib/utils/generateLayer";
+  import { getFillPixels } from "$lib/utils/getFillPixels";
+  import { formatLayers } from "$lib/utils/formatLayers";
+  import MobileColorPicker from "$lib/MobileColorPicker.svelte";
+  import ExportsPanel from "$lib/ExportsPanel.svelte";
+  import IntroDialog from "$lib/IntroDialog.svelte";
+  import LayersPanel from "$lib/LayersPanel.svelte";
+  import BrushPanel from "$lib/BrushPanel.svelte";
+  import UserOnline from "$lib/UserOnline.svelte";
+  import IconButton from "$lib/IconButton.svelte";
+  import SharePanel from "$lib/SharePanel.svelte";
+  import LinksPanel from "$lib/LinksPanel.svelte";
+  import PixelGrid from "$lib/PixelGrid.svelte";
+  import Cursor from "$lib/Cursor.svelte";
+  import { Tool } from "./types";
 
   /**
    *  TODO
@@ -44,28 +44,28 @@
   // ================================================================================
   // SETUP
 
- /**
-  * This Svelte example uses a set of custom Svelte hooks (inside the
-  * `lib-liveblocks` directory), based on the Liveblocks React library:
-  * https://liveblocks.io/docs/api-reference/liveblocks-react
-  */
-  const myPresence = useMyPresence()
-  const others = useOthers()
-  const self = useSelf()
+  /**
+   * This Svelte example uses a set of custom Svelte hooks (inside the
+   * `lib-liveblocks` directory), based on the Liveblocks React library:
+   * https://liveblocks.io/docs/api-reference/liveblocks-react
+   */
+  const myPresence = useMyPresence();
+  const others = useOthers();
+  const self = useSelf();
 
   // Set a default value for presence
   myPresence.update({
-    name: '',
+    name: "",
     selectedLayer: 0,
     cursor: null,
-    tool: 'brush',
-    mouseDown: false
-  })
+    tool: "brush",
+    mouseDown: false,
+  });
 
   // Two LiveObjects that will store the layer info and pixels
   // These are Svelte stores and can be accessed with a `$` prefix
-  const layerStorage = useObject('layerStorage')
-  const pixelStorage = useObject('pixelStorage')
+  const layerStorage = useObject("layerStorage");
+  const pixelStorage = useObject("pixelStorage");
 
   // ================================================================================
   // FORMAT LAYERS AND PIXELS
@@ -76,7 +76,7 @@
    * $pixelStorage = {
    *   0_1_2: { color: 'red' },
    *   // ...
- *   }
+   *   }
    */
 
   // A key for a pixel, e.g. '0_1_2'
@@ -92,67 +92,67 @@
   const pixelToKey = ({
     layer = $myPresence.selectedLayer,
     row,
-    col
-  }: PixelObject): PixelKey => `${layer}_${row}_${col}`
+    col,
+  }: PixelObject): PixelKey => `${layer}_${row}_${col}`;
 
   // Convert a pixel key into a pixel object
-  const keyToPixel = (key: PixelKey): PixelObject  => {
-    const [layer, row, col] = key.split('_').map(num => parseInt(num))
-    return { layer, row, col }
-  }
+  const keyToPixel = (key: PixelKey): PixelObject => {
+    const [layer, row, col] = key.split("_").map(num => parseInt(num));
+    return { layer, row, col };
+  };
 
   // Get the current pixel, using a pixel object
   const getPixel = (pixelProps: PixelObject) => {
-    return $pixelStorage.get(pixelToKey(pixelProps))
-  }
+    return $pixelStorage.get(pixelToKey(pixelProps));
+  };
 
   // Update an array of pixels, with the same object
   const updatePixels = (pixelArray: PixelObject[], newObj) => {
-    const updatedPixels = {}
-    pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = newObj)
-    return $pixelStorage.update(updatedPixels)
-  }
+    const updatedPixels = {};
+    pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = newObj);
+    return $pixelStorage.update(updatedPixels);
+  };
 
   // Every time pixelStorage or layerStorage updates, format layers into single array
-  let layers = []
+  let layers = [];
   $: layers = formatLayers({
     pixelStorage: $pixelStorage?.toObject(),
     layerStorage: $layerStorage?.toObject(),
     keyToPixel,
-    getPixel
-  })
+    getPixel,
+  });
 
   // If pixels stored in pixelStorage, canvas is ready to draw
-  $: canvasReady = $pixelStorage ? Object.keys($pixelStorage.toObject()).length > 0 : false
+  $: canvasReady = $pixelStorage ? Object.keys($pixelStorage.toObject()).length > 0 : false;
 
   // ================================================================================
   // INTRO DIALOG
 
-  let nameSet = false
+  let nameSet = false;
 
   // Set name inside presence
-  function setName({ detail }) {
-    myPresence.update({ name: detail.name })
-    nameSet = true
+  function setName ({ detail }) {
+    myPresence.update({ name: detail.name });
+    nameSet = true;
   }
 
   // Create canvas with dialog settings and default color
-  function createCanvas({ detail }) {
+  function createCanvas ({ detail }) {
     if ($pixelStorage?.update) {
       const defaultLayer = generateLayer({
         layer: 0,
         rows: detail.height,
         cols: detail.width,
-        defaultObject: { color: 'transparent' }
-      })
-      $pixelStorage.update(defaultLayer)
+        defaultObject: { color: "transparent" },
+      });
+      $pixelStorage.update(defaultLayer);
       $layerStorage.set(0, {
         id: 0,
         opacity: 1,
-        blendMode: 'normal',
-        hidden: false
-      })
-      setName({ detail })
+        blendMode: "normal",
+        hidden: false,
+      });
+      setName({ detail });
     }
   }
 
@@ -160,60 +160,60 @@
   // CANVAS
 
   // Functions that allow undoing and redoing storage changes
-  const undo = useUndo()
-  const redo = useRedo()
+  const undo = useUndo();
+  const redo = useRedo();
 
   // Is grid showing on canvas
-  let showGrid = false
+  let showGrid = false;
 
   // Will be bound to a function that allows the current color to be updated
-  let updateBrushColor
+  let updateBrushColor;
 
   // Recently used colors to be passed to the swatch
-  let recentColors = new Array(16).fill('#ffffffff')
+  let recentColors = new Array(16).fill("#ffffffff");
 
   // On brush component change, update presence with new brush
-  function handleBrushChange({ detail }) {
-    myPresence.update({ brush: detail })
+  function handleBrushChange ({ detail }) {
+    myPresence.update({ brush: detail });
   }
 
   // On pixel change, update pixels according to the current tool
-  function handlePixelChange({ detail }) {
+  function handlePixelChange ({ detail }) {
     if (!$myPresence?.brush?.color || !$pixelStorage) {
-      return
+      return;
     }
 
-    let tool: Tool = $myPresence.tool
-    let color = $myPresence.brush.color
-    let selected = $myPresence.selectedLayer
+    let tool: Tool = $myPresence.tool;
+    let color = $myPresence.brush.color;
+    let selected = $myPresence.selectedLayer;
 
     let currentPixel = {
       row: detail.row,
       col: detail.col,
-      layer: selected
-    }
+      layer: selected,
+    };
 
     // Current pixel
-    let pixelsToChange = [currentPixel]
+    let pixelsToChange = [currentPixel];
 
     // If fill tool, find neighbour pixels
     if (tool === Tool.Fill) {
-      const currentLayer = layers.find(layer => layer.id === selected)
+      const currentLayer = layers.find(layer => layer.id === selected);
       pixelsToChange = [
         ...pixelsToChange,
-        ...getFillPixels(currentPixel, currentLayer.grid)
-      ]
+        ...getFillPixels(currentPixel, currentLayer.grid),
+      ];
     }
 
     updatePixels(pixelsToChange, {
-      color: tool === Tool.Eraser ? 'transparent' : color
-    })
+      color: tool === Tool.Eraser ? "transparent" : color,
+    });
 
     if (!recentColors.includes(color)) {
-      const a = recentColors
-      a.pop()
-      a.unshift(color)
-      recentColors = a
+      const a = recentColors;
+      a.pop();
+      a.unshift(color);
+      recentColors = a;
     }
   }
 
@@ -224,55 +224,55 @@
   const panels = {
     multiplayerPanel: null,
     mainPanel: null,
-    toolsPanel: null
-  }
+    toolsPanel: null,
+  };
 
   // Pass current cursor position on panel, and current panel, to presence
-  function handleMouseMove(event, area) {
+  function handleMouseMove (event, area) {
     if (!panels[area] || !$myPresence) {
-      return
+      return;
     }
 
-    const { top, left, width, height } = panels[area].getBoundingClientRect()
+    const { top, left, width, height } = panels[area].getBoundingClientRect();
 
     // Position from top left corner by default
-    let x = Math.round(event.clientX - left)
-    let y = Math.round(event.clientY - top + panels[area].scrollTop)
+    let x = Math.round(event.clientX - left);
+    let y = Math.round(event.clientY - top + panels[area].scrollTop);
 
     // Percentage from center of element for main panel
-    if (area === 'mainPanel') {
-      x = x / width
-      y = y / height
+    if (area === "mainPanel") {
+      x = x / width;
+      y = y / height;
     }
 
     myPresence.update({
       cursor: { x, y, area },
-    })
+    });
   }
 
   // Reverse of above, find location of cursor according to coords and panel
-  function calculateCursorPosition({ x, y, area }) {
+  function calculateCursorPosition ({ x, y, area }) {
     if (!panels?.[area]) {
-      return
+      return;
     }
 
-    const { top, left, width, height } = panels[area].getBoundingClientRect()
-    let newX
-    let newY
+    const { top, left, width, height } = panels[area].getBoundingClientRect();
+    let newX;
+    let newY;
 
-    if (area === 'mainPanel') {
-      newX = left + width * x
-      newY = top + height * y
+    if (area === "mainPanel") {
+      newX = left + width * x;
+      newY = top + height * y;
     } else {
-      newX = left + x
-      newY = top + y
+      newX = left + x;
+      newY = top + y;
     }
 
-    return { x: newX, y: newY }
+    return { x: newX, y: newY };
   }
 
   // When the mouse leaves the page, set cursor presence to null
-  function handleMouseLeave() {
+  function handleMouseLeave () {
     myPresence.update({
       cursor: null,
     });
@@ -281,43 +281,43 @@
   // ================================================================================
   // MOBILE MENU
 
-  let mobileMenuOpen = false
+  let mobileMenuOpen = false;
 
   // Spring animation for mobile menu
   let mobileMenuTransform = spring(0, {
     stiffness: 0.07,
-    damping: 0.4
-  })
+    damping: 0.4,
+  });
 
   // When `mobileMenuOpen` changes, set spring value
-  $: mobileMenuTransform.set(mobileMenuOpen ? 100 : 0)
+  $: mobileMenuTransform.set(mobileMenuOpen ? 100 : 0);
 
   // ================================================================================
   // ASSORTED
 
   // Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
-  function handleKeyDown(event) {
+  function handleKeyDown (event) {
     if (!event.ctrlKey) {
-      return
+      return;
     }
 
-    if (event.key.toLowerCase() === 'z') {
+    if (event.key.toLowerCase() === "z") {
       if (event.shiftKey) {
-        redo()
+        redo();
       } else {
-        undo()
+        undo();
       }
-    } else if (event.key === 'y') {
-      redo()
+    } else if (event.key === "y") {
+      redo();
     }
   }
 
 </script>
 
 <svelte:window
+  on:keydown={handleKeyDown}
   on:pointerdown={() => myPresence.update({ mouseDown: true })}
   on:pointerup={() => myPresence.update({ mouseDown: false })}
-  on:keydown={handleKeyDown}
 />
 
 <!-- Live Cursors -->
@@ -354,8 +354,8 @@
 
   <!-- Left panel, containing layers etc -->
   <div
-    id="tools-panel"
     class="side-panel fixed md:relative bg-white z-20 md:z-10 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
+    id="tools-panel"
     style="transform: translateX({$mobileMenuTransform}%);">
     {#if layers && canvasReady}
       <div
@@ -386,10 +386,10 @@
 
   <!-- Center panel, containing canvas, undo/redo etc. -->
   <div
-    id="main-panel"
-    on:pointermove={e => handleMouseMove(e, 'mainPanel')}
-    on:pointerleave={handleMouseLeave}
     class="main-panel relative flex-grow bg-gray-100 overflow-hidden flex flex-col"
+    id="main-panel"
+    on:pointerleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'mainPanel')}
   >
     {#if canvasReady}
 
@@ -455,7 +455,7 @@
       <div class="flex justify-between items-center">
         <!-- Open mobile menu button -->
         <div class="flex md:hidden">
-          <button on:click={() => mobileMenuOpen = !mobileMenuOpen} class="px-4 py-2">
+          <button class="px-4 py-2" on:click={() => mobileMenuOpen = !mobileMenuOpen}>
             {#if mobileMenuOpen}
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -509,7 +509,7 @@
 
         <!-- Mobile color picker -->
         <div class="flex md:hidden">
-          <MobileColorPicker swatch={recentColors} on:brushChange={handleBrushChange} />
+          <MobileColorPicker on:brushChange={handleBrushChange} swatch={recentColors} />
         </div>
 
       </div>
@@ -518,11 +518,11 @@
 
   <!-- Right panel, containing share links, users' colors etc. (only on large screens) -->
   <div
-    id="multiplayer-panel"
     bind:this={panels.multiplayerPanel}
-    on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')}
-    on:pointerleave={handleMouseLeave}
     class="side-panel relative left-full w-0  xl:left-auto xl:w-[300px] flex py-5 overflow-y-auto flex-col"
+    id="multiplayer-panel"
+    on:pointerleave={handleMouseLeave}
+    on:pointermove={e => handleMouseMove(e, 'multiplayerPanel')}
   >
     {#if $others}
       <div transition:fade>

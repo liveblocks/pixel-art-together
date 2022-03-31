@@ -1,41 +1,41 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
-  import { quintInOut, quintOut } from 'svelte/easing'
-  import { slide } from 'svelte/transition'
-  import { contrastingTextColour } from '$lib/utils/contrastingTextColour'
-  import type { Brush } from '../types'
+  import { createEventDispatcher, onMount } from "svelte";
+  import { quintInOut, quintOut } from "svelte/easing";
+  import { slide } from "svelte/transition";
+  import { contrastingTextColour } from "$lib/utils/contrastingTextColour";
+  import type { Brush } from "../types";
 
-  export let short: boolean = false
-  export let isYou: boolean = false
-  export let brush: Brush
-  export let selectedLayer: string
-  export let name: string
-  export let picture: string
-  export let tool: string
+  export let short: boolean = false;
+  export let isYou: boolean = false;
+  export let brush: Brush;
+  export let selectedLayer: string;
+  export let name: string;
+  export let picture: string;
+  export let tool: string;
 
-  const dispatch = createEventDispatcher()
-  let getColorName: (hex: string) => string = hex => hex
+  const dispatch = createEventDispatcher();
+  let getColorName: (hex: string) => string = hex => hex;
 
   // After script imported, set color name function
   onMount(async () => {
-    const { default: ntc } = await import('$lib/utils/nameThatColor.js')
-    getColorName = hex => ntc.name(hex)[1]
-  })
+    const { default: ntc } = await import("$lib/utils/nameThatColor.js");
+    getColorName = hex => ntc.name(hex)[1];
+  });
 
-  let blackText
+  let blackText;
   $: {
     if (brush && brush.opacity) {
       if (brush.opacity < 35) {
-        blackText = true
+        blackText = true;
       } else {
-        blackText = contrastingTextColour(brush.rgb)
+        blackText = contrastingTextColour(brush.rgb);
       }
     }
   }
 
-  function handleColorChange() {
+  function handleColorChange () {
     if (brush?.color) {
-      dispatch('selectColor', { color: brush.color })
+      dispatch("selectColor", { color: brush.color });
     }
   }
 </script>
@@ -53,9 +53,11 @@
 
     <!-- Text -->
     <div class="pl-3">
-      <div class="font-medium mr-3">{name}{#if isYou}&nbsp;(you){/if}</div>
+      <div class="font-medium mr-3">{name}
+        {#if isYou}&nbsp;(you){/if}</div>
       <div class="text-sm text-gray-500 truncate mr-3.5 max-w-[150px] w-full">
-        <span class="font-semibold">Layer {selectedLayer}</span>{#if !short}, {getColorName(brush.color.slice(0, 7))}{/if}
+        <span class="font-semibold">Layer {selectedLayer}</span>
+        {#if !short}, {getColorName(brush.color.slice(0, 7))}{/if}
       </div>
     </div>
   </div>
@@ -79,7 +81,7 @@
               {/if}
               {#if tool === 'fill'}
                 <svg class="w-6 h-6 mt-1.5 ml-0.5 scale-x-[-1]" viewBox="0 0 24 24">
-                  <path fill="currentColor"  d="M19,11.5C19,11.5 17,13.67 17,15A2,2 0 0,0 19,17A2,2 0 0,0 21,15C21,13.67 19,11.5 19,11.5M5.21,10L10,5.21L14.79,10M16.56,8.94L7.62,0L6.21,1.41L8.59,3.79L3.44,8.94C2.85,9.5 2.85,10.47 3.44,11.06L8.94,16.56C9.23,16.85 9.62,17 10,17C10.38,17 10.77,16.85 11.06,16.56L16.56,11.06C17.15,10.47 17.15,9.5 16.56,8.94Z" />
+                  <path fill="currentColor" d="M19,11.5C19,11.5 17,13.67 17,15A2,2 0 0,0 19,17A2,2 0 0,0 21,15C21,13.67 19,11.5 19,11.5M5.21,10L10,5.21L14.79,10M16.56,8.94L7.62,0L6.21,1.41L8.59,3.79L3.44,8.94C2.85,9.5 2.85,10.47 3.44,11.06L8.94,16.56C9.23,16.85 9.62,17 10,17C10.38,17 10.77,16.85 11.06,16.56L16.56,11.06C17.15,10.47 17.15,9.5 16.56,8.94Z" />
                 </svg>
               {/if}
             </span>

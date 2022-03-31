@@ -1,4 +1,4 @@
-import { useRoom } from './useRoom'
+import { useRoom } from "./useRoom";
 
 /**
  * Works similarly to `liveblocks-react` useBatch
@@ -9,6 +9,6 @@ import { useRoom } from './useRoom'
  *   // ...
  * })
  */
-export function useBatch() {
-  return useRoom().batch
+export function useBatch () {
+  return useRoom().batch;
 }

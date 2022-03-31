@@ -1,18 +1,19 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
-  const dispatch = createEventDispatcher()
+  import { createEventDispatcher, onMount } from "svelte";
 
-  export let screenReader: string = ''
-  export let toggled: boolean = false
-  export let classes = ''
+  const dispatch = createEventDispatcher();
+
+  export let screenReader: string = "";
+  export let toggled: boolean = false;
+  export let classes = "";
 
   onMount(async () => {
-    await import('@shoelace-style/shoelace/dist/components/tooltip/tooltip.js')
-  })
+    await import("@shoelace-style/shoelace/dist/components/tooltip/tooltip.js");
+  });
 </script>
 
 <sl-tooltip content={screenReader} hoist>
-  <sl-button variant={toggled ? 'primary' : 'default'} on:click={event => dispatch('click', event)} class="relative w-10 h-10 flex justify-center items-center {classes}">
+  <sl-button class="relative w-10 h-10 flex justify-center items-center {classes}" on:click={event => dispatch('click', event)} variant={toggled ? 'primary' : 'default'}>
     <span class="sr-only">{screenReader}</span>
     <div class="absolute inset-0 flex justify-center items-center">
       <slot></slot>

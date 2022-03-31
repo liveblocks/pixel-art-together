@@ -1,7 +1,7 @@
-import type { Presence } from '@liveblocks/client'
-import { onDestroy } from 'svelte'
-import { writable } from 'svelte/store'
-import { useRoom } from './useRoom'
+import type { Presence } from "@liveblocks/client";
+import { onDestroy } from "svelte";
+import { writable } from "svelte/store";
+import { useRoom } from "./useRoom";
 
 /**
  * Works similarly to `liveblocks-react` useMyPresence
@@ -19,24 +19,24 @@ import { useRoom } from './useRoom'
  * it takes an object and works like `useUpdateMyPresence` in Liveblocks
  */
 
-export function useMyPresence(): any {
-  const room = useRoom()
-  const { subscribe, set } = writable<Presence>()
+export function useMyPresence (): any {
+  const room = useRoom();
+  const { subscribe, set } = writable<Presence>();
 
   function update (newPresence) {
-    room.updatePresence(newPresence)
+    room.updatePresence(newPresence);
   }
 
-  const unsubscribePresence = room.subscribe('my-presence', presence => {
-    set(presence)
-  })
+  const unsubscribePresence = room.subscribe("my-presence", presence => {
+    set(presence);
+  });
 
   onDestroy(() => {
-    unsubscribePresence()
-  })
+    unsubscribePresence();
+  });
 
   return {
     subscribe,
-    update
-  }
+    update,
+  };
 }

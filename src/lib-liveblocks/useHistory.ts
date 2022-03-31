@@ -5,8 +5,8 @@
  * const history = useHistory()
  * history.pause()
  */
-import { useRoom } from './useRoom'
+import { useRoom } from "./useRoom";
 
-export function useHistory() {
-  return useRoom().history
+export function useHistory () {
+  return useRoom().history;
 }

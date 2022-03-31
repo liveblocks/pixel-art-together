@@ -5,8 +5,8 @@
  * const redo = useRedo()
  * redo()
  */
-import { useRoom } from './useRoom'
+import { useRoom } from "./useRoom";
 
-export function useRedo() {
-  return useRoom().history.redo
+export function useRedo () {
+  return useRoom().history.redo;
 }

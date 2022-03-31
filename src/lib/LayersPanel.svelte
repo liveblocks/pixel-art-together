@@ -1,160 +1,161 @@
 <script lang="ts">
-  import { slide } from 'svelte/transition'
-  import { useMyPresence, useObject, useRoom, useBatch } from '../lib-liveblocks'
-  import { createEventDispatcher, onMount } from 'svelte'
-  import { generateLayer } from '$lib/utils/generateLayer'
-  import { blendModes } from '$lib/utils/blendModes'
-  import { debounce } from '$lib/utils/debounce'
-  import type { Layer } from '../types'
+  import { slide } from "svelte/transition";
+  import { useBatch, useMyPresence, useObject, useRoom } from "../lib-liveblocks";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { generateLayer } from "$lib/utils/generateLayer";
+  import { blendModes } from "$lib/utils/blendModes";
+  import { debounce } from "$lib/utils/debounce";
+  import type { Layer } from "../types";
 
-  export let layers: Layer[] = []
+  export let layers: Layer[] = [];
 
-  const dispatch = createEventDispatcher()
-  const myPresence = useMyPresence()
-  const room = useRoom()
-  const batch = useBatch()
+  const dispatch = createEventDispatcher();
+  const myPresence = useMyPresence();
+  const room = useRoom();
+  const batch = useBatch();
 
-  const layerStorage = useObject('layerStorage')
-  const pixelStorage = useObject('pixelStorage')
+  const layerStorage = useObject("layerStorage");
+  const pixelStorage = useObject("pixelStorage");
 
   onMount(async () => {
-    import('@shoelace-style/shoelace/dist/components/range/range.js')
-    import('@shoelace-style/shoelace/dist/components/menu-item/menu-item.js')
-    import('@shoelace-style/shoelace/dist/components/menu/menu.js')
-    import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
-  })
+    import("@shoelace-style/shoelace/dist/components/range/range.js");
+    import("@shoelace-style/shoelace/dist/components/menu-item/menu-item.js");
+    import("@shoelace-style/shoelace/dist/components/menu/menu.js");
+    import("@shoelace-style/shoelace/dist/components/dropdown/dropdown.js");
+  });
 
-  function getLayerIndexFromSelected() {
+  function getLayerIndexFromSelected () {
     if ($myPresence) {
-      return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
+      return layers.findIndex(layer => layer.id === $myPresence.selectedLayer);
     }
-    return 0
+    return 0;
   }
 
-  let rangeElement
-  let blendText
+  let rangeElement;
+  let blendText;
 
   $: {
     if (rangeElement) {
-      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100
+      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100;
     }
   }
 
-  let addingNewLayer = false
+  let addingNewLayer = false;
 
   // When layers update, make sure a layer is still selected
-  $: whenLayersUpdate($layerStorage, $myPresence?.selectedLayer)
+  $: whenLayersUpdate($layerStorage, $myPresence?.selectedLayer);
+
   function whenLayersUpdate (_, __) {
     if ($layerStorage && $myPresence && $myPresence.selectedLayer !== undefined) {
-      const currentLayer = $myPresence.selectedLayer
+      const currentLayer = $myPresence.selectedLayer;
 
-      if (!$layerStorage.get(currentLayer + '') && !addingNewLayer) {
-        const tempLayers = Object.values($layerStorage.toObject())
-        const newLayer = tempLayers[tempLayers.length > 0 ? tempLayers.length - 1 : 0].id
-        myPresence.update({ selectedLayer: newLayer })
+      if (!$layerStorage.get(currentLayer + "") && !addingNewLayer) {
+        const tempLayers = Object.values($layerStorage.toObject());
+        const newLayer = tempLayers[tempLayers.length > 0 ? tempLayers.length - 1 : 0].id;
+        myPresence.update({ selectedLayer: newLayer });
       }
 
-      dispatch('layerChange', $myPresence.selectedLayer)
+      dispatch("layerChange", $myPresence.selectedLayer);
     }
   }
 
   // Update current layer blend mode on change
-  async function handleBlendModeChange({ detail }) {
+  async function handleBlendModeChange ({ detail }) {
     if (!$myPresence) {
-      return
+      return;
     }
 
-    const index = $myPresence.selectedLayer
-    const oldLayer = $layerStorage.get('' + index)
-    const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value }
-    $layerStorage.set('' + $myPresence.selectedLayer, newLayer)
+    const index = $myPresence.selectedLayer;
+    const oldLayer = $layerStorage.get("" + index);
+    const newLayer = { ...oldLayer, blendMode: detail.item.dataset.value };
+    $layerStorage.set("" + $myPresence.selectedLayer, newLayer);
 
-    blendText.innerText = detail.item.dataset.value
+    blendText.innerText = detail.item.dataset.value;
   }
 
   // Update current layer opacity on change
-  const handleOpacityChange = debounce(async function ({ target }) {
+  const handleOpacityChange = debounce(async function({ target }) {
     if (!$myPresence) {
-      return
+      return;
     }
 
-    const firstIndex = $myPresence.selectedLayer
-    const oldLayer = $layerStorage.get('' + firstIndex)
-    const newLayer = { ...oldLayer, opacity: target.__value / 100 }
-    $layerStorage.set( '' + $myPresence.selectedLayer, newLayer)
-  }, 100, false)
+    const firstIndex = $myPresence.selectedLayer;
+    const oldLayer = $layerStorage.get("" + firstIndex);
+    const newLayer = { ...oldLayer, opacity: target.__value / 100 };
+    $layerStorage.set("" + $myPresence.selectedLayer, newLayer);
+  }, 100, false);
 
   // Toggle visibility of current layer
-  function toggleVisibility(layerId, event) {
+  function toggleVisibility (layerId, event) {
     if (event) {
-      event.stopPropagation()
+      event.stopPropagation();
     }
 
-    const oldLayer = $layerStorage.get('' + layerId)
-    const newLayer = { ...oldLayer, hidden: !oldLayer.hidden }
-    $layerStorage.set(layerId, newLayer)
+    const oldLayer = $layerStorage.get("" + layerId);
+    const newLayer = { ...oldLayer, hidden: !oldLayer.hidden };
+    $layerStorage.set(layerId, newLayer);
   }
 
   // Adds new layer to top of stack
-  function addLayer() {
-    let newId = 0
+  function addLayer () {
+    let newId = 0;
     Object.values($layerStorage.toObject()).map(layer => {
       if (layer.id > newId) {
-        newId = layer.id
+        newId = layer.id;
       }
-    })
-    newId++
+    });
+    newId++;
 
     const generatedLayer = generateLayer({
       layer: newId,
       cols: layers[0].grid.length,
       rows: layers[0].grid[0].length,
-      defaultObject: { color: 'transparent' }
-    })
+      defaultObject: { color: "transparent" },
+    });
 
     // Batching changes means one undo click will reverse all
     batch(() => {
-      $pixelStorage.update({ ...generatedLayer })
-      $layerStorage.set('' + newId, {
+      $pixelStorage.update({ ...generatedLayer });
+      $layerStorage.set("" + newId, {
         id: newId,
         opacity: 1,
-        blendMode: 'normal',
-        hidden: false
-      })
-      addingNewLayer = true
-      myPresence?.update({ selectedLayer: newId })
-    })
-    setTimeout(() => addingNewLayer = false)
+        blendMode: "normal",
+        hidden: false,
+      });
+      addingNewLayer = true;
+      myPresence?.update({ selectedLayer: newId });
+    });
+    setTimeout(() => addingNewLayer = false);
   }
 
   // Deletes layer using `id`
-  function deleteLayer(id, event) {
+  function deleteLayer (id, event) {
     if (event) {
-      event.stopPropagation()
+      event.stopPropagation();
     }
 
     if (Object.values($layerStorage.toObject()).length > 1) {
-      $layerStorage.delete('' + id)
-      selectTopLayer()
+      $layerStorage.delete("" + id);
+      selectTopLayer();
     }
   }
 
   // Changes to layer using `id`
-  function changeLayer(id) {
-    myPresence?.update({ selectedLayer: id })
+  function changeLayer (id) {
+    myPresence?.update({ selectedLayer: id });
     if (blendText) {
-      blendText.innerText = layers[getLayerIndexFromSelected()]?.blendMode || 'normal'
+      blendText.innerText = layers[getLayerIndexFromSelected()]?.blendMode || "normal";
     }
     if (rangeElement) {
-      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100
+      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100;
     }
   }
 
   // Selects the top layer
-  function selectTopLayer() {
+  function selectTopLayer () {
     if ($layerStorage && myPresence) {
-      const firstLayer = Object.values($layerStorage.toObject())[0].id
-      myPresence?.update({ selectedLayer: firstLayer })
+      const firstLayer = Object.values($layerStorage.toObject())[0].id;
+      myPresence?.update({ selectedLayer: firstLayer });
     }
   }
 
@@ -170,7 +171,7 @@
           <div class="border-b flex justify-between items-middle relative z-10">
             <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
             <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange}>
-              <sl-button class="focus-visible:z-10" variant="text" slot="trigger" caret >
+              <sl-button class="focus-visible:z-10" variant="text" slot="trigger" caret>
                 <span class="capitalize" bind:this={blendText}>
                   {layers[getLayerIndexFromSelected()]?.blendMode || 'normal'}
                 </span>
@@ -192,10 +193,10 @@
         {/if}
 
         <!-- New layer bar -->
-        <button on:click={addLayer} class="focus-visible-style focus-visible:z-10 relative select-none px-2 py-2.5 bg-gray-50 flex group cursor-pointer block w-full">
+        <button class="focus-visible-style focus-visible:z-10 relative select-none px-2 py-2.5 bg-gray-50 flex group cursor-pointer block w-full" on:click={addLayer}>
           <span class="pr-2 text-gray-400 group-hover:text-gray-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" fill-rule="evenodd" />
             </svg>
           </span>
           <span class="font-semibold text-gray-500 group-hover:text-gray-700 transition-colors">

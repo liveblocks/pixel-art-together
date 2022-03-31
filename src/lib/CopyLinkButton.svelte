@@ -1,23 +1,23 @@
 <script lang="ts">
-import { copyUrlToClipboard } from '$lib/utils/copyText'
-import { onMount } from 'svelte'
+import { copyUrlToClipboard } from "$lib/utils/copyText";
+import { onMount } from "svelte";
 
-let copied: boolean
+let copied: boolean;
 
 onMount(async () => {
-  await import('@shoelace-style/shoelace/dist/components/button/button.js')
-  copied = false
-})
+  await import("@shoelace-style/shoelace/dist/components/button/button.js");
+  copied = false;
+});
 
-function copy() {
-  copyUrlToClipboard()
-  copied = true
-  setTimeout(() => copied = false, 1000)
+function copy () {
+  copyUrlToClipboard();
+  copied = true;
+  setTimeout(() => copied = false, 1000);
 }
 
 </script>
 
-<sl-button class="mt-2 w-full" on:click={copy} disabled={copied}>
+<sl-button class="mt-2 w-full" disabled={copied} on:click={copy}>
   {#if copied}
     Copied!
   {:else}

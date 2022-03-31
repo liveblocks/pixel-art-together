@@ -1,14 +1,14 @@
-import { authorize } from '@liveblocks/node'
+import { authorize } from "@liveblocks/node";
 
-const API_KEY = import.meta.env.VITE_LIVEBLOCKS_SECRET_KEY as string
+const API_KEY = import.meta.env.VITE_LIVEBLOCKS_SECRET_KEY as string;
 
-export async function post({ request }) {
-  const { room } = await request.json()
+export async function post ({ request }) {
+  const { room } = await request.json();
 
   if (!API_KEY || !room) {
     return {
-      status: 403
-    }
+      status: 403,
+    };
   }
 
   // For the avatar example, we're generating random users
@@ -18,13 +18,13 @@ export async function post({ request }) {
     room: room,
     secret: API_KEY,
     userInfo: {
-      name: 'Guest',
-      picture: `/assets/avatars/${Math.floor(Math.random() * 10)}.png`
-    }
-  })
+      name: "Guest",
+      picture: `/assets/avatars/${Math.floor(Math.random() * 10)}.png`,
+    },
+  });
 
   return {
     status: response.status,
-    body: response.body
-  }
+    body: response.body,
+  };
 }

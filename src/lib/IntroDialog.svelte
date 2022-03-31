@@ -1,76 +1,76 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher, onDestroy } from 'svelte'
-  import logo from '../../static/logo.svg'
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import logo from "../../static/logo.svg";
 
-  export let shouldCreateCanvas: boolean = false
-  export let loading: boolean = true
+  export let shouldCreateCanvas: boolean = false;
+  export let loading: boolean = true;
 
-  const dispatch = createEventDispatcher()
-  let dialog
+  const dispatch = createEventDispatcher();
+  let dialog;
 
   // Min and max width/height for canvas
-  let pixelSizeMin: number =  2
-  let pixelSizeMax: number =  64
+  let pixelSizeMin: number = 2;
+  let pixelSizeMax: number = 64;
 
   // Default name and sizes
-  let name: string = localStorage.getItem('name') || ''
-  let width: number = 16
-  let height: number = 16
+  let name: string = localStorage.getItem("name") || "";
+  let width: number = 16;
+  let height: number = 16;
 
   // Prevent dialog closing
-  function cancelClose(event) {
-    event.preventDefault()
+  function cancelClose (event) {
+    event.preventDefault();
   }
 
   // Submit dialog events
-  function submitDialog() {
+  function submitDialog () {
     if (shouldCreateCanvas) {
-      dispatch('createCanvas', { name, width, height })
+      dispatch("createCanvas", { name, width, height });
     } else {
-      dispatch('setName', { name })
+      dispatch("setName", { name });
     }
-    localStorage.setItem('name', name)
+    localStorage.setItem("name", name);
   }
 
   // Submit dialog when return key pressed in input
-  function handleInputKeyDown({ code }) {
-    if (code === 'Enter') {
-      setTimeout(() => submitDialog(), 20)
+  function handleInputKeyDown ({ code }) {
+    if (code === "Enter") {
+      setTimeout(() => submitDialog(), 20);
     }
   }
 
   // Load components, prevent closing
   onMount(async () => {
-    await import('@shoelace-style/shoelace/dist/components/dialog/dialog.js')
+    await import("@shoelace-style/shoelace/dist/components/dialog/dialog.js");
 
     if (dialog) {
-      dialog.addEventListener('sl-request-close', cancelClose)
+      dialog.addEventListener("sl-request-close", cancelClose);
     }
 
-    await import('@shoelace-style/shoelace/dist/components/range/range.js')
-  })
+    await import("@shoelace-style/shoelace/dist/components/range/range.js");
+  });
 
   onDestroy(() => {
     if (dialog) {
-      dialog.removeEventListener('sl-request-close', cancelClose)
+      dialog.removeEventListener("sl-request-close", cancelClose);
     }
-  })
+  });
 </script>
 
-<sl-dialog style="--width: 300px;" bind:this={dialog} label="Create a pixel canvas" open no-header>
+<sl-dialog bind:this={dialog} label="Create a pixel canvas" no-header open style="--width: 300px;">
   <div class="flex flex-col">
     <h1 class="text-2xl mt-2.5">
-      <img class="max-w-full block mx-auto" src={logo} alt="Pixel art together" />
+      <img alt="Pixel art together" class="max-w-full block mx-auto" src={logo} />
     </h1>
 
     <sl-input
       class="mt-5"
-      value={name}
-      placeholder="Enter your name"
-      on:sl-input={e => name = e.target.value}
       on:keydown={handleInputKeyDown}
+      on:sl-input={e => name = e.target.value}
+      placeholder="Enter your name"
+      value={name}
     >
-      <div slot="label" class="text-sm font-semibold pb-1.5 text-gray-500">Name</div>
+      <div class="text-sm font-semibold pb-1.5 text-gray-500" slot="label">Name</div>
     </sl-input>
 
     {#if shouldCreateCanvas && !loading}

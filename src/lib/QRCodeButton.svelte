@@ -1,11 +1,11 @@
 <script lang="ts">
-import { onMount } from 'svelte'
+import { onMount } from "svelte";
 
-let clicked: boolean = false
+let clicked: boolean = false;
 
 onMount(async () => {
-  await import('@shoelace-style/shoelace/dist/components/button/button.js')
-})
+  await import("@shoelace-style/shoelace/dist/components/button/button.js");
+});
 </script>
 
 {#if clicked}

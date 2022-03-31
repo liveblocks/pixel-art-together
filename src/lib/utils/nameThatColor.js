@@ -35,8 +35,7 @@ const ntc = {
 
   init: function() {
     var color, rgb, hsl;
-    for(var i = 0; i < ntc.names.length; i++)
-    {
+    for (var i = 0; i < ntc.names.length; i++) {
       color = "#" + ntc.names[i][0];
       rgb = ntc.rgb(color);
       hsl = ntc.hsl(color);
@@ -47,11 +46,11 @@ const ntc = {
   name: function(color) {
 
     color = color.toUpperCase();
-    if(color.length < 3 || color.length > 7)
+    if (color.length < 3 || color.length > 7)
       return ["#000000", "Invalid Color: " + color, false];
-    if(color.length % 3 === 0)
+    if (color.length % 3 === 0)
       color = "#" + color;
-    if(color.length === 4)
+    if (color.length === 4)
       color = "#" + color.substr(1, 1) + color.substr(1, 1) + color.substr(2, 1) + color.substr(2, 1) + color.substr(3, 1) + color.substr(3, 1);
 
     var rgb = ntc.rgb(color);
@@ -61,9 +60,8 @@ const ntc = {
     var ndf1 = 0, ndf2 = 0, ndf = 0;
     var cl = -1, df = -1;
 
-    for(var i = 0; i < ntc.names.length; i++)
-    {
-      if(color === "#" + ntc.names[i][0])
+    for (var i = 0; i < ntc.names.length; i++) {
+      if (color === "#" + ntc.names[i][0])
         return ["#" + ntc.names[i][0], ntc.names[i][1], true];
 
       // @ts-ignore
@@ -71,8 +69,7 @@ const ntc = {
       // @ts-ignore
       ndf2 = Math.pow(h - ntc.names[i][5], 2) + Math.pow(s - ntc.names[i][6], 2) + Math.pow(l - ntc.names[i][7], 2);
       ndf = ndf1 + ndf2 * 2;
-      if(df < 0 || df > ndf)
-      {
+      if (df < 0 || df > ndf) {
         df = ndf;
         cl = i;
       }
@@ -83,9 +80,9 @@ const ntc = {
 
   // adopted from: Farbtastic 1.2
   // http://acko.net/dev/farbtastic
-  hsl: function (color) {
+  hsl: function(color) {
 
-    var rgb = [parseInt('0x' + color.substring(1, 3)) / 255, parseInt('0x' + color.substring(3, 5)) / 255, parseInt('0x' + color.substring(5, 7)) / 255];
+    var rgb = [parseInt("0x" + color.substring(1, 3)) / 255, parseInt("0x" + color.substring(3, 5)) / 255, parseInt("0x" + color.substring(5, 7)) / 255];
     var min, max, delta, h, s, l;
     var r = rgb[0], g = rgb[1], b = rgb[2];
 
@@ -95,12 +92,11 @@ const ntc = {
     l = (min + max) / 2;
 
     s = 0;
-    if(l > 0 && l < 1)
+    if (l > 0 && l < 1)
       s = delta / (l < 0.5 ? (2 * l) : (2 - 2 * l));
 
     h = 0;
-    if(delta > 0)
-    {
+    if (delta > 0) {
       if (max === r && max !== g) h += (g - b) / delta;
       if (max === g && max !== b) h += (2 + (b - r) / delta);
       if (max === b && max !== r) h += (4 + (r - g) / delta);
@@ -112,7 +108,7 @@ const ntc = {
   // adopted from: Farbtastic 1.2
   // http://acko.net/dev/farbtastic
   rgb: function(color) {
-    return [parseInt('0x' + color.substring(1, 3)), parseInt('0x' + color.substring(3, 5)),  parseInt('0x' + color.substring(5, 7))];
+    return [parseInt("0x" + color.substring(1, 3)), parseInt("0x" + color.substring(3, 5)), parseInt("0x" + color.substring(5, 7))];
   },
 
   names: [
@@ -1681,11 +1677,11 @@ const ntc = {
     ["FFFF99", "Pale Canary"],
     ["FFFFB4", "Portafino"],
     ["FFFFF0", "Ivory"],
-    ["FFFFFF", "White"]
-  ]
+    ["FFFFFF", "White"],
+  ],
 
-}
+};
 
-ntc.init()
+ntc.init();
 
-export default ntc
+export default ntc;
