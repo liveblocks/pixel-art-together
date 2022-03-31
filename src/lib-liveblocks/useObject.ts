@@ -14,7 +14,7 @@ import { useRoom } from './useRoom'
  * $obj.set('name', 'Chris')
  * console.log($obj.get('name'))
  */
-export function useObject (name: string, initial?: any): Writable<LiveObject> {
+export function useObject(name: string, initial?: any): Writable<LiveObject> {
   const room = useRoom()
   const rootStore = useStorage()
   const list = writable<LiveObject>()

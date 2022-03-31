@@ -14,7 +14,7 @@ import { useMyPresence } from './useMyPresence'
  * myPresence.update({ name: 'Chris' })
  */
 
-export function useUpdateMyPresence (): (val: any) => void {
+export function useUpdateMyPresence(): (val: any) => void {
   const presence = useMyPresence()
   return updatedPresence => presence.update(updatedPresence)
 }

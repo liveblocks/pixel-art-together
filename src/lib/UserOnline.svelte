@@ -33,7 +33,7 @@
     }
   }
 
-  function handleColorChange () {
+  function handleColorChange() {
     if (brush?.color) {
       dispatch('selectColor', { color: brush.color })
     }

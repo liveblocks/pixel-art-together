@@ -14,7 +14,7 @@ import { useRoom } from './useRoom'
  * $list.push([{ item: 1 }])
  * console.log([...$list])
  */
-export function useList<T> (name: string, initial?: any[]): Writable<LiveList<T>> {
+export function useList<T>(name: string, initial?: any[]): Writable<LiveList<T>> {
   const room = useRoom()
   const rootStore = useStorage()
   const list = writable<LiveList<T>>()

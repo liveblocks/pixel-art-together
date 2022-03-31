@@ -9,7 +9,7 @@ onMount(async () => {
   copied = false
 })
 
-function copy () {
+function copy() {
   copyUrlToClipboard()
   copied = true
   setTimeout(() => copied = false, 1000)

@@ -1,12 +1,12 @@
-export function getFillPixels (initialPixel, grid) {
+export function getFillPixels(initialPixel, grid) {
   const layer = initialPixel.layer
   let pixels = []
 
-  const alreadyCounted = ({ row, col }) => pixels.some(pixel => {
+  const alreadyCounted =({ row, col }) => pixels.some(pixel => {
     return pixel.row === row && pixel.col === col
   })
 
-  function findClosest ({ row, col }) {
+  function findClosest({ row, col }) {
     const neighbours = [
       { row: row - 1, col },
       { row: row + 1, col },

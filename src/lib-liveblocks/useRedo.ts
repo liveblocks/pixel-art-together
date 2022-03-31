@@ -7,6 +7,6 @@
  */
 import { useRoom } from './useRoom'
 
-export function useRedo () {
+export function useRedo() {
   return useRoom().history.redo
 }

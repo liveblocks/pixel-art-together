@@ -4,12 +4,13 @@
   import type { Layer } from '../types'
   import panzoom from 'panzoom'
 
-  export let layers: Layer[]
+  export let layers: Layer[] =[]
   export let showGrid: boolean = false
   export let mainPanelElement
 
-
   const dispatch = createEventDispatcher()
+  const myPresence = useMyPresence()
+
   let mainPanelWrapper
   let layersCache = layers
 
@@ -32,6 +33,7 @@
   }
 
   onMount(() => {
+    // Add panning support to canvas (hold space to pan)
     panInstance = panzoom(panElement)
     panning = false
 
@@ -42,19 +44,20 @@
 
   let previousHoveredPixel = null
 
-  function handleKeyDown ({ code }) {
+  function handleKeyDown({ code }) {
     if (panInstance && code === 'Space') {
       panning = true
     }
   }
 
-  function handleKeyUp ({ code }) {
+  function handleKeyUp({ code }) {
     if (panInstance && code === 'Space') {
       panning = false
     }
   }
 
-  function pixelChange ({ col, row, hex }) {
+  // Change pixel if not panning
+  function pixelChange({ col, row, hex }) {
     if (panning) {
       return
     }
@@ -66,17 +69,18 @@
     })
   }
 
-  function handleMouseDown () {
+  function handleMouseDown() {
     mouseIsDown = true
     history.pause()
   }
 
-  function handleMouseUp () {
+  function handleMouseUp() {
     mouseIsDown = false
     history.resume()
   }
 
-  function handleMouseMove ({ target, col, row, hex }) {
+  // If mouse down, change pixel
+  function handleMouseMove({ target, col, row, hex }) {
     if (!mouseIsDown || previousHoveredPixel === target) {
       return
     }
@@ -85,26 +89,29 @@
     pixelChange({ col, row, hex })
   }
 
-  function handleTouchMove (event, { hex }) {
+  // On touch move, take hovered col/row from data-col/data-row and pass to handleMouseMove
+  function handleTouchMove(event, { hex }) {
     event.preventDefault()
     const location = event?.touches?.[0] ||event?.changedTouches?.[0] || event?.targetTouches?.[0]
     const target = document.elementFromPoint(location.clientX, location.clientY)
 
+    // @ts-ignore
     if (target?.dataset?.col && target?.dataset?.row) {
+      // @ts-ignore
       const { col, row } = target.dataset
       handleMouseMove({ target, hex, col, row })
     }
   }
 
-  function fixAspectRatioSupport () {
+  // Fallback for browsers that don't support CSS `aspect-ratio` (CSS fallback not possible here)
+  function fixAspectRatioSupport() {
     if (CSS.supports('aspect-ratio', `${rows} / ${cols}`)) {
       return
     }
 
-    console.warn('Aspect ratio not supported, using fallback')
+    console.warn('CSS aspect-ratio not supported, using fallback')
 
-    const wrapperStyles = getComputedStyle(mainPanelWrapper)
-    const maxWidth = parseInt(wrapperStyles.maxWidth)
+    const maxWidth = parseInt(getComputedStyle(mainPanelWrapper).maxWidth)
     const currentWidth = mainPanelWrapper.offsetWidth
 
     const { paddingTop, paddingRight, paddingBottom, paddingLeft } = getComputedStyle(panElement)
@@ -112,8 +119,8 @@
 
     const wrapperWidth = offsetWidth - parseFloat(paddingRight) - parseFloat(paddingLeft)
     const wrapperHeight = offsetHeight - parseFloat(paddingTop) - parseFloat(paddingBottom)
-    const wrapperRatio = wrapperWidth / wrapperHeight
 
+    const wrapperRatio = wrapperWidth / wrapperHeight
     const artRatio = rows / cols
 
     let width
@@ -141,8 +148,6 @@
     mainPanelWrapper.style.height = height
     mainPanelWrapper.style.width = width
   }
-
-  const myPresence = useMyPresence()
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
@@ -189,7 +194,7 @@
         </div>
 
         <!-- Updatable SVG display of canvas -->
-        <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 pointer-events-none isolate">
           <svg id="svg-image" viewBox="0 0 {rows / cols * 100} 100" class="max-w-full mx-auto h-full" xmlns="http://www.w3.org/2000/svg">
             {#each layers as layer (layer.id)}
               <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>

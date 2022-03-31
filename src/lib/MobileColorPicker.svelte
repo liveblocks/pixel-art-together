@@ -3,10 +3,12 @@
   import { useMyPresence } from '../lib-liveblocks'
   import type { Brush } from '../types'
 
+  export let swatch: string[] = []
+
   const dispatch = createEventDispatcher()
   const myPresence = useMyPresence()
 
-  let colorPicker: { getFormattedValue }
+  let colorPicker: { getFormattedValue, swatches }
   let colorValue: string = ''
 
   // Default brush
@@ -24,11 +26,15 @@
   onMount(async () => {
     dispatch('brushChange', brush)
     await import('@shoelace-style/shoelace/dist/components/color-picker/color-picker.js')
-    colorPicker.swatches = []
+    colorPicker.swatches = swatch
   })
 
+  $: if (colorPicker) {
+    colorPicker.swatches = swatch
+  }
+
   // When color changes, update presence
-  function colorChange ({ target }) {
+  function colorChange({ target }) {
     let col = target.value
     if (col[0] !== '#') {
       col = colorPicker.getFormattedValue('hex')
@@ -46,7 +52,7 @@
     }
   }
 
-  function hexToRgb (hex) {
+  function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
       r: parseInt(result[1], 16),

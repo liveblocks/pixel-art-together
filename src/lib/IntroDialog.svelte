@@ -18,12 +18,12 @@
   let height: number = 16
 
   // Prevent dialog closing
-  function cancelClose (event) {
+  function cancelClose(event) {
     event.preventDefault()
   }
 
   // Submit dialog events
-  function submitDialog () {
+  function submitDialog() {
     if (shouldCreateCanvas) {
       dispatch('createCanvas', { name, width, height })
     } else {
@@ -33,7 +33,7 @@
   }
 
   // Submit dialog when return key pressed in input
-  function handleInputKeyDown ({ code }) {
+  function handleInputKeyDown({ code }) {
     if (code === 'Enter') {
       setTimeout(() => submitDialog(), 20)
     }

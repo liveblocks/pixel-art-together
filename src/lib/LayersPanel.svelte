@@ -24,7 +24,7 @@
     import('@shoelace-style/shoelace/dist/components/dropdown/dropdown.js')
   })
 
-  function getLayerIndexFromSelected () {
+  function getLayerIndexFromSelected() {
     if ($myPresence) {
       return layers.findIndex(layer => layer.id === $myPresence.selectedLayer)
     }
@@ -59,7 +59,7 @@
   }
 
   // Update current layer blend mode on change
-  async function handleBlendModeChange ({ detail }) {
+  async function handleBlendModeChange({ detail }) {
     if (!$myPresence) {
       return
     }
@@ -85,7 +85,7 @@
   }, 100, false)
 
   // Toggle visibility of current layer
-  function toggleVisibility (layerId, event) {
+  function toggleVisibility(layerId, event) {
     if (event) {
       event.stopPropagation()
     }
@@ -96,7 +96,7 @@
   }
 
   // Adds new layer to top of stack
-  function addLayer () {
+  function addLayer() {
     let newId = 0
     Object.values($layerStorage.toObject()).map(layer => {
       if (layer.id > newId) {
@@ -128,7 +128,7 @@
   }
 
   // Deletes layer using `id`
-  function deleteLayer (id, event) {
+  function deleteLayer(id, event) {
     if (event) {
       event.stopPropagation()
     }
@@ -140,7 +140,7 @@
   }
 
   // Changes to layer using `id`
-  function changeLayer (id) {
+  function changeLayer(id) {
     myPresence?.update({ selectedLayer: id })
     if (blendText) {
       blendText.innerText = layers[getLayerIndexFromSelected()]?.blendMode || 'normal'
@@ -151,7 +151,7 @@
   }
 
   // Selects the top layer
-  function selectTopLayer () {
+  function selectTopLayer() {
     if ($layerStorage && myPresence) {
       const firstLayer = Object.values($layerStorage.toObject())[0].id
       myPresence?.update({ selectedLayer: firstLayer })

@@ -1,8 +1,8 @@
-export function copyUrlToClipboard () {
+export function copyUrlToClipboard() {
   copyTextToClipboard(window.location.href)
 }
 
-export function copyTextToClipboard (text: string) {
+export function copyTextToClipboard(text: string) {
   if (!navigator.clipboard) {
     fallbackCopyTextToClipboard(text)
     return
@@ -12,7 +12,7 @@ export function copyTextToClipboard (text: string) {
   })
 }
 
-function fallbackCopyTextToClipboard (text: string) {
+function fallbackCopyTextToClipboard(text: string) {
   var textArea = document.createElement('textarea')
   textArea.value = text
 

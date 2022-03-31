@@ -8,7 +8,7 @@
   let renderer
 
   // Creates file from SVG and starts download
-  function handleSaveSvg () {
+  function handleSaveSvg() {
     const svgContent = document.querySelector('#svg-image').outerHTML
     var file = new File([svgContent], 'pixelart.svg', {
       type: 'image/svg+xml'
@@ -17,7 +17,7 @@
   }
 
   // Creates file by adding SVG to canvas, converts to base64 png, and starts download
-  async function handleSavePng () {
+  async function handleSavePng() {
     const svgContent = document.querySelector('#svg-image').outerHTML
     const canvas: HTMLCanvasElement = document.querySelector('#export-canvas')
     const ctx = canvas.getContext('2d')
@@ -34,7 +34,7 @@
   }
 
   // Downloads a file object
-  function downloadFile (file) {
+  function downloadFile(file) {
     const link = document.createElement('a')
     link.style.display = 'none'
     link.href = URL.createObjectURL(file)

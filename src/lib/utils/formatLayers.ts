@@ -26,7 +26,7 @@
  * ]
  */
 
-export function formatLayers ({ pixelStorage, layerStorage, keyToPixel, getPixel }) {
+export function formatLayers({ pixelStorage, layerStorage, keyToPixel, getPixel }) {
   let layers = []
   if (pixelStorage && layerStorage) {
     const currentPixels = Object.keys(pixelStorage)

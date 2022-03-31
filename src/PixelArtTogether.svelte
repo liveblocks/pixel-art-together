@@ -22,7 +22,7 @@
    *  TODO
    *  tidy up other files
    *  move layer u p l r buttons
-   *  come up with aspect ratio solution for iOS
+   *  check for liveblocks disconnects and force refresh
    *
    *  MAYBE
    *  Save and fork button
@@ -30,6 +30,7 @@
    *  save button above colour picker
    *  new art button?
    *  better avatars (diversity avatars)
+   *  look into gravatar or twitter api
    *
    *  https://pixelart.liveblocks.app/?room=be2b80ad5e83bc444f95b
    */
@@ -130,13 +131,13 @@
   let nameSet = false
 
   // Set name inside presence
-  function setName ({ detail }) {
+  function setName({ detail }) {
     myPresence.update({ name: detail.name })
     nameSet = true
   }
 
   // Create canvas with dialog settings and default color
-  function createCanvas ({ detail }) {
+  function createCanvas({ detail }) {
     if ($pixelStorage?.update) {
       const defaultLayer = generateLayer({
         layer: 0,
@@ -168,19 +169,24 @@
   // Will be bound to a function that allows the current color to be updated
   let updateBrushColor
 
+  // Recently used colors to be passed to the swatch
+  let recentColors = new Array(16).fill('#ffffffff')
+
   // On brush component change, update presence with new brush
-  function handleBrushChange ({ detail }) {
+  function handleBrushChange({ detail }) {
     myPresence.update({ brush: detail })
   }
 
   // On pixel change, update pixels according to the current tool
-  function handlePixelChange ({ detail }) {
+  function handlePixelChange({ detail }) {
     if (!$myPresence?.brush?.color || !$pixelStorage) {
       return
     }
 
     let tool: Tool = $myPresence.tool
+    let color = $myPresence.brush.color
     let selected = $myPresence.selectedLayer
+
     let currentPixel = {
       row: detail.row,
       col: detail.col,
@@ -200,8 +206,15 @@
     }
 
     updatePixels(pixelsToChange, {
-      color: tool === Tool.Eraser ? 'transparent' : $myPresence.brush.color
+      color: tool === Tool.Eraser ? 'transparent' : color
     })
+
+    if (!recentColors.includes(color)) {
+      const a = recentColors
+      a.pop()
+      a.unshift(color)
+      recentColors = a
+    }
   }
 
   // ================================================================================
@@ -215,7 +228,7 @@
   }
 
   // Pass current cursor position on panel, and current panel, to presence
-  function handleMouseMove (event, area) {
+  function handleMouseMove(event, area) {
     if (!panels[area] || !$myPresence) {
       return
     }
@@ -238,7 +251,7 @@
   }
 
   // Reverse of above, find location of cursor according to coords and panel
-  function calculateCursorPosition ({ x, y, area }) {
+  function calculateCursorPosition({ x, y, area }) {
     if (!panels?.[area]) {
       return
     }
@@ -259,7 +272,7 @@
   }
 
   // When the mouse leaves the page, set cursor presence to null
-  function handleMouseLeave () {
+  function handleMouseLeave() {
     myPresence.update({
       cursor: null,
     });
@@ -283,7 +296,7 @@
   // ASSORTED
 
   // Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
-  function handleKeyDown (event) {
+  function handleKeyDown(event) {
     if (!event.ctrlKey) {
       return
     }
@@ -342,19 +355,21 @@
   <!-- Left panel, containing layers etc -->
   <div
     id="tools-panel"
-    class="side-panel fixed md:relative bg-white z-20 md:z-0 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
-    style="
-      transform: translateX({$mobileMenuTransform}%);
-  ">
+    class="side-panel fixed md:relative bg-white z-20 md:z-10 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
+    style="transform: translateX({$mobileMenuTransform}%);">
     {#if layers && canvasReady}
       <div
         bind:this={panels.toolsPanel}
         on:pointermove={e => handleMouseMove(e, 'toolsPanel')}
         on:pointerleave={handleMouseLeave}
         transition:fade
-        class="flex flex-col min-h-full h-full relative top-[-380px] md:top-0"
+        class="flex flex-col min-h-full h-full relative top-[-425px] md:top-0"
       >
-        <BrushPanel on:brushChange={handleBrushChange} bind:updateColor={updateBrushColor} />
+        <BrushPanel
+          on:brushChange={handleBrushChange}
+          bind:updateColor={updateBrushColor}
+          swatch={recentColors}
+        />
         <LayersPanel layers={layers} />
         <ExportsPanel />
 
@@ -494,7 +509,7 @@
 
         <!-- Mobile color picker -->
         <div class="flex md:hidden">
-          <MobileColorPicker on:brushChange={handleBrushChange} />
+          <MobileColorPicker swatch={recentColors} on:brushChange={handleBrushChange} />
         </div>
 
       </div>

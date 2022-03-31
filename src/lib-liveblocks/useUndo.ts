@@ -7,6 +7,6 @@
  */
 import { useRoom } from './useRoom'
 
-export function useUndo () {
+export function useUndo() {
   return useRoom().history.undo
 }

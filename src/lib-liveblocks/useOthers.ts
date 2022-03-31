@@ -14,7 +14,7 @@ import { useRoom } from './useRoom'
  * {#each [...$others] as other}
  *    ...
  */
-export function useOthers (): Writable<Others> {
+export function useOthers(): Writable<Others> {
   const room = useRoom()
   const others = writable<Others>()
 
