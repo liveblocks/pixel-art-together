@@ -12,7 +12,6 @@
   "devDependencies": {
     "@sveltejs/adapter-auto": "next",
     "@sveltejs/kit": "next",
-    "@types/cookie": "^0.4.1",
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.6",
     "svelte": "^3.46.0",
@@ -24,13 +23,10 @@
   },
   "type": "module",
   "dependencies": {
-    "@fontsource/fira-mono": "^4.5.0",
     "@liveblocks/client": "^0.15.8",
     "@liveblocks/node": "^0.3.0",
-    "@lukeed/uuid": "^2.0.0",
     "@shoelace-style/shoelace": "^2.0.0-beta.70",
     "canvg": "^4.0.0",
-    "cookie": "^0.4.1",
     "panzoom": "^9.4.2"
   }
 }

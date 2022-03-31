@@ -6,6 +6,7 @@
   import { getFillPixels } from "$lib/utils/getFillPixels";
   import { formatLayers } from "$lib/utils/formatLayers";
   import MobileColorPicker from "$lib/MobileColorPicker.svelte";
+  import MobileLinksPanel from "$lib/MobileLinksPanel.svelte";
   import ExportsPanel from "$lib/ExportsPanel.svelte";
   import IntroDialog from "$lib/IntroDialog.svelte";
   import LayersPanel from "$lib/LayersPanel.svelte";
@@ -49,6 +50,7 @@
    * `lib-liveblocks` directory), based on the Liveblocks React library:
    * https://liveblocks.io/docs/api-reference/liveblocks-react
    */
+
   const myPresence = useMyPresence();
   const others = useOthers();
   const self = useSelf();
@@ -123,7 +125,9 @@
   });
 
   // If pixels stored in pixelStorage, canvas is ready to draw
-  $: canvasReady = $pixelStorage ? Object.keys($pixelStorage.toObject()).length > 0 : false;
+  $: canvasReady = $pixelStorage
+    ? Object.keys($pixelStorage.toObject()).length > 0
+    : false;
 
   // ================================================================================
   // INTRO DIALOG
@@ -220,7 +224,14 @@
   // ================================================================================
   // LIVE CURSORS
 
-  // These cursors have different coordinate settings according to which panel is on hover
+  /**
+   * Live cursor position is calculated according to which panel is currently being
+   * used. The center panel uses a percentage value calculated from the middle of
+   * the panel, whereas the two side panels use a pixel value from the top left
+   * corner.
+   */
+
+  // The different panels
   const panels = {
     multiplayerPanel: null,
     mainPanel: null,
@@ -261,9 +272,11 @@
     let newY;
 
     if (area === "mainPanel") {
+      // Percentage from center of element for main panel
       newX = left + width * x;
       newY = top + height * y;
     } else {
+      // Position from top left corner otherwise
       newX = left + x;
       newY = top + y;
     }
@@ -372,14 +385,7 @@
         />
         <LayersPanel layers={layers} />
         <ExportsPanel />
-
-        <div class="flex-grow flex md:items-end justify-end xl:hidden pb-5 border-t-2 md:border-0 border-gray-100">
-          <div class="w-full overflow-hidden">
-            <div class="md:hidden font-semibold pb-3 text-gray-500 text-sm p-5">Technology</div>
-            <LinksPanel />
-          </div>
-        </div>
-
+        <MobileLinksPanel />
       </div>
     {/if}
   </div>
@@ -443,9 +449,10 @@
     <div class="flex-grow flex-shrink relative">
       {#if canvasReady && layers?.[0].grid.length}
         <PixelGrid
-          bind:mainPanelElement={panels.mainPanel}
-          layers={layers} {showGrid}
+          {showGrid}
+          layers={layers}
           on:pixelChange={handlePixelChange}
+          bind:mainPanelElement={panels.mainPanel}
         />
       {/if}
     </div>
