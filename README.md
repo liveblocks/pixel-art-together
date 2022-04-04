@@ -1,3 +1,5 @@
+[![Pixel Art Together](https://pixelart.liveblocks.app/og-image.png)](https://pixelart.liveblocks.app)
+
 # [Pixel Art Together](https://pixelart.liveblocks.app)
 
 [Pixel Art Together](https://pixelart.liveblocks.app) is a multiplayer pixel art editor powered by [Liveblocks](https://liveblocks.io).
@@ -6,7 +8,6 @@
 
 ![Preview gif 1](https://pixelart.liveblocks.app/preview-gif-1.gif)
 
-![Powered by Liveblocks](https://pixelart.liveblocks.app/poweredbyliveblocks.svg)
 
 ## Features
 
@@ -20,13 +21,14 @@
 
 ![Preview gif 2](https://pixelart.liveblocks.app/preview-gif-2.gif)
 
-Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasdev), DevRel at Liveblocks.
+
 
 
 ## Development
-Technology used in this project includes: Svelte, SvelteKit, Liveblocks, TailwindCSS, Shoelace.style
+Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasdev), DevRel at Liveblocks. Technology used in this project includes: Svelte, SvelteKit, Liveblocks, TailwindCSS, Shoelace.style
 
 ![Screenshot](https://pixelart.liveblocks.app/screenshot.png)
+
 
 ### Run locally
 
@@ -49,3 +51,6 @@ Technology used in this project includes: Svelte, SvelteKit, Liveblocks, Tailwin
 - Create a [secret](https://codesandbox.io/docs/secrets) named `VITE_LIVEBLOCKS_SECRET_KEY` with the secret key you just copied. You need to create an account on CodeSandbox to add an environment variable.
 
 - Refresh your browser, and you should be good to go!
+
+
+![Powered by Liveblocks](https://pixelart.liveblocks.app/poweredbyliveblocks.svg)
