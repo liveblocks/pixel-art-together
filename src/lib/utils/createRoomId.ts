@@ -2,7 +2,8 @@ export function createRoomId (): string {
   let id = new URLSearchParams(window.location.search).get("room");
   if (!id) {
     id = randomId();
-    window.location.search = `?room=${id}`;
+    console.log(id);
+    // window.location.search = `?room=${id}`;
   }
   return id;
 }
