@@ -4,6 +4,7 @@
   import "../sl.css";
   import ImportCustomElements from "$lib/ImportCustomElements.svelte";
   import { onMount } from "svelte";
+  import ExampleWrapper from "$lib/ExampleWrapper.svelte";
 
   // Get and update correct vh unit
   onMount(() => {
@@ -18,13 +19,15 @@
   });
 </script>
 
-<ImportCustomElements />
+<ExampleWrapper keyType="secret">
+  <ImportCustomElements />
 
-<Header />
+  <Header />
 
-<main class="w-full h-full">
-  <slot></slot>
-</main>
+  <main class="w-full h-full">
+    <slot></slot>
+  </main>
+</ExampleWrapper>
 
 <style global>
 :root {
