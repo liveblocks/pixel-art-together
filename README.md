@@ -2,7 +2,11 @@
 
 [Pixel Art Together](https://pixelart.liveblocks.app) is a multiplayer pixel art editor powered by [Liveblocks](https://liveblocks.io).
 
+
+
 ![Preview gif 1](https://pixelart.liveblocks.app/preview-gif-1.gif)
+
+![Powered by Liveblocks](https://pixelart.liveblocks.app/poweredbyliveblocks.svg)
 
 ## Features
 
