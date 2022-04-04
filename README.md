@@ -1,12 +1,12 @@
-[![Pixel Art Together](https://pixelart.liveblocks.app/og-image.png)](https://pixelart.liveblocks.app)
-
 # [Pixel Art Together](https://pixelart.liveblocks.app)
 
-[Pixel Art Together](https://pixelart.liveblocks.app) is a multiplayer pixel art editor powered by [Liveblocks](https://liveblocks.io).
+[![Pixel Art Together](https://pixelart.liveblocks.app/og-image.png)](https://pixelart.liveblocks.app)
+
+
+[Pixel Art Together](https://pixelart.liveblocks.app) is a free multiplayer pixel art editor powered by [Liveblocks](https://liveblocks.io).
 
 
 
-![Preview gif 1](https://pixelart.liveblocks.app/preview-gif-1.gif)
 
 
 ## Features
@@ -19,13 +19,15 @@
 💾 Export your art as svg or png files<br>
 ...and more!
 
+![Preview gif 1](https://pixelart.liveblocks.app/preview-gif-1.gif)
+
 ![Preview gif 2](https://pixelart.liveblocks.app/preview-gif-2.gif)
 
 
 
 
 ## Development
-Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasdev), DevRel at Liveblocks. Technology used in this project includes: Svelte, SvelteKit, Liveblocks, TailwindCSS, Shoelace.style
+Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasdev). Technology used in this project includes: Svelte, SvelteKit, Liveblocks, TailwindCSS, Shoelace.style
 
 ![Screenshot](https://pixelart.liveblocks.app/screenshot.png)
 
@@ -53,4 +55,4 @@ Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasd
 - Refresh your browser, and you should be good to go!
 
 
-![Powered by Liveblocks](https://pixelart.liveblocks.app/poweredbyliveblocks.svg)
+<br>![Powered by Liveblocks](https://pixelart.liveblocks.app/poweredbyliveblocks.svg)
