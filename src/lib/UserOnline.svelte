@@ -18,7 +18,7 @@
 
   // After script imported, set color name function
   onMount(async () => {
-    const { default: ntc } = await import("$lib/utils/nameThatColor.js");
+    const { default: ntc } = await import("$lib/utils/nameThatColor.ts");
     getColorName = hex => ntc.name(hex)[1];
   });
 
