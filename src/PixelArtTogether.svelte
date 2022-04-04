@@ -376,7 +376,7 @@
         on:pointermove={e => handleMouseMove(e, 'toolsPanel')}
         on:pointerleave={handleMouseLeave}
         transition:fade
-        class="flex flex-col min-h-full h-full relative top-[-425px] md:top-0"
+        class="flex flex-col min-h-full h-full relative top-[-465px] md:top-0"
       >
         <BrushPanel
           on:brushChange={handleBrushChange}
