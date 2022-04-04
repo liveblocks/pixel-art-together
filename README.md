@@ -1,40 +1,47 @@
-# create-svelte
+# [Pixel Art Together](https://pixelart.liveblocks.app)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+[Pixel Art Together](https://pixelart.liveblocks.app) is a multiplayer pixel art editor powered by [Liveblocks](https://liveblocks.io).
 
-## Creating a project
+![Preview gif 1](https://pixelart.liveblocks.app/preview-gif-1.gif)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npm init svelte@next
+✏ Use different drawing tools<br>
+👩‍🎨 Up to 20 players at once<br>
+🗃 Draw on different layers<br>
+🎨 Use opacity & blend modes<br>
+↪ Undo/redo any mistakes<br>
+💾 Export your art as svg or png files<br>
+...and more!
 
-# create a new project in my-app
-npm init svelte@next my-app
-```
+![Preview gif 2](https://pixelart.liveblocks.app/preview-gif-2.gif)
 
-> Note: the `@next` is temporary
+Pixel Art Together was built by [Chris Nicholas](https://twitter.com/ctnicholasdev), DevRel at Liveblocks.
 
-## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Development
+Technology used in this project includes: Svelte, SvelteKit, Liveblocks, TailwindCSS, Shoelace.style
 
-```bash
-npm run dev
+![Screenshot](https://pixelart.liveblocks.app/screenshot.png)
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+### Run locally
 
-## Building
+- Install all dependencies with `npm install`
 
-To create a production version of your app:
+- Create an account on [liveblocks.io](https://liveblocks.io/dashboard)
 
-```bash
-npm run build
-```
+- Copy your secret key from the [dashboard](https://liveblocks.io/dashboard/apikeys)
 
-You can preview the production build with `npm run preview`.
+- Create a file named `.env.local` and add your Liveblocks secret as environment variable `VITE_LIVEBLOCKS_SECRET_KEY=sk_test_yourkey`
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+### Run on CodeSandbox
+
+- Open this repository on CodeSandbox with this [link](https://codesandbox.io/s/github/liveblocks/pixel-art-together)
+
+- Create an account on [liveblocks.io](https://liveblocks.io/dashboard)
+
+- Copy your secret key from the [dashboard](https://liveblocks.io/dashboard/apikeys)
+
+- Create a [secret](https://codesandbox.io/docs/secrets) named `VITE_LIVEBLOCKS_SECRET_KEY` with the secret key you just copied. You need to create an account on CodeSandbox to add an environment variable.
+
+- Refresh your browser, and you should be good to go!
