@@ -36,7 +36,7 @@
 
   $: {
     if (rangeElement) {
-      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 100;
+      rangeElement.value = layers[getLayerIndexFromSelected()]?.opacity * 100 || 0;
     }
   }
 
