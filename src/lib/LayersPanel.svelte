@@ -18,10 +18,11 @@
   const pixelStorage = useObject("pixelStorage");
 
   onMount(async () => {
-    import("@shoelace-style/shoelace/dist/components/range/range.js");
     import("@shoelace-style/shoelace/dist/components/menu-item/menu-item.js");
     import("@shoelace-style/shoelace/dist/components/menu/menu.js");
     import("@shoelace-style/shoelace/dist/components/dropdown/dropdown.js");
+    await import("@shoelace-style/shoelace/dist/components/range/range.js");
+    rangeElement.tooltipFormatter = value => `Opacity: ${value}%`
   });
 
   function getLayerIndexFromSelected () {
@@ -170,11 +171,14 @@
         {#if $layerStorage && $myPresence}
           <div class="border-b flex justify-between items-middle relative z-10">
             <label for="blend-mode-changer" class="sr-only">Change blend mode</label>
+
             <sl-dropdown id="blend-mode-changer" on:sl-select={handleBlendModeChange}>
               <sl-button class="focus-visible:z-10" variant="text" slot="trigger" caret>
-                <span class="capitalize" bind:this={blendText}>
-                  {layers[getLayerIndexFromSelected()]?.blendMode || 'normal'}
-                </span>
+                <sl-tooltip content="Blend mode">
+                  <span class="capitalize" bind:this={blendText}>
+                    {layers[getLayerIndexFromSelected()]?.blendMode || 'normal'}
+                  </span>
+                </sl-tooltip>
               </sl-button>
               <sl-menu class="relative z-10">
                 {#each blendModes as mode ('blendModes' + mode.name)}
@@ -217,24 +221,26 @@
               </button>
 
               <div class="flex items-center relative">
-                <button
-                  on:click={e => toggleVisibility(layer.id, e)}
-                  class="focus-visible-style focus-visible:!opacity-100 {$myPresence?.selectedLayer === layer.id ? 'hover:!text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                >
-                  {#if !layer.hidden}
-                    <span class="sr-only">Hide layer {layer.id}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                    </svg>
-                  {:else}
-                    <span class="sr-only">Show layer {layer.id}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-                    </svg>
-                  {/if}
-                </button>
+                <sl-tooltip content={layer.hidden ? "Show" : "Hide"}>
+                  <button
+                    on:click={e => toggleVisibility(layer.id, e)}
+                    class="focus-visible-style focus-visible:!opacity-100 {$myPresence?.selectedLayer === layer.id ? 'hover:!text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  >
+                    {#if !layer.hidden}
+                      <span class="sr-only">Hide layer {layer.id}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                      </svg>
+                    {:else}
+                      <span class="sr-only">Show layer {layer.id}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      </svg>
+                    {/if}
+                  </button>
+                </sl-tooltip>
 
                 <span class="font-medium {$myPresence?.selectedLayer === layer.id ? 'font-bold' : ''}">Layer {layer.id}</span>
 
@@ -243,20 +249,24 @@
                 {Math.round(layer.opacity * 100)}%, {layer.blendMode}
               </div>
 
-            <button
-              on:click={() => deleteLayer(layer.id)}
-              class="focus-visible-style relative {$myPresence?.selectedLayer === layer.id ? 'hover:!text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <span class="sr-only">Delete layer {layer.id}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
 
-          </div>
-        {/each}
-      </div>
+              <sl-tooltip content="Delete" placement="top">
+                <button
+                  on:click={() => deleteLayer(layer.id)}
+                  class="focus-visible-style relative {$myPresence?.selectedLayer === layer.id ? 'hover:!text-white text-[color:var(--sl-color-primary-200)]' : ''} p-2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <span class="sr-only">Delete layer {layer.id}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </sl-tooltip>
+
+            </div>
+          {/each}
+        </div>
 
     </div>
   </div>
 </div>
+

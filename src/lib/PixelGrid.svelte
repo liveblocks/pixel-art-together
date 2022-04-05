@@ -196,21 +196,26 @@
         <div class="absolute inset-0 pointer-events-none isolate">
           <svg class="max-w-full mx-auto h-full" id="svg-image" viewBox="0 0 {rows / cols * 100} 100" xmlns="http://www.w3.org/2000/svg">
             {#each layers as layer (layer.id)}
+              <!-- @const does calculation once instead of 4 times for each pixel -->
+              {@const colsIn100 = 100 / cols}
+
+              <!-- A single layer -->
               <g style="mix-blend-mode: {layer.blendMode};" opacity={layer.hidden ? 0 : layer.opacity}>
                 {#each layer.grid as row, rowIndex}
                   {#each row as pixel, colIndex}
                     <rect
                       shape-rendering="optimizeSpeed"
-                      x={colIndex * (100 / cols)}
-                      y={rowIndex * (100 / cols)}
-                      width={100 / cols}
-                      height={100 / cols}
+                      x={colIndex * colsIn100}
+                      y={rowIndex * colsIn100}
+                      width={colsIn100}
+                      height={colsIn100}
                       fill={pixel?.color || ''}
                       class="transition-colors duration-75"
                     ></rect>
                   {/each}
                 {/each}
               </g>
+
             {/each}
           </svg>
         </div>
