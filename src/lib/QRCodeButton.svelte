@@ -1,18 +1,21 @@
 <script lang="ts">
-import { onMount } from "svelte";
+  import { onMount } from "svelte";
 
-let clicked: boolean = false;
+  let clicked: boolean = false;
 
-onMount(async () => {
-  await import("@shoelace-style/shoelace/dist/components/button/button.js");
-});
+  onMount(async () => {
+    await import("@shoelace-style/shoelace/dist/components/button/button.js");
+    await import("@shoelace-style/shoelace/dist/components/qr-code/qr-code.js");
+  });
 </script>
 
 {#if clicked}
+  <!-- QR Code from current URL -->
   <div class="mx-auto mt-6 text-center block">
     <sl-qr-code value={window.location.href} label="Scan this code to visit Shoelace on the web!"></sl-qr-code>
   </div>
 {:else}
+  <!-- Create QR code button -->
   <sl-button class="mt-2 w-full" on:click={() => clicked = true}>
     <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5 -mt-0.5" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd" />

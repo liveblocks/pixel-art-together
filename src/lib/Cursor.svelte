@@ -11,15 +11,18 @@
   export let name: string = "";
   export let shrink: boolean = false;
 
+  // Spring animation for cursor
   let coords = spring({ x, y }, {
     stiffness: 0.07,
     damping: 0.35,
   });
 
+  // Update spring when x and y change
   $: {
     coords.set({ x, y });
   }
 
+  // Should text be black or white on this colour
   let blackText: boolean = true;
   $: blackText = contrastingTextColour(color.rgb);
 </script>
@@ -34,6 +37,8 @@
       class="flex px-2.5 py-1.5 mix-blend-luminosity {blackText ? 'text-gray-800' : 'text-gray-200'}"
       style="background-color: {color.color.slice(0, 7)};"
     >
+
+      <!-- Current tool icon -->
       <div class="w-3 mr-2">
         <div class="absolute top-2">
           {#if tool === Tool.Brush}
@@ -53,10 +58,14 @@
           {/if}
         </div>
       </div>
+
+      <!-- Current user's name -->
       {name}
+
     </div>
   </div>
 
+  <!-- Cursor icon -->
   <div class="absolute top-0 left-0 block">
     <svg class="w-10 h-10 block scale-75">
       <path d="M8.482,0l8.482,20.36L8.322,17.412,0,20.36Z" fill="currentColor" transform="translate(11 22.57) rotate(-48)" />

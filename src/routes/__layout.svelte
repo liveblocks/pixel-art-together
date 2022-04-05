@@ -2,7 +2,6 @@
 	import Header from "$lib/Header.svelte";
   import "../app.css";
   import "../sl.css";
-  import ImportCustomElements from "$lib/ImportCustomElements.svelte";
   import { onMount } from "svelte";
   import ExampleWrapper from "$lib/ExampleWrapper.svelte";
 
@@ -20,8 +19,6 @@
 </script>
 
 <ExampleWrapper keyType="secret">
-  <ImportCustomElements />
-
   <Header />
 
   <main class="w-full h-full">

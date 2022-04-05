@@ -23,14 +23,31 @@
    * PIXEL ART TOGETHER is a multiplayer pixel editor. It works by using
    * Liveblocks (https://liveblocks.io), a set of tools helpful for
    * building collaborative experiences.
+   *
+   * This tool has a number of features including:
+   * - Different drawing tools
+   * - Undo/redo
+   * - Layers panel
+   * - Blend modes/opacity on layers
+   * - Export art as SVG/PNG
+   * - Panning on canvas
+   * - Grid overlay
+   * - Multiplayer cursors
+   * Liveblocks also allows
    */
 
   // ================================================================================
   // SETUP
 
   /**
+   * Liveblocks allows each user to have "presence", essentially a set of
+   * properties specific to that users. An example would be the colour they've
+   * selected, or their cursor's location in coordinates. We can then use
+   * "others", a list of every other user's "presence", to build an app. We
+   * can use our custom hooks to watch and edit these.
+   *
    * This Svelte example uses a set of custom Svelte hooks (inside the
-   * `lib-liveblocks` directory), based on the Liveblocks React library:
+   * `src/lib-liveblocks` directory), based on the Liveblocks React library:
    * https://liveblocks.io/docs/api-reference/liveblocks-react
    */
 
@@ -47,6 +64,13 @@
     mouseDown: false,
   });
 
+  /**
+   * Liveblocks also allows for storage, essentially stored objects and arrays
+   * that are automatically updated for all users when they are changed. In
+   * this project, we're using two LiveObjects, a type of storage, to contain
+   * the colours of each pixel, and the state of each layer,
+   */
+
   // Two LiveObjects that will store the layer info and pixels
   // These are Svelte stores and can be accessed with a `$` prefix
   const layerStorage = useObject("layerStorage");
@@ -58,6 +82,7 @@
   /**
    * Pixels are stored inside pixelStorage as individual properties in an object
    * A red pixel on layer 0, row 1, column 2:
+   *
    * $pixelStorage = {
    *   0_1_2: { color: 'red' },
    *   // ...
