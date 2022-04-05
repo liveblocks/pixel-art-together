@@ -2,12 +2,12 @@
   export let keyType: "public" | "secret";
 
   if (keyType !== "public" && keyType !== "secret") {
-    console.error('Set key type to "public" or "secret" in ExampleWrapper props')
+    console.error("Set key type to \"public\" or \"secret\" in ExampleWrapper props");
   }
 
   const envVarName = `VITE_LIVEBLOCKS_${keyType.toUpperCase()}_KEY`;
 
-  const isRunningOnCodeSandbox = typeof process !== 'undefined' ? process.env.CODESANDBOX_SSE : false;
+  const isRunningOnCodeSandbox = typeof process !== "undefined" ? process.env.CODESANDBOX_SSE : false;
   const hasLiveblocksKey = import.meta.env.VITE_hasLiveblocksSecretKey || import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY || import.meta.env.VITE_LIVEBLOCKS_SECRET_KEY;
 </script>
 

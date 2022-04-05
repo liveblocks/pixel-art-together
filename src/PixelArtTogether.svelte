@@ -20,23 +20,6 @@
   import { Tool } from "./types";
 
   /**
-   *  TODO
-   *  tidy up other files
-   *  move layer u p l r buttons
-   *  check for liveblocks disconnects and force refresh
-   *
-   *  MAYBE
-   *  Save and fork button
-   *  make pill stand out more over it's own colour
-   *  save button above colour picker
-   *  new art button?
-   *  better avatars (diversity avatars)
-   *  look into gravatar or twitter api
-   *
-   *  https://pixelart.liveblocks.app/?room=be2b80ad5e83bc444f95b
-   */
-
-  /**
    * PIXEL ART TOGETHER is a multiplayer pixel editor. It works by using
    * Liveblocks (https://liveblocks.io), a set of tools helpful for
    * building collaborative experiences.
@@ -231,12 +214,12 @@
    * corner.
    */
 
-  // The different panels
+    // The different panels
   const panels = {
-    multiplayerPanel: null,
-    mainPanel: null,
-    toolsPanel: null,
-  };
+      multiplayerPanel: null,
+      mainPanel: null,
+      toolsPanel: null,
+    };
 
   // Pass current cursor position on panel, and current panel, to presence
   function handleMouseMove (event, area) {
@@ -376,7 +359,7 @@
         on:pointermove={e => handleMouseMove(e, 'toolsPanel')}
         on:pointerleave={handleMouseLeave}
         transition:fade
-        class="flex flex-col min-h-full h-full relative top-[-465px] md:top-0"
+        class="flex flex-col min-h-full h-full relative top-[-455px] md:top-0"
       >
         <BrushPanel
           on:brushChange={handleBrushChange}
@@ -385,6 +368,9 @@
         />
         <LayersPanel layers={layers} />
         <ExportsPanel />
+        <div class="xl:hidden -mt-2 mb-5">
+          <SharePanel />
+        </div>
         <MobileLinksPanel />
       </div>
     {/if}
