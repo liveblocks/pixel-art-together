@@ -17,8 +17,8 @@
   import SharePanel from "$lib/SharePanel.svelte";
   import LinksPanel from "$lib/LinksPanel.svelte";
   import PixelGrid from "$lib/PixelGrid.svelte";
+  import { Direction, Tool } from "./types";
   import Cursor from "$lib/Cursor.svelte";
-  import { Tool } from "./types";
 
   /**
    * PIXEL ART TOGETHER is a multiplayer pixel editor. It works by using
@@ -336,32 +336,51 @@
   $: mobileMenuTransform.set(mobileMenuOpen ? 100 : 0);
 
   // ================================================================================
-  // ASSORTED
+  // KEYBOARD SHORTCUTS
 
   // B for brush, F for fill, E for eraser, M for move, G for grid
+  // Arrow keys to move layers if showMove truthy
   // Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
   function handleKeyDown (event) {
     if (!event.ctrlKey) {
-      const keys = {
-        b: Tool.Brush,
-        f: Tool.Fill,
-        e: Tool.Eraser,
-      };
-      if ($myPresence && keys[event.key]) {
-        myPresence.update({ tool: keys[event.key] });
-      }
 
       if (event.key === "g") {
         showGrid = !showGrid;
+        return
       }
 
       if (event.key === "m") {
         showMove = !showMove;
+        return
+      }
+
+      // Change tool
+      const toolKeys = {
+        b: Tool.Brush,
+        f: Tool.Fill,
+        e: Tool.Eraser,
+      };
+      if ($myPresence && toolKeys[event.key]) {
+        myPresence.update({ tool: toolKeys[event.key] });
+        return
+      }
+
+      // If move tool enabled, move layer with arrow keys
+      const arrowKeys = {
+        ArrowUp: Direction.Up,
+        ArrowRight: Direction.Right,
+        ArrowDown: Direction.Down,
+        ArrowLeft: Direction.Left
+      };
+      if (showMove && arrowKeys[event.key]) {
+        const detail = { direction: arrowKeys[event.key] };
+        handleLayerMove({ detail });
       }
 
       return;
     }
 
+    // Undo/redo keys
     if (event.key.toLowerCase() === "z") {
       if (event.shiftKey) {
         redo();
