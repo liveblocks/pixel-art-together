@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-	export const prerender = true;
+  export const prerender = true;
 </script>
 
 <!--
@@ -8,7 +8,6 @@
   liveblocks-react library
   https://liveblocks.io/docs/api-reference/liveblocks-react#LiveblocksProvider
 -->
-
 <script lang="ts">
   import PixelArtTogether from "../PixelArtTogether.svelte";
   import { createRoomId } from "$lib/utils/createRoomId";
@@ -38,13 +37,10 @@
 {#if loaded}
   <!-- Provides Liveblocks hooks to children -->
   <LiveblocksProvider {client}>
-
     <!-- Create a room from id e.g. `sveltekit-pixel-art-758df70b5e94c13289df6` -->
-    <RoomProvider id={'sveltekit-pixel-art-' + id}>
-
+    <RoomProvider id={"sveltekit-pixel-art-" + id}>
       <!-- Main app component -->
       <PixelArtTogether />
-
     </RoomProvider>
   </LiveblocksProvider>
 {/if}

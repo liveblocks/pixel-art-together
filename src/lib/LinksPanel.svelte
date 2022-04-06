@@ -2,9 +2,15 @@
   import poweredByLiveblocks from "../../static/poweredbyliveblocks.svg";
 </script>
 
-<div class="flex xl:justify-end xl:mt-5 w-full mx-5 mb-16 md:mb-0 pb-1 md:pb-0">
-  <a class="focus-visible-style group overflow-hidden relative ring-transparent transition-all hover:ring-[color:var(--sl-color-primary-200)] ring-1 rounded-[7px] ring-inset " href="https://liveblocks.io" target="_blank">
-    <img alt="Powered by Liveblocks.io" src={poweredByLiveblocks}>
-    <div class="opacity-0 transition-opacity group-hover:opacity-20 mix-blend-darken inset-0 absolute bg-[color:var(--sl-color-primary-100)]"></div>
+<div class="mx-5 mb-16 flex w-full pb-1 md:mb-0 md:pb-0 xl:mt-5 xl:justify-end">
+  <a
+    class="focus-visible-style group relative overflow-hidden rounded-[7px] ring-1 ring-inset ring-transparent transition-all hover:ring-[color:var(--sl-color-primary-200)] "
+    href="https://liveblocks.io"
+    target="_blank"
+  >
+    <img alt="Powered by Liveblocks.io" src={poweredByLiveblocks} />
+    <div
+      class="absolute inset-0 bg-[color:var(--sl-color-primary-100)] opacity-0 mix-blend-darken transition-opacity group-hover:opacity-20"
+    ></div>
   </a>
 </div>

@@ -18,12 +18,12 @@
   let height: number = 16;
 
   // Prevent dialog closing
-  function cancelClose (event) {
+  function cancelClose(event) {
     event.preventDefault();
   }
 
   // Submit dialog events
-  function submitDialog () {
+  function submitDialog() {
     if (shouldCreateCanvas) {
       dispatch("createCanvas", { name, width, height });
     } else {
@@ -33,7 +33,7 @@
   }
 
   // Submit dialog when return key pressed in input
-  function handleInputKeyDown ({ code }) {
+  function handleInputKeyDown({ code }) {
     if (code === "Enter") {
       setTimeout(() => submitDialog(), 20);
     }
@@ -57,45 +57,74 @@
   });
 </script>
 
-<sl-dialog bind:this={dialog} label="Create a pixel canvas" no-header open style="--width: 300px;">
+<sl-dialog
+  bind:this={dialog}
+  label="Create a pixel canvas"
+  no-header
+  open
+  style="--width: 300px;"
+>
   <div class="flex flex-col">
-    <h1 class="text-2xl mt-2.5">
-      <img alt="Pixel art together" class="max-w-full block mx-auto" src={logo} />
+    <h1 class="mt-2.5 text-2xl">
+      <img
+        alt="Pixel art together"
+        class="mx-auto block max-w-full"
+        src={logo}
+      />
     </h1>
 
     <sl-input
       class="mt-5"
       on:keydown={handleInputKeyDown}
-      on:sl-input={e => name = e.target.value}
+      on:sl-input={(e) => (name = e.target.value)}
       placeholder="Enter your name"
       value={name}
     >
-      <div class="text-sm font-semibold pb-1.5 text-gray-500" slot="label">Name</div>
+      <div class="pb-1.5 text-sm font-semibold text-gray-500" slot="label">
+        Name
+      </div>
     </sl-input>
 
     {#if shouldCreateCanvas && !loading}
-      <div class="flex gap-4 items-end mt-5">
-        <div class="flex-grow flex-shrink">
-          <sl-range min={pixelSizeMin} max={pixelSizeMax} value={height} on:sl-change={e => height = e.target.__value}>
-            <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Height</div>
+      <div class="mt-5 flex items-end gap-4">
+        <div class="flex-shrink flex-grow">
+          <sl-range
+            min={pixelSizeMin}
+            max={pixelSizeMax}
+            value={height}
+            on:sl-change={(e) => (height = e.target.__value)}
+          >
+            <div slot="label" class="pb-1 text-sm font-semibold text-gray-500">
+              Height
+            </div>
           </sl-range>
         </div>
-        <div class="w-6 text-right text-lg font-medium text-gray-600">{height}</div>
+        <div class="w-6 text-right text-lg font-medium text-gray-600">
+          {height}
+        </div>
       </div>
 
-      <div class="flex gap-4 items-end mb-2 mt-5">
-        <div class="flex-grow flex-shrink">
-          <sl-range min={pixelSizeMin} max={pixelSizeMax} value={width} on:sl-change={e => width = e.target.__value}>
-            <div slot="label" class="text-sm font-semibold pb-1 text-gray-500">Width</div>
+      <div class="mb-2 mt-5 flex items-end gap-4">
+        <div class="flex-shrink flex-grow">
+          <sl-range
+            min={pixelSizeMin}
+            max={pixelSizeMax}
+            value={width}
+            on:sl-change={(e) => (width = e.target.__value)}
+          >
+            <div slot="label" class="pb-1 text-sm font-semibold text-gray-500">
+              Width
+            </div>
           </sl-range>
         </div>
-        <div class="w-6 text-right text-lg font-medium text-gray-600">{width}</div>
+        <div class="w-6 text-right text-lg font-medium text-gray-600">
+          {width}
+        </div>
       </div>
     {/if}
 
     <sl-button class="mt-5" {loading} on:click={submitDialog} variant="primary">
-      {shouldCreateCanvas ? 'Create canvas' : 'Set name'}
+      {shouldCreateCanvas ? "Create canvas" : "Set name"}
     </sl-button>
-
   </div>
 </sl-dialog>

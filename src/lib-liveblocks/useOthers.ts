@@ -14,11 +14,11 @@ import { useRoom } from "./useRoom";
  * {#each [...$others] as other}
  *    ...
  */
-export function useOthers (): Writable<Others> {
+export function useOthers(): Writable<Others> {
   const room = useRoom();
   const others = writable<Others>();
 
-  const unsubscribe = room.subscribe("others", newOthers => {
+  const unsubscribe = room.subscribe("others", (newOthers) => {
     others.set(newOthers);
   });
 

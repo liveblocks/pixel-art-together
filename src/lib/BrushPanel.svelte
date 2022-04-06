@@ -6,14 +6,14 @@
 
   // Allows changing color value outside of component
   let colorValue: string = "";
-  export let updateColor = (hex: string) => colorValue = hex;
+  export let updateColor = (hex: string) => (colorValue = hex);
 
   export let swatch: string[] = [];
 
   const dispatch = createEventDispatcher();
   const myPresence = useMyPresence();
 
-  let colorPicker: { getFormattedValue, swatches };
+  let colorPicker: { getFormattedValue; swatches };
 
   // Default brush
   let brush: Brush = {
@@ -29,7 +29,9 @@
   $: dispatch("brushChange", brush);
   onMount(async () => {
     dispatch("brushChange", brush);
-    await import("@shoelace-style/shoelace/dist/components/color-picker/color-picker.js");
+    await import(
+      "@shoelace-style/shoelace/dist/components/color-picker/color-picker.js"
+    );
     applyCustomStyles(colorPicker);
   });
 
@@ -38,7 +40,7 @@
   }
 
   // Workaround for custom elements
-  function applyCustomStyles (host) {
+  function applyCustomStyles(host) {
     const style = document.createElement("style");
     style.innerHTML = `
       .color-picker__controls, .color-picker__user-input, .color-picker__swatches { padding-left: 0 !important; padding-right: 0 !important; }
@@ -50,7 +52,7 @@
   }
 
   // When color changes, update presence
-  function colorChange ({ target }) {
+  function colorChange({ target }) {
     if (!colorPicker) {
       return;
     }
@@ -74,7 +76,7 @@
 </script>
 
 <div class="p-5 pb-2">
-  <div class="text-sm font-semibold pb-3 text-gray-500">Colour</div>
+  <div class="pb-3 text-sm font-semibold text-gray-500">Colour</div>
   <div>
     <sl-color-picker
       bind:this={colorPicker}

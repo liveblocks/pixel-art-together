@@ -1,16 +1,19 @@
 import { Direction } from "../../types";
 
-export function getMovePixels ({ detail, selected, keyToPixel, pixelStorage }) {
+export function getMovePixels({ detail, selected, keyToPixel, pixelStorage }) {
   const direction: Direction = detail.direction;
 
   const newLayer = [];
   const pixelKeys = Object.keys(pixelStorage)
-    .map(pixelKey => ({ ...keyToPixel(pixelKey), value: pixelStorage[pixelKey] }))
+    .map((pixelKey) => ({
+      ...keyToPixel(pixelKey),
+      value: pixelStorage[pixelKey],
+    }))
     .filter(({ layer }) => layer === selected);
 
   let maxCol = 0;
   let maxRow = 0;
-  pixelKeys.forEach(pixel => {
+  pixelKeys.forEach((pixel) => {
     if (pixel.col > maxCol) {
       maxCol = pixel.col;
     }
@@ -21,42 +24,44 @@ export function getMovePixels ({ detail, selected, keyToPixel, pixelStorage }) {
 
   if (direction === Direction.Up || direction === Direction.Down) {
     const up = direction === Direction.Up;
-    pixelKeys.forEach(pixel => {
+    pixelKeys.forEach((pixel) => {
       const newRowIndex = up ? pixel.row - 1 : pixel.row + 1;
       if (newRowIndex >= 0 && newRowIndex <= maxRow) {
-        newLayer.push(({
+        newLayer.push({
           ...pixel,
           row: newRowIndex,
-        }));
+        });
       }
     });
 
     const newRow = Array.from({ length: maxCol + 1 });
-    newRow.map((_, index) => ({
-      col: index,
-      row: up ? maxRow : 0,
-      value: { color: "transparent" },
-    })).forEach(pixel => newLayer.push(pixel));
-
+    newRow
+      .map((_, index) => ({
+        col: index,
+        row: up ? maxRow : 0,
+        value: { color: "transparent" },
+      }))
+      .forEach((pixel) => newLayer.push(pixel));
   } else {
-
     const left = direction === Direction.Left;
-    pixelKeys.forEach(pixel => {
+    pixelKeys.forEach((pixel) => {
       const newColIndex = left ? pixel.col - 1 : pixel.col + 1;
       if (newColIndex >= 0 && newColIndex <= maxCol) {
-        newLayer.push(({
+        newLayer.push({
           ...pixel,
           col: newColIndex,
-        }));
+        });
       }
     });
 
     const newCol = Array.from({ length: maxCol + 1 });
-    newCol.map((_, index) => ({
-      col: left ? maxRow : 0,
-      row: index,
-      value: { color: "transparent" },
-    })).forEach(pixel => newLayer.push(pixel));
+    newCol
+      .map((_, index) => ({
+        col: left ? maxRow : 0,
+        row: index,
+        value: { color: "transparent" },
+      }))
+      .forEach((pixel) => newLayer.push(pixel));
   }
 
   return newLayer;

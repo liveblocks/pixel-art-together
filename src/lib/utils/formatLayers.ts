@@ -26,15 +26,22 @@
  * ]
  */
 
-export function formatLayers ({ pixelStorage, layerStorage, keyToPixel, getPixel }) {
+export function formatLayers({
+  pixelStorage,
+  layerStorage,
+  keyToPixel,
+  getPixel,
+}) {
   let layers = [];
   if (pixelStorage && layerStorage) {
-    const currentPixels = Object.keys(pixelStorage)
-      .map(key => ({ key, ...keyToPixel(key) }));
+    const currentPixels = Object.keys(pixelStorage).map((key) => ({
+      key,
+      ...keyToPixel(key),
+    }));
 
-    layers = Object.values(layerStorage).map(layer => {
+    layers = Object.values(layerStorage).map((layer) => {
       const grid = [];
-      currentPixels.forEach(pixel => {
+      currentPixels.forEach((pixel) => {
         // @ts-ignore TODO
         if (layer.id !== pixel.layer) return;
         if (!grid[pixel.row]) grid[pixel.row] = [];

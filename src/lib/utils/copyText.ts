@@ -1,19 +1,21 @@
-export function copyUrlToClipboard () {
+export function copyUrlToClipboard() {
   copyTextToClipboard(window.location.href);
 }
 
-export function copyTextToClipboard (text: string) {
+export function copyTextToClipboard(text: string) {
   if (!navigator.clipboard) {
     fallbackCopyTextToClipboard(text);
     return;
   }
-  navigator.clipboard.writeText(text).then(function() {
-  }, function(err) {
-    console.error("Unable to copy", err);
-  });
+  navigator.clipboard.writeText(text).then(
+    () => {},
+    function (err) {
+      console.error("Unable to copy", err);
+    }
+  );
 }
 
-function fallbackCopyTextToClipboard (text: string) {
+function fallbackCopyTextToClipboard(text: string) {
   var textArea = document.createElement("textarea");
   textArea.value = text;
 

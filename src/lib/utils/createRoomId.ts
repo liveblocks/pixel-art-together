@@ -1,4 +1,4 @@
-export function createRoomId (): string {
+export function createRoomId(): string {
   let id = new URLSearchParams(window.location.search).get("room");
   if (!id) {
     id = randomId();
@@ -7,8 +7,8 @@ export function createRoomId (): string {
   return id;
 }
 
-function randomId (): string {
+function randomId(): string {
   return "xxxxxxxxxxxxxxxxxxxxx".replace(/[x]/g, () => {
-    return (Math.random() * 16 | 0).toString(16);
+    return ((Math.random() * 16) | 0).toString(16);
   });
 }

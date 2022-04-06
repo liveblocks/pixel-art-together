@@ -19,15 +19,15 @@ import { useRoom } from "./useRoom";
  * it takes an object and works like `useUpdateMyPresence` in Liveblocks
  */
 
-export function useMyPresence (): any {
+export function useMyPresence(): any {
   const room = useRoom();
   const { subscribe, set } = writable<Presence>();
 
-  function update (newPresence) {
+  function update(newPresence) {
     room.updatePresence(newPresence);
   }
 
-  const unsubscribePresence = room.subscribe("my-presence", presence => {
+  const unsubscribePresence = room.subscribe("my-presence", (presence) => {
     set(presence);
   });
 

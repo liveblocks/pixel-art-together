@@ -9,7 +9,7 @@
   const dispatch = createEventDispatcher();
   const myPresence = useMyPresence();
 
-  let colorPicker: { getFormattedValue, swatches };
+  let colorPicker: { getFormattedValue; swatches };
   let colorValue: string = "";
 
   // Default brush
@@ -26,7 +26,9 @@
   $: dispatch("brushChange", brush);
   onMount(async () => {
     dispatch("brushChange", brush);
-    await import("@shoelace-style/shoelace/dist/components/color-picker/color-picker.js");
+    await import(
+      "@shoelace-style/shoelace/dist/components/color-picker/color-picker.js"
+    );
     colorPicker.swatches = swatch;
   });
 
@@ -35,7 +37,7 @@
   }
 
   // When color changes, update presence
-  function colorChange ({ target }) {
+  function colorChange({ target }) {
     let col = target.value;
     if (col[0] !== "#") {
       col = colorPicker.getFormattedValue("hex");
