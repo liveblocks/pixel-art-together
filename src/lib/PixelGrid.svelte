@@ -186,7 +186,7 @@
 >
   <div
     bind:this={panElement}
-    class="absolute inset-0 flex items-center justify-center px-4 py-8 pb-4 lg:px-12 lg:py-12"
+    class="absolute inset-0 flex items-center justify-center px-4 pt-8 pb-4 lg:px-12 lg:py-12"
   >
     <div
       bind:this={mainPanelWrapper}
@@ -306,7 +306,7 @@
 
         {#if showMove}
           <div
-            class="pointer-events-none absolute -inset-5 flex flex-col items-stretch"
+            class="pointer-events-none absolute -inset-3 lg:-inset-5 flex flex-col items-stretch"
             transition:fade={{ duration: 100 }}
           >
             <div class="pointer-events-auto flex items-center justify-center">
