@@ -6,7 +6,7 @@
   import ExampleWrapper from "$lib/ExampleWrapper.svelte";
 
   // Get and update correct vh unit
-  onMount(() => {
+  onMount(async () => {
     function onResize() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
@@ -15,6 +15,17 @@
     onResize();
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
+
+    // Avoid flash of undefined custom element in intro dialog
+    if (customElements?.whenDefined && Promise?.allSettled) {
+      await Promise.allSettled([
+        customElements.whenDefined("sl-dialog"),
+        customElements.whenDefined("sl-input"),
+        customElements.whenDefined("sl-range"),
+        customElements.whenDefined("sl-button")
+      ]);
+    }
+    document.body.classList.add("ready");
   });
 </script>
 
@@ -44,5 +55,14 @@
     --sl-color-primary-700: #be1b38;
     --sl-color-primary-800: #8a1c2f;
     --sl-color-primary-900: #520b18;
+  }
+
+  body {
+    opacity: 0;
+  }
+
+  body.ready {
+    opacity: 1;
+    transition: .25s opacity;
   }
 </style>
