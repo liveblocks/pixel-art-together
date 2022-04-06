@@ -51,6 +51,10 @@
 
   // When color changes, update presence
   function colorChange ({ target }) {
+    if (!colorPicker) {
+      return
+    }
+
     let col = target.value;
     if (col[0] !== "#") {
       col = colorPicker.getFormattedValue("hex");

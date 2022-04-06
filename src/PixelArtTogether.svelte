@@ -2,6 +2,7 @@
   import { fade } from "svelte/transition";
   import { spring } from "svelte/motion";
   import { useMyPresence, useObject, useOthers, useRedo, useSelf, useUndo } from "./lib-liveblocks";
+  import { getMovePixels } from "$lib/utils/getMovePixels";
   import { generateLayer } from "$lib/utils/generateLayer";
   import { getFillPixels } from "$lib/utils/getFillPixels";
   import { formatLayers } from "$lib/utils/formatLayers";
@@ -71,8 +72,8 @@
    * the colours of each pixel, and the state of each layer,
    */
 
-  // Two LiveObjects that will store the layer info and pixels
-  // These are Svelte stores and can be accessed with a `$` prefix
+    // Two LiveObjects that will store the layer info and pixels
+    // These are Svelte stores and can be accessed with a `$` prefix
   const layerStorage = useObject("layerStorage");
   const pixelStorage = useObject("pixelStorage");
 
@@ -95,7 +96,8 @@
   type PixelObject = {
     layer: number,
     row: number,
-    col: number
+    col: number,
+    value?: object
   }
 
   // Convert a pixel object into a pixel key
@@ -116,10 +118,10 @@
     return $pixelStorage.get(pixelToKey(pixelProps));
   };
 
-  // Update an array of pixels, with the same object
+  // Update an array of pixels, with the pixelArray.value object, or newObj if none set
   const updatePixels = (pixelArray: PixelObject[], newObj) => {
     const updatedPixels = {};
-    pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = newObj);
+    pixelArray.forEach(pixelProps => updatedPixels[pixelToKey(pixelProps)] = pixelProps.value || newObj);
     return $pixelStorage.update(updatedPixels);
   };
 
@@ -178,6 +180,9 @@
   // Is grid showing on canvas
   let showGrid = false;
 
+  // Are move tools showing on canvas
+  let showMove = false;
+
   // Will be bound to a function that allows the current color to be updated
   let updateBrushColor;
 
@@ -195,11 +200,11 @@
       return;
     }
 
-    let tool: Tool = $myPresence.tool;
-    let color = $myPresence.brush.color;
-    let selected = $myPresence.selectedLayer;
+    const tool: Tool = $myPresence.tool;
+    const color = $myPresence.brush.color;
+    const selected = $myPresence.selectedLayer;
 
-    let currentPixel = {
+    const currentPixel = {
       row: detail.row,
       col: detail.col,
       layer: selected,
@@ -227,6 +232,23 @@
       a.unshift(color);
       recentColors = a;
     }
+  }
+
+  // Move pixels by 1 pixel in detail.direction Direction
+  function handleLayerMove ({ detail }) {
+    if (!$myPresence?.brush?.color || !$pixelStorage || !canvasReady) {
+      return;
+    }
+
+    const selected = $myPresence.selectedLayer;
+    const movedLayer = getMovePixels({
+      pixelStorage: $pixelStorage?.toObject(),
+      detail,
+      selected,
+      keyToPixel
+    })
+
+    updatePixels(movedLayer, { color: "transparent" })
   }
 
   // ================================================================================
@@ -316,9 +338,27 @@
   // ================================================================================
   // ASSORTED
 
+  // B for brush, F for fill, E for eraser, M for move, G for grid
   // Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
   function handleKeyDown (event) {
     if (!event.ctrlKey) {
+      const keys = {
+        b: Tool.Brush,
+        f: Tool.Fill,
+        e: Tool.Eraser
+      }
+      if ($myPresence && keys[event.key]) {
+        myPresence.update({ tool: keys[event.key] })
+      }
+
+      if (event.key === "g") {
+        showGrid = !showGrid
+      }
+
+      if (event.key === "m") {
+        showMove = !showMove
+      }
+
       return;
     }
 
@@ -375,7 +415,7 @@
 
   <!-- Left panel, containing layers etc -->
   <div
-    class="side-panel fixed md:relative bg-white z-20 md:z-10 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
+    class="side-panel fixed md:relative overflow-x-hidden bg-white z-20 md:z-10 w-auto h-full md:min-w-[320px] md:!relative md:!translate-x-0 md:!w-auto right-full overflow-y-auto md:right-auto md:w-auto flex-grow-0 flex-shrink-0 bg-white border-gray-100 {mobileMenuOpen ? 'border-r-2 drop-shadow-xl' : ''}"
     id="tools-panel"
     style="transform: translateX({$mobileMenuTransform}%);">
     {#if layers && canvasReady}
@@ -415,27 +455,34 @@
         <!-- Buttons: left side -->
         <div class="flex gap-3">
           <sl-button-group>
-            <IconButton screenReader="Brush tool" toggled={$myPresence.tool === Tool.Brush} on:click={() => myPresence.update({ tool: 'brush' })}>
+            <IconButton screenReader="Brush tool (B)" toggled={$myPresence.tool === Tool.Brush} on:click={() => myPresence.update({ tool: 'brush' })}>
               <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z" />
               </svg>
             </IconButton>
-            <IconButton screenReader="Eraser tool" toggled={$myPresence.tool === Tool.Eraser} on:click={() => myPresence.update({ tool: 'eraser' })}>
+            <IconButton screenReader="Eraser tool (E)" toggled={$myPresence.tool === Tool.Eraser} on:click={() => myPresence.update({ tool: 'eraser' })}>
               <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z" />
               </svg>
             </IconButton>
-            <IconButton screenReader="Fill tool" toggled={$myPresence.tool === Tool.Fill} on:click={() => myPresence.update({ tool: 'fill' })}>
+            <IconButton screenReader="Fill tool (F)" toggled={$myPresence.tool === Tool.Fill} on:click={() => myPresence.update({ tool: 'fill' })}>
               <svg class="w-6 h-6 mt-[6px] scale-x-[-1]" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M19,11.5C19,11.5 17,13.67 17,15A2,2 0 0,0 19,17A2,2 0 0,0 21,15C21,13.67 19,11.5 19,11.5M5.21,10L10,5.21L14.79,10M16.56,8.94L7.62,0L6.21,1.41L8.59,3.79L3.44,8.94C2.85,9.5 2.85,10.47 3.44,11.06L8.94,16.56C9.23,16.85 9.62,17 10,17C10.38,17 10.77,16.85 11.06,16.56L16.56,11.06C17.15,10.47 17.15,9.5 16.56,8.94Z" />
               </svg>
             </IconButton>
           </sl-button-group>
-          <IconButton screenReader="Toggle grid" toggled={showGrid} on:click={() => showGrid = !showGrid}>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          </IconButton>
+          <sl-button-group>
+            <IconButton screenReader="Toggle grid (G)" toggled={showGrid} on:click={() => showGrid = !showGrid}>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </IconButton>
+            <IconButton screenReader="Toggle move (M)" toggled={showMove} on:click={() => showMove = !showMove}>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path transform="translate(10, -2.7) rotate(45) scale(0.95)" fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 110-2h4a1 1 0 011 1v4a1 1 0 11-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 112 0v1.586l2.293-2.293a1 1 0 011.414 1.414L6.414 15H8a1 1 0 110 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 110-2h1.586l-2.293-2.293a1 1 0 011.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+            </IconButton>
+          </sl-button-group>
         </div>
 
         <!-- Buttons: right side -->
@@ -461,7 +508,9 @@
       {#if canvasReady && layers?.[0].grid.length}
         <PixelGrid
           {showGrid}
+          {showMove}
           layers={layers}
+          on:layerMove={handleLayerMove}
           on:pixelChange={handlePixelChange}
           bind:mainPanelElement={panels.mainPanel}
         />

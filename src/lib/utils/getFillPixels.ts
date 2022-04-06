@@ -1,3 +1,4 @@
+// Find all neighbours, and neighbours of neighbours, with same color
 export function getFillPixels (initialPixel, grid) {
   const layer = initialPixel.layer;
   let pixels = [];

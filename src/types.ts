@@ -31,3 +31,10 @@ export enum Tool {
   Eraser = "eraser",
   Fill = "fill"
 }
+
+export enum Direction {
+  Up = "up",
+  Right = "right",
+  Down = "down",
+  Left = "left"
+}

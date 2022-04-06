@@ -1,11 +1,16 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
+  import { fade } from "svelte/transition"
   import { useHistory, useMyPresence } from "../lib-liveblocks";
+  import IconButton from "$lib/IconButton.svelte";
+  import { debounce } from "$lib/utils/debounce";
   import type { Layer } from "../types";
+  import { Direction } from "../types";
   import panzoom from "panzoom";
 
   export let layers: Layer[] = [];
   export let showGrid: boolean = false;
+  export let showMove: boolean = false;
   export let mainPanelElement;
 
   const dispatch = createEventDispatcher();
@@ -68,6 +73,13 @@
       hex,
     });
   }
+
+  // Move layer event
+  const layerMove = debounce(function (direction) {
+    dispatch("layerMove", {
+      direction
+    });
+  }, 100, true)
 
   function handleMouseDown () {
     mouseIsDown = true;
@@ -222,7 +234,7 @@
 
         <!-- Grid overlay -->
         {#if showGrid}
-          <div class="absolute inset-0 select-none pointer-events-none opacity-50 mix-blend-difference">
+          <div transition:fade={{ duration: 100 }} class="absolute inset-0 select-none pointer-events-none opacity-50 mix-blend-difference">
             <svg class="absolute inset-0" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern x="-0.5" y="-0.5" id="grid" width="{100 / rows}%" height="{100 / cols}%" patternUnits="userSpaceOnUse">
@@ -237,6 +249,41 @@
         {#if $myPresence}
           <div class="md:hidden absolute bottom-full left-0 mb-1.5 font-bold uppercase text-sm text-gray-500 tracking-wider">
             Layer {$myPresence.selectedLayer}
+          </div>
+        {/if}
+
+        {#if showMove}
+          <div class="absolute -inset-5 flex flex-col items-stretch pointer-events-none" transition:fade={{ duration: 100 }}>
+            <div class="flex justify-center items-center pointer-events-auto">
+              <IconButton screenReader="Move up" on:click={() => layerMove(Direction.Up)}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+              </IconButton>
+            </div>
+            <div class="flex flex-grow justify-between items-center">
+              <div class="pointer-events-auto">
+                <IconButton screenReader="Move left" on:click={() => layerMove(Direction.Left)}>
+                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </IconButton>
+              </div>
+              <div class="pointer-events-auto">
+                <IconButton screenReader="Move right" on:click={() => layerMove(Direction.Right)}>
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                </IconButton>
+              </div>
+            </div>
+            <div class="flex justify-center items-center pointer-events-auto">
+              <IconButton screenReader="Move down" on:click={() => layerMove(Direction.Down)}>
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+              </IconButton>
+            </div>
           </div>
         {/if}
 
