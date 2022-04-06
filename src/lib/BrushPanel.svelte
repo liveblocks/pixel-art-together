@@ -32,6 +32,7 @@
     await import(
       "@shoelace-style/shoelace/dist/components/color-picker/color-picker.js"
     );
+    colorValue = '#fa3030'
     applyCustomStyles(colorPicker);
   });
 
@@ -61,6 +62,7 @@
     if (col[0] !== "#") {
       col = colorPicker.getFormattedValue("hex");
     }
+
     brush = {
       color: col,
       opacity: parseInt(target.alpha),
@@ -69,6 +71,7 @@
       lightness: parseInt(target.lightness),
       rgb: hexToRgb(col.slice(0, 7)),
     };
+
     if ($myPresence.tool === "eraser") {
       myPresence.update({ tool: "brush" });
     }

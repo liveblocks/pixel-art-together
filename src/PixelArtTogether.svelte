@@ -352,7 +352,7 @@
   // Arrow keys to move layers if showMove truthy
   // Ctrl+Z for undo. Ctrl+Shift+Z and Ctrl+Y for redo.
   function handleKeyDown(event) {
-    if (!event.ctrlKey) {
+    if (!event.ctrlKey && !event.metaKey) {
       if (event.key === "g") {
         showGrid = !showGrid;
         return;

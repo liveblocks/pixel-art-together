@@ -54,12 +54,10 @@
     <!-- Text -->
     <div class="pl-3">
       <div class="mr-3 font-medium">
-        {name}
-        {#if isYou}&nbsp;(you){/if}
+        {name}{#if isYou}&nbsp;(you){/if}
       </div>
       <div class="mr-3.5 w-full max-w-[150px] truncate text-sm text-gray-500">
-        <span class="font-semibold">Layer {selectedLayer}</span>
-        {#if !short}, {getColorName(brush.color.slice(0, 7))}{/if}
+        <span class="font-semibold">Layer {selectedLayer}</span>{#if !short}, {getColorName(brush.color.slice(0, 7))}{/if}
       </div>
     </div>
   </div>
