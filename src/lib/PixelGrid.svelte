@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { fade } from "svelte/transition"
+  import { fade } from "svelte/transition";
   import { useHistory, useMyPresence } from "../lib-liveblocks";
   import IconButton from "$lib/IconButton.svelte";
   import { debounce } from "$lib/utils/debounce";
@@ -75,11 +75,11 @@
   }
 
   // Move layer event
-  const layerMove = debounce(function (direction) {
+  const layerMove = debounce(function(direction) {
     dispatch("layerMove", {
-      direction
+      direction,
     });
-  }, 100, true)
+  }, 100, true);
 
   function handleMouseDown () {
     mouseIsDown = true;

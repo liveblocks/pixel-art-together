@@ -22,7 +22,7 @@
     import("@shoelace-style/shoelace/dist/components/menu/menu.js");
     import("@shoelace-style/shoelace/dist/components/dropdown/dropdown.js");
     await import("@shoelace-style/shoelace/dist/components/range/range.js");
-    rangeElement.tooltipFormatter = value => `Opacity: ${value}%`
+    rangeElement.tooltipFormatter = value => `Opacity: ${value}%`;
   });
 
   function getLayerIndexFromSelected () {

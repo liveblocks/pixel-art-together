@@ -52,7 +52,7 @@
   // When color changes, update presence
   function colorChange ({ target }) {
     if (!colorPicker) {
-      return
+      return;
     }
 
     let col = target.value;

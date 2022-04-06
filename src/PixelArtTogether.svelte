@@ -245,10 +245,10 @@
       pixelStorage: $pixelStorage?.toObject(),
       detail,
       selected,
-      keyToPixel
-    })
+      keyToPixel,
+    });
 
-    updatePixels(movedLayer, { color: "transparent" })
+    updatePixels(movedLayer, { color: "transparent" });
   }
 
   // ================================================================================
@@ -345,18 +345,18 @@
       const keys = {
         b: Tool.Brush,
         f: Tool.Fill,
-        e: Tool.Eraser
-      }
+        e: Tool.Eraser,
+      };
       if ($myPresence && keys[event.key]) {
-        myPresence.update({ tool: keys[event.key] })
+        myPresence.update({ tool: keys[event.key] });
       }
 
       if (event.key === "g") {
-        showGrid = !showGrid
+        showGrid = !showGrid;
       }
 
       if (event.key === "m") {
-        showMove = !showMove
+        showMove = !showMove;
       }
 
       return;
