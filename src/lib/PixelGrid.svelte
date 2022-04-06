@@ -186,7 +186,7 @@
 >
   <div
     bind:this={panElement}
-    class="absolute inset-0 flex items-center justify-center p-12"
+    class="absolute inset-0 flex items-center justify-center px-4 py-8 pb-4 lg:px-12 lg:py-12"
   >
     <div
       bind:this={mainPanelWrapper}
