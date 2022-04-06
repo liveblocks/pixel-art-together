@@ -32,7 +32,7 @@
     await import(
       "@shoelace-style/shoelace/dist/components/color-picker/color-picker.js"
     );
-    colorValue = '#fa3030'
+    colorValue = '#fa3030';
     applyCustomStyles(colorPicker);
   });
 
