@@ -391,12 +391,14 @@
 
     // Undo/redo keys
     if (event.key.toLowerCase() === "z") {
+      event.preventDefault();
       if (event.shiftKey) {
         redo();
       } else {
         undo();
       }
     } else if (event.key === "y") {
+      event.preventDefault();
       redo();
     }
   }
