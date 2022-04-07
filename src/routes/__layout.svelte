@@ -29,6 +29,14 @@
   });
 </script>
 
+<svelte:head>
+  <script
+    defer
+    data-domain={import.meta.env.VITE_ANALYTICS_DOMAIN}
+    src={import.meta.env.VITE_ANALYTICS_URL}
+  ></script>
+</svelte:head>
+
 <ExampleWrapper keyType="secret">
   <Header />
 
