@@ -5,6 +5,8 @@
   import { onMount } from "svelte";
   import ExampleWrapper from "$lib/ExampleWrapper.svelte";
 
+  let elementsReady = false;
+
   // Get and update correct vh unit
   onMount(async () => {
     function onResize() {
@@ -25,7 +27,8 @@
         customElements.whenDefined("sl-button")
       ]);
     }
-    document.body.classList.add("ready");
+    elementsReady = true;
+    //document.body.classList.add("ready");
   });
 </script>
 
@@ -38,9 +41,11 @@
 </svelte:head>
 
 <ExampleWrapper keyType="secret">
-  <Header />
+  <div class="transition-opacity" style="opacity: {elementsReady ? 1 : 0}">
+    <Header />
+  </div>
 
-  <main class="h-full w-full">
+  <main class="h-full w-full transition-opacity" style="opacity: {elementsReady ? 1 : 0}">
     <slot />
   </main>
 </ExampleWrapper>
@@ -63,14 +68,5 @@
     --sl-color-primary-700: #be1b38;
     --sl-color-primary-800: #8a1c2f;
     --sl-color-primary-900: #520b18;
-  }
-
-  body {
-    opacity: 0;
-  }
-
-  body.ready {
-    opacity: 1;
-    transition: .25s opacity;
   }
 </style>
