@@ -172,6 +172,8 @@
     mainPanelWrapper.style.height = height;
     mainPanelWrapper.style.width = width;
   }
+
+  console.log(layers);
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />
@@ -228,7 +230,7 @@
             xmlns="http://www.w3.org/2000/svg"
           >
             {#each layers as layer (layer.id)}
-              <!-- @const does calculation once instead of 4 times for each pixel -->
+              <!-- @const does calculation once, instead of 4 times for each pixel -->
               {@const colsIn100 = 100 / cols}
 
               <!-- A single layer -->

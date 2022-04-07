@@ -92,7 +92,7 @@
    * A red pixel on layer 0, row 1, column 2:
    *
    * $pixelStorage = {
-   *   0_1_2: { color: 'red' },
+   *   0_1_2: "red",
    *   // ...
    *   }
    */
@@ -121,16 +121,24 @@
   };
 
   // Get the current pixel, using a pixel object
+  // Includes fallback for a previous storage system
   const getPixel = (pixelProps: PixelObject) => {
-    return $pixelStorage.get(pixelToKey(pixelProps));
+    const stored = $pixelStorage.get(pixelToKey(pixelProps));
+    if (!stored) {
+      return { color: "transparent" };
+    }
+    if (typeof stored === "string") {
+      return { color: stored };
+    }
+    return stored;
   };
 
   // Update an array of pixels, with the pixelArray.value object, or newObj if none set
-  const updatePixels = (pixelArray: PixelObject[], newObj) => {
+  const updatePixels = (pixelArray: PixelObject[], newVal) => {
     const updatedPixels = {};
     pixelArray.forEach(
       (pixelProps) =>
-        (updatedPixels[pixelToKey(pixelProps)] = pixelProps.value || newObj)
+        (updatedPixels[pixelToKey(pixelProps)] = pixelProps.value || newVal)
     );
     return $pixelStorage.update(updatedPixels);
   };
@@ -167,7 +175,7 @@
         layer: 0,
         rows: detail.height,
         cols: detail.width,
-        defaultObject: { color: "transparent" },
+        defaultValue: "",
       });
       $pixelStorage.update(defaultLayer);
       $layerStorage.set(0, {
@@ -232,9 +240,7 @@
       ];
     }
 
-    updatePixels(pixelsToChange, {
-      color: tool === Tool.Eraser ? "transparent" : color,
-    });
+    updatePixels(pixelsToChange, tool === Tool.Eraser ? "" : color);
 
     if (!recentColors.includes(color)) {
       const a = recentColors;
@@ -258,7 +264,7 @@
       keyToPixel,
     });
 
-    updatePixels(movedLayer, { color: "transparent" });
+    updatePixels(movedLayer, "");
   }
 
   // ================================================================================
@@ -692,7 +698,7 @@
                   short={true}
                 />
               </div>
-              <div class="w-full flex-grow" />
+              <div class="w-full flex-grow"></div>
             </div>
             <div
               class="transparent-bg relative -ml-2 block h-10 w-10 rounded-full ring-4 ring-white md:hidden"

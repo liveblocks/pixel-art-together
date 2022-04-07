@@ -128,7 +128,7 @@
       layer: newId,
       cols: layers[0].grid.length,
       rows: layers[0].grid[0].length,
-      defaultObject: { color: "transparent" },
+      defaultValue: "",
     });
 
     // Batching changes means one undo click will reverse all
@@ -222,7 +222,7 @@
               id="opacity-changer"
               on:sl-change={handleOpacityChange}
               bind:this={rangeElement}
-            />
+            ></sl-range>
           </div>
         </div>
       {/if}
