@@ -236,6 +236,7 @@
               <!-- A single layer -->
               <g
                 style="mix-blend-mode: {layer.blendMode};"
+                class="transition-opacity duration-150"
                 opacity={layer.hidden ? 0 : layer.opacity}
               >
                 {#each layer.grid as row, rowIndex}
