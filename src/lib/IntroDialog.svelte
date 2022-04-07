@@ -10,7 +10,7 @@
 
   // Min and max width/height for canvas
   let pixelSizeMin: number = 2;
-  let pixelSizeMax: number = 64;
+  let pixelSizeMax: number = 48;
 
   // Default name and sizes
   let name: string = localStorage.getItem("name") || "";
