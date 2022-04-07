@@ -28,7 +28,6 @@
       ]);
     }
     elementsReady = true;
-    //document.body.classList.add("ready");
   });
 </script>
 
