@@ -13,6 +13,7 @@
   import type { Layer } from "../types";
 
   export let layers: Layer[] = [];
+  export let maxPixels: number = 2600;
 
   const dispatch = createEventDispatcher();
   const myPresence = useMyPresence();
@@ -21,6 +22,9 @@
 
   const layerStorage = useObject("layerStorage");
   const pixelStorage = useObject("pixelStorage");
+
+  const layerPixelCount = layers[0].grid.length * layers[0].grid[0].length;
+  $: willExceedPixelCount = (layers.length + 1) * layerPixelCount > maxPixels;
 
   onMount(async () => {
     import("@shoelace-style/shoelace/dist/components/menu-item/menu-item.js");
@@ -126,8 +130,8 @@
 
     const generatedLayer = generateLayer({
       layer: newId,
-      cols: layers[0].grid.length,
-      rows: layers[0].grid[0].length,
+      cols: layers[0].grid[0].length,
+      rows: layers[0].grid.length,
       defaultValue: "",
     });
 
@@ -153,7 +157,14 @@
     }
 
     if (Object.values($layerStorage.toObject()).length > 1) {
-      $layerStorage.delete("" + id);
+      batch(() => {
+        $layerStorage.delete("" + id);
+        for (let row = 0; row < layers[0].grid.length; row++) {
+          for (let col = 0; col < layers[0].grid[0].length; col++) {
+            $pixelStorage.delete(`${id}_${row}_${col}`);
+          }
+        }
+      })
       selectTopLayer();
     }
   }
@@ -228,32 +239,58 @@
       {/if}
 
       <!-- New layer bar -->
-      <button
-        class="focus-visible-style group relative block flex w-full cursor-pointer select-none bg-gray-50 px-2 py-2.5 focus-visible:z-10"
-        on:click={addLayer}
-      >
-        <span
-          class="pr-2 text-gray-400 transition-colors group-hover:text-gray-600"
+      {#if !willExceedPixelCount}
+        <button
+          class="focus-visible-style group relative block flex w-full cursor-pointer select-none bg-gray-50 px-2 py-2.5 focus-visible:z-10"
+          on:click={addLayer}
         >
-          <svg
-            class="h-5 w-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
+          <span
+            class="pr-2 text-gray-400 transition-colors group-hover:text-gray-600"
           >
-            <path
-              clip-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-              fill-rule="evenodd"
-            />
-          </svg>
-        </span>
-        <span
-          class="font-semibold text-gray-500 transition-colors group-hover:text-gray-700"
+            <svg
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clip-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                fill-rule="evenodd"
+              />
+            </svg>
+          </span>
+          <span
+            class="font-semibold text-gray-500 transition-colors group-hover:text-gray-700"
+          >
+            Add new layer
+          </span>
+        </button>
+      {:else}
+        <div
+          class="relative block flex w-full select-none bg-gray-50 px-2 py-2.5 cursor-not-allowed"
         >
-          Add new layer
-        </span>
-      </button>
+          <span
+            class="pr-2 text-red-400 transition-colors group-hover:text-gray-600"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clip-rule="evenodd"
+                d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"
+                fill-rule="evenodd"
+              />
+            </svg>
+          </span>
+          <span
+            class="font-semibold text-red-500"
+          >
+            Pixel limit reached
+          </span>
+        </div>
+      {/if}
 
       <!-- All layers -->
       <div class="flex flex-col-reverse">

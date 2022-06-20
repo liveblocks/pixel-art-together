@@ -4,6 +4,7 @@
 
   export let shouldCreateCanvas: boolean = false;
   export let loading: boolean = true;
+  export let maxPixels: number = 2600;
 
   const dispatch = createEventDispatcher();
   let dialog;
@@ -16,6 +17,7 @@
   let name: string = localStorage.getItem("name") || "";
   let width: number = 16;
   let height: number = 16;
+  $: maxLayerCount = Math.floor(maxPixels / (width * height));
 
   // Prevent dialog closing
   function cancelClose(event) {
@@ -120,6 +122,10 @@
         <div class="w-6 text-right text-lg font-medium text-gray-600">
           {width}
         </div>
+      </div>
+
+      <div class="pt-3 text-sm font-semibold text-gray-500">
+        Maximum layers is <span class="text-gray-600 font-bold">{maxLayerCount}</span>
       </div>
     {/if}
 

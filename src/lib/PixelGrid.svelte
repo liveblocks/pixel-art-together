@@ -172,8 +172,6 @@
     mainPanelWrapper.style.height = height;
     mainPanelWrapper.style.width = width;
   }
-
-  console.log(layers);
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp} />

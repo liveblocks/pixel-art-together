@@ -87,6 +87,8 @@
   // ================================================================================
   // FORMAT LAYERS AND PIXELS
 
+  const maxPixels = 2600;
+
   /**
    * Pixels are stored inside pixelStorage as individual properties in an object
    * A red pixel on layer 0, row 1, column 2:
@@ -437,6 +439,7 @@
 {#if !nameSet}
   <div class="absolute inset-0 z-50 flex items-center justify-center">
     <IntroDialog
+      {maxPixels}
       loading={!$pixelStorage}
       shouldCreateCanvas={!canvasReady}
       on:createCanvas={createCanvas}
@@ -468,7 +471,7 @@
           bind:updateColor={updateBrushColor}
           swatch={recentColors}
         />
-        <LayersPanel {layers} />
+        <LayersPanel {layers} {maxPixels} />
         <ExportsPanel />
         <div class="-mt-2 mb-5 xl:hidden">
           <SharePanel />
