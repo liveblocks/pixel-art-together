@@ -8,7 +8,6 @@
   import { getContext, onDestroy, setContext } from "svelte";
 
   export let id: string;
-  export let defaultPresence = () => ({});
 
   if (!id) {
     throw new Error("RoomProvider requires an id");
@@ -17,7 +16,7 @@
   const client = getContext<Client>(clientSymbol);
 
   if (client) {
-    const room = client.enter(id, defaultPresence());
+    const room = client.enter(id, { initialPresence: {} });
 
     setContext<Room>(roomSymbol, room);
 
