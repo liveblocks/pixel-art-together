@@ -241,7 +241,7 @@
       <!-- New layer bar -->
       {#if !willExceedPixelCount}
         <button
-          class="focus-visible-style group relative block flex w-full cursor-pointer select-none bg-gray-50 px-2 py-2.5 focus-visible:z-10"
+          class="focus-visible-style group relative flex w-full cursor-pointer select-none bg-gray-50 px-2 py-2.5 focus-visible:z-10"
           on:click={addLayer}
         >
           <span
