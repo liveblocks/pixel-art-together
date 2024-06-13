@@ -100,7 +100,7 @@
 
       const firstIndex = $myPresence.selectedLayer;
       const oldLayer = $layerStorage.get("" + firstIndex);
-      const newLayer = { ...oldLayer, opacity: target.__value / 100 };
+      const newLayer = { ...oldLayer, opacity: target.value / 100 };
       $layerStorage.set("" + $myPresence.selectedLayer, newLayer);
     },
     100,
