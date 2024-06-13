@@ -94,7 +94,7 @@
             min={pixelSizeMin}
             max={pixelSizeMax}
             value={height}
-            on:sl-change={(e) => (height = e.target.__value)}
+            on:sl-change={(e) => (height = e.target.value)}
           >
             <div slot="label" class="pb-1 text-sm font-semibold text-gray-500">
               Height
@@ -112,7 +112,7 @@
             min={pixelSizeMin}
             max={pixelSizeMax}
             value={width}
-            on:sl-change={(e) => (width = e.target.__value)}
+            on:sl-change={(e) => (width = e.target.value)}
           >
             <div slot="label" class="pb-1 text-sm font-semibold text-gray-500">
               Width
@@ -125,7 +125,7 @@
       </div>
 
       <div class="pt-3 text-sm font-semibold text-gray-500">
-        Maximum layers is <span class="text-gray-600 font-bold">{maxLayerCount}</span>
+        Maximum layers are <span class="text-gray-600 font-bold">{maxLayerCount}</span>
       </div>
     {/if}
 
